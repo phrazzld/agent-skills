@@ -31,7 +31,7 @@ If an `Auto PR Feedback Digest` message is present in context, use it as the ini
    - Inline reply for review comments when possible
    - PR-level comment for outside-diff/general feedback
 9. Record trend signal:
-   - Run `/pr-trends` after merge/fix loop to watch repeated issue classes.
+   - Note repeated issue classes in commit message or PR comment for later pattern analysis.
 
 ## Reviewer response format
 

@@ -1,7 +1,6 @@
 ---
 name: llm-communication
 description: "Write effective LLM prompts, commands, and agent instructions. Goal-oriented over step-prescriptive. Role + Objective + Latitude pattern. Use when writing prompts, designing agents, building Pi commands, or reviewing LLM instructions."
-effort: high
 ---
 
 # Talking to LLMs

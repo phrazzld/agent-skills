@@ -1,7 +1,38 @@
+import * as fs from "node:fs";
+import * as nodePath from "node:path";
 import type { SearchRequest, SearchResult, ProviderAdapter } from "./provider-adapter";
 import type { QueryCache } from "./cache";
 import { dedupeByCanonicalUrl, normalizeQuery } from "./query-utils";
-import { appendLineWithRotation } from "../../extensions/shared/log-rotation";
+
+// Log rotation — inlined to avoid external dependency
+interface RotationOptions {
+  maxBytes: number;
+  maxBackups: number;
+  checkIntervalMs: number;
+}
+const _lastRotationCheck: Map<string, number> = new Map();
+async function appendLineWithRotation(
+  filePath: string,
+  line: string,
+  opts: RotationOptions,
+): Promise<void> {
+  await fs.promises.mkdir(nodePath.dirname(filePath), { recursive: true });
+  const now = Date.now();
+  const lastCheck = _lastRotationCheck.get(filePath) ?? 0;
+  if (now - lastCheck >= opts.checkIntervalMs) {
+    _lastRotationCheck.set(filePath, now);
+    try {
+      const stat = await fs.promises.stat(filePath);
+      if (stat.size >= opts.maxBytes) {
+        for (let i = opts.maxBackups - 1; i >= 1; i--) {
+          try { await fs.promises.rename(`${filePath}.${i}`, `${filePath}.${i + 1}`); } catch { /* skip */ }
+        }
+        try { await fs.promises.rename(filePath, `${filePath}.1`); } catch { /* skip */ }
+      }
+    } catch { /* file doesn't exist yet */ }
+  }
+  await fs.promises.appendFile(filePath, line, "utf8");
+}
 
 export interface OrchestratorOptions {
   cache?: QueryCache<SearchResult[]>;

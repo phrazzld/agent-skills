@@ -6,7 +6,7 @@ description: |
   Use when: deploying, shipping to production, releasing.
   Trigger: /deploy cloud, /deploy web, /deploy oss, /deploy all.
 argument-hint: <cloud|web|oss|all>
-model-invocable: false
+disable-model-invocation: true
 ---
 
 # /deploy

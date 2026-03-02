@@ -20,8 +20,8 @@ If the user asks to "open/create/make/update the PR" (or invokes a PR prompt/ski
 
 ## Core policy (non-negotiable)
 
-1. Never use inline `--body/-b` for markdown content.
-2. Always write markdown to a temp file first.
+1. Never use inline `--body/-b` for Markdown content.
+2. Always write Markdown to a temp file first.
 3. Use `--body-file/-F <path>` for write commands.
 4. Fetch back the posted content and verify formatting quality.
 

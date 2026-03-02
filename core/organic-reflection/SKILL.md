@@ -106,6 +106,7 @@ If no subagent support is available, run lanes sequentially.
 
 ## Candidate Artifacts (scored)
 | Idea | Type | Scope | Score | Why now/next/later |
+|---|---|---|---|---|
 
 ## Memory Strategy Notes
 

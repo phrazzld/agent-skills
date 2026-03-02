@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repo Is
 
-A unified skills monorepo (~74 skills) for multi-model AI agents (Claude, Codex, Gemini, Factory, Pi). Markdown-first (with helper scripts) — no application code, no tests, no CI. Skills are distributed to agent harnesses via symlinks.
+A unified skills monorepo (~74 skills) for multi-model AI agents (Claude, Codex, Gemini, Factory, Pi). Markdown-first, with some TypeScript helper scripts and tests (e.g., `core/web-search/`). Skills are distributed to agent harnesses via symlinks.
 
 ## Repo Structure
 

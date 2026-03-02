@@ -58,8 +58,8 @@ Provides retrieval-first web research with citations and recency controls.
 - Apply recency filters for time-sensitive queries
 
 ## Runtime Notes
-- Pi extension entrypoint: `extensions/web-search/index.ts`
-- CLI entrypoint (optional debug): `skills/web-search/cli.ts`
+- Pi extension entrypoint: `~/.pi/agent/extensions/web-search/` (loaded via settings.json)
+- CLI entrypoint (optional debug): `core/web-search/cli.ts`
 - Cache: `cache/web-search-cache.json` (TTL via `WEB_SEARCH_TTL_MS`)
 - Logs: `logs/web-search.ndjson` (size-rotated)
 - `PI_WEB_SEARCH_LOG_MAX_BYTES` / `PI_WEB_SEARCH_LOG_MAX_BACKUPS` / `PI_WEB_SEARCH_LOG_ROTATE_CHECK_MS`

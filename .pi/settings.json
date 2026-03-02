@@ -1,11 +1,11 @@
 {
   "packages": [],
   "extensions": [
-    "+/Users/phaedrus/.pi/agent/extensions/organic-workflows",
-    "+/Users/phaedrus/.pi/agent/extensions/profiles",
-    "+/Users/phaedrus/.pi/agent/extensions/subagent",
-    "+/Users/phaedrus/.pi/agent/extensions/orchestration",
-    "+/Users/phaedrus/.pi/agent/extensions/web-search"
+    "+~/.pi/agent/extensions/organic-workflows",
+    "+~/.pi/agent/extensions/profiles",
+    "+~/.pi/agent/extensions/subagent",
+    "+~/.pi/agent/extensions/orchestration",
+    "+~/.pi/agent/extensions/web-search"
   ],
   "skills": [],
   "prompts": [

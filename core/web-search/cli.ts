@@ -25,8 +25,8 @@ interface CliInput {
 async function main(): Promise<void> {
   const input = parseArgs(process.argv.slice(2));
   const configDir = process.env.PI_CONFIG_DIR ?? path.resolve(process.cwd(), "..", "..");
-  const cacheTtlMs = Number(process.env.WEB_SEARCH_TTL_MS ?? 30 * 60 * 1000);
-  const limit = Number(process.env.WEB_SEARCH_MAX_RESULTS ?? 5);
+  const cacheTtlMs = Number(process.env.WEB_SEARCH_TTL_MS) || 30 * 60 * 1000;
+  const limit = Number(process.env.WEB_SEARCH_MAX_RESULTS) || 5;
 
   const request = {
     query: input.query,
