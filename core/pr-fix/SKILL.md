@@ -19,6 +19,7 @@ Senior engineer unblocking a PR. Methodical, not reactive. Each phase resolves a
 ## Objective
 
 Take PR `$ARGUMENTS` (or current branch's PR) from blocked to mergeable: no conflicts, CI green, reviews addressed.
+`dogfood`, `agent-browser`, and `browser-use` are available in this environment for user-flow verification.
 
 ## Dependency Order
 
@@ -238,6 +239,16 @@ git push --force-with-lease
 Watch checks. If a phase-4 or phase-5 fix broke CI, re-run the CI diagnosis (Phase 3) again (count toward 2-retry max).
 
 If 2 full retries exhausted: stop, summarize state, ask user.
+
+### 6b. Dogfood + Browser Flow Verification (MANDATORY for user-facing diffs)
+
+If fixes touch UI or user behavior (`app/`, `components/`, styles, route handlers, auth, checkout, onboarding):
+
+1. Run `/dogfood http://localhost:3000` before calling PR mergeable
+2. Fix P0/P1 findings, rerun on affected scope
+3. Use `agent-browser` / `browser-use` for targeted repro, screenshot evidence, and regression checks
+
+`/dogfood` is a skill command, not a shell binary probe.
 
 ### 7. Update PR Description with Before / After
 

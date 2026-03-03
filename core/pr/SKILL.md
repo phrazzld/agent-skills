@@ -25,6 +25,7 @@ Create a draft PR from current branch. Link to issue, explain what/why/how.
 - Stage and commit any uncommitted changes with semantic message
 - Read linked issue from branch name or recent commits
 - Write PR body that explains decisions, not just changes
+- `dogfood`, `agent-browser`, and `browser-use` are available here; use them for flow QA evidence
 
 ## PR Body Requirements (MANDATORY)
 
@@ -83,6 +84,7 @@ Note any gaps: what ISN'T tested and why.
 2. **Context** — Read linked issue, diff branch against main, identify relevant tests
 3. **Visual QA** — If diff touches frontend files (`app/`, `components/`, `*.css`), run `/visual-qa`. Fix any P0/P1 issues before opening PR. Capture screenshots for Before/After section.
 4. **Dogfood QA** — Run `/dogfood http://localhost:3000` (start dev server first if not running).
+   `/dogfood` is a skill command (not a PATH CLI check). Use `agent-browser` / `browser-use` for focused repro as needed.
    Fix all P0/P1 issues found. Iterate until clean. **Do not open a PR until this passes.**
    Include dogfood summary (issues found, fixed) in PR body under Manual QA section.
 5. **Describe** — Title from issue, body follows PR Body Requirements above (capture before state FIRST, before making changes if possible)

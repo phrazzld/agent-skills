@@ -25,6 +25,7 @@ Implement Issue #`$ARGUMENTS`. Ship working, tested, committed code on a feature
 - Delegate ALL work to Codex by default (investigation AND implementation)
 - Keep only trivial one-liners where delegation overhead > benefit
 - If Codex goes off-rails, re-delegate with better direction
+- `dogfood`, `agent-browser`, and `browser-use` are available; use them to validate user-facing flows
 
 ## Startup
 
@@ -97,6 +98,16 @@ If the diff touches `app/`, `components/`, or `*.css` files:
 3. Note any P2 findings for the PR body
 
 Skip if: pure backend, pure config, no user-facing changes.
+
+## Dogfood QA (User-Facing Changes)
+
+If the issue changes user flows (UI, route handlers, auth, checkout, onboarding, coach UX):
+
+1. Run `/dogfood http://localhost:3000` after implementation and before final ship step
+2. Fix P0/P1 findings, then rerun dogfood on the affected scope
+3. Use `agent-browser` / `browser-use` for targeted repro and verification screenshots
+
+`/dogfood` is a skill command. Do not gate on `dogfood` shell binary availability.
 
 ## Issue Comments
 
