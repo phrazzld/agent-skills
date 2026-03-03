@@ -26,6 +26,7 @@ Transform working directory changes into well-organized, semantically meaningful
 - Confirm before non-obvious deletions
 - Split changes into logical commits (one change per commit)
 - Skip quality gates if `--quick` flag or no package.json
+- If diffs are user-facing, run browser QA (`/dogfood`, `/visual-qa`, `agent-browser`, `browser-use`) before push
 
 ## Workflow
 
@@ -34,7 +35,10 @@ Transform working directory changes into well-organized, semantically meaningful
 3. **Group** — Split into logical commits by type: `feat:`, `fix:`, `docs:`, `refactor:`, `perf:`, `test:`, `build:`, `ci:`, `chore:`
 4. **Commit** — One commit per group. Subject: imperative, lowercase, no period, ~50 chars. Body: why not what.
 5. **Quality** — Run available gates (`pnpm lint`, `typecheck`, `test`, `build`) unless `--quick`
+   - For user-facing diffs, run `/dogfood http://localhost:3000` and relevant `/visual-qa` route checks
 6. **Push** — `git fetch origin && git push origin HEAD` (rebase if behind)
+
+`/dogfood` is a skill command and is available in this environment even if no `dogfood` shell binary exists.
 
 ## Flags
 

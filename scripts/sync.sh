@@ -146,6 +146,38 @@ sync_pack() {
   local count=0
   for skill_dir in "$pack_dir"/*/; do
     [[ ! -d "$skill_dir" ]] && continue
+    local dir_name
+    dir_name="$(basename "$skill_dir")"
+
+    # Link audit-references into core/audit/references/ so orchestrators find them
+    if [[ "$dir_name" == "audit-references" ]]; then
+      local audit_refs_dir="$CORE_DIR/audit/references"
+      [[ ! -d "$audit_refs_dir" ]] && continue
+      for ref_file in "$skill_dir"*.md; do
+        [[ ! -f "$ref_file" ]] && continue
+        local ref_name
+        ref_name="$(basename "$ref_file")"
+        local ref_dst="$audit_refs_dir/$ref_name"
+        if [[ -L "$ref_dst" ]]; then
+          local current
+          current="$(readlink "$ref_dst")"
+          [[ "$current" == "$ref_file" ]] && continue
+          if dry; then
+            log "[dry] repoint $ref_dst -> $ref_file"
+          else
+            rm "$ref_dst"
+          fi
+        fi
+        if dry; then
+          log "[dry] ln -s $ref_file -> $ref_dst"
+        else
+          ln -s "$ref_file" "$ref_dst"
+        fi
+      done
+      log "Pack '$pack_name': audit-references linked into $audit_refs_dir"
+      continue
+    fi
+
     link_skill "$skill_dir" "$target_dir"
     ((count++))
   done

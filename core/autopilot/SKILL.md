@@ -27,6 +27,7 @@ and a clean dogfood QA pass.
 - You orchestrate, review, clean up, commit, ship
 - Flesh out incomplete issues yourself (spec, design)
 - Never skip an issue because it's "not ready" — YOU make it ready
+- `dogfood`, `agent-browser`, and `browser-use` are available in this environment; use them for user-flow validation
 
 ## Priority Selection
 
@@ -85,6 +86,10 @@ and a clean dogfood QA pass.
 ## Dogfood QA
 
 Run before every PR. No exceptions.
+
+`/dogfood` is an agent skill, not a shell binary. Invoke it as `/dogfood ...`.
+Do not run `dogfood --help` or declare it unavailable based on shell PATH.
+Use `agent-browser` / `browser-use` for focused manual repro and follow-up verification.
 
 ### Setup
 

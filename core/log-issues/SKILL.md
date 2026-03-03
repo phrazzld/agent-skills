@@ -1,9 +1,8 @@
 ---
 name: log-issues
 description: |
-  Audit a domain then create GitHub issues for all findings. Handles: stripe,
-  bitcoin, lightning, btcpay, docs, landing, observability, onboarding, posthog,
-  production, product-standards, bun, virality. Deduplicates against open issues.
+  Audit a domain then create GitHub issues for all findings. Domains discovered
+  dynamically from audit/references/*-checklist.md. Deduplicates against open issues.
   Invoke for: backlog creation from audit, issue triage, gap tracking.
 argument-hint: "<domain|--all>"
 disable-model-invocation: true
@@ -23,8 +22,8 @@ Audit a domain, create GitHub issues for every finding.
 
 ## Domains
 
-bitcoin, btcpay, bun, docs, landing, lightning, observability, onboarding,
-payments, posthog, product-standards, production, stripe, virality
+**Dynamic.** Scan `audit/references/*-checklist.md` for available domains.
+Core domains always present; pack domains appear after `sync.sh pack <name>`.
 
 ## Process
 

@@ -154,7 +154,7 @@ For each theme the user wants to explore, before making scoping decisions:
    - Use Gemini for web-grounded research where available
 
 2. **Cross-repo investigation** — Spawn agents to check other repos:
-   - `gh repo list misty-step --limit 20 --json name,url`
+   - `gh api user/orgs --jq '.[].login'` to detect org, then `gh repo list <org> --limit 20 --json name,url`
    - How did we solve this problem elsewhere?
    - Are there shared patterns or libraries to reuse?
    - Are there related issues in sibling repos?

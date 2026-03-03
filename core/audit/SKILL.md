@@ -1,11 +1,12 @@
 ---
 name: audit
 description: |
-  Audit any domain: stripe, bitcoin, lightning, btcpay, payments, docs, landing,
-  observability, onboarding, posthog, production, product-standards, virality, bun.
-  Run /audit <domain> for structured P0-P3 findings report. /audit --all for everything.
+  Audit any domain with a checklist in references/. Run /audit <domain> for
+  structured P0-P3 findings report. /audit --all for everything.
+  /audit --list to see available domains. Dynamic: pack checklists appear
+  when loaded via sync.sh.
   Invoke for: domain audit, compliance check, launch readiness, gap analysis.
-argument-hint: "<domain|--all>"
+argument-hint: "<domain|--all|--list>"
 disable-model-invocation: true
 ---
 
@@ -17,36 +18,32 @@ Structured domain audit. One skill, all domains.
 
 ```
 /audit stripe               # Audit Stripe integration
-/audit bitcoin               # Audit Bitcoin setup
 /audit production            # Audit production readiness
 /audit docs                  # Audit documentation
 /audit --all                 # Run all applicable domains
+/audit --list                # Show available domains
 ```
 
 ## Available Domains
 
-| Domain | Checklist |
-|--------|-----------|
-| bitcoin | `references/bitcoin-checklist.md` |
-| btcpay | `references/btcpay-checklist.md` |
-| bun | `references/bun-checklist.md` |
-| docs | `references/docs-checklist.md` |
-| landing | `references/landing-checklist.md` |
-| lightning | `references/lightning-checklist.md` |
-| observability | `references/observability-checklist.md` |
-| onboarding | `references/onboarding-checklist.md` |
-| payments | `references/payments-checklist.md` |
-| posthog | `references/posthog-checklist.md` |
-| product-standards | `references/product-standards-checklist.md` |
-| production | `references/production-checklist.md` |
-| stripe | `references/stripe-checklist.md` |
-| virality | `references/virality-checklist.md` |
+**Dynamic.** Domains are discovered by scanning `references/*-checklist.md`.
+
+Core domains ship with this skill. Pack domains (payments, growth, scaffold)
+appear after loading a pack via `sync.sh pack <name> <project>`, which
+symlinks pack checklists into `references/`.
+
+To list available domains:
+```bash
+ls audit/references/*-checklist.md | sed 's|.*references/||;s|-checklist.md||'
+```
 
 ## Process
 
 ### 1. Load Domain Checklist
 
 Read `references/{domain}-checklist.md` for the requested domain.
+
+If `--list`, scan `references/*-checklist.md` and list available domain names.
 
 If `--all`, load all checklist files. Auto-detect applicable domains from project
 (check package.json deps, config files, directory structure) and skip N/A domains.

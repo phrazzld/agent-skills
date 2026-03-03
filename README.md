@@ -1,6 +1,6 @@
 # Agent Skills
 
-74 deep skills for AI coding agents. Works with Claude Code, Codex, Gemini, Factory, and Pi.
+58 core skills + 4 domain packs for AI coding agents. Works with Claude Code, Codex, Gemini, Factory, and Pi.
 
 Skills are Markdown-first with a handful of Python helper scripts. No application code, no dependencies. They teach agents *how to work*: debugging methodology, PR workflows, design systems, incident response, and dozens of domain-specific playbooks.
 
@@ -8,7 +8,15 @@ Skills are Markdown-first with a handful of Python helper scripts. No applicatio
 
 AI agents are only as good as their instructions. Generic prompts produce generic work. These skills encode opinionated, battle-tested workflows that turn agents into effective teammates.
 
-**The budget problem:** Claude Code allocates ~16K chars for skill descriptions. Naive skill libraries overflow this budget and most skills get silently dropped. This repo solves it with three invocation modes:
+**The budget problem:** Claude Code allocates ~16K chars for skill descriptions. Naive skill libraries overflow this budget and most skills get silently dropped. This repo solves it with three tiers:
+
+| Tier | Location | Distribution | Budget cost |
+|------|----------|-------------|-------------|
+| **Core** (58) | `core/` | `sync.sh claude` → global | Per-mode |
+| **Pack** (19) | `packs/` | `sync.sh pack <name> <project>` → per-project | Per-mode |
+| **Repo-local** (5) | `<repo>/.claude/skills/` | Lives in destination repo | Per-mode |
+
+Invocation modes within each tier:
 
 | Mode | Triggered by | Budget cost |
 |------|-------------|-------------|
@@ -16,18 +24,22 @@ AI agents are only as good as their instructions. Generic prompts produce generi
 | **Reference** | Auto-loaded when relevant | Consumes budget |
 | **DMI** | User only (`/command`) | **Free** |
 
-Current split: 12 model-invocable + 14 references + 48 DMI = 74 total. Budget usage: 45%.
-
 ## Quick Start
 
 ```bash
 git clone https://github.com/phrazzld/agent-skills.git
 cd agent-skills
 
-# Sync to your agent harness
+# Sync core skills to your agent harness
 ./scripts/sync.sh claude    # → ~/.claude/skills/
 ./scripts/sync.sh codex     # → ~/.codex/skills/
 ./scripts/sync.sh all       # All harnesses
+
+# Load domain packs per-project
+./scripts/sync.sh pack payments ~/Development/cerberus
+./scripts/sync.sh pack growth ~/Development/cerberus-web
+./scripts/sync.sh pack scaffold ~/Development/new-project
+./scripts/sync.sh pack finance --global
 
 # Preview without changes
 ./scripts/sync.sh claude --dry-run
@@ -76,49 +88,74 @@ Three unified skills replace 36 domain-specific check/fix/log skills:
 
 Domains: bitcoin, btcpay, bun, docs, landing, lightning, observability, onboarding, payments, posthog, product-standards, production, stripe, virality.
 
-### Design & Brand
+### Design & Visual
 
 | Skill | Mode | Description |
 |-------|------|-------------|
 | `/design` | Model+User | Full design system: tokens, exploration, Vercel patterns |
-| `/brand` | DMI | Brand-as-code: discovery → tokens → assets → video |
-| `/content` | DMI | Write, edit, explore, publish, humanize |
-| `/growth` | DMI | Marketing, SEO, CRO, analytics, pricing |
+| `/visual-qa` | Model+User | Pre-commit visual regression |
+| `ui-skills` | Reference | Opinionated UI constraints |
+| `/visualize` | DMI | Visual HTML deliverables |
+| `pencil-renderer` | Reference | Pencil MCP rendering |
+| `/pencil-to-code` | DMI | Convert Pencil designs to code |
 
-### Payments & Infrastructure
-
-| Skill | Mode | Description |
-|-------|------|-------------|
-| `/stripe` | DMI | Complete Stripe lifecycle management |
-| `/changelog` | DMI | Changelog infrastructure and automation |
-| `/security-scan` | DMI | Whole-codebase vulnerability analysis |
-| `/sysadmin` | DMI | System health checks |
-| `database` | Reference | Schema design, migrations, Convex patterns |
-
-### AI & Media
-
-| Skill | Mode | Description |
-|-------|------|-------------|
-| `/llm-infrastructure` | Model+User | LLM evaluation, gateway routing, prompt ops |
-| `/ai-media` | DMI | Image/video generation (FLUX, Veo, Remotion, etc.) |
-
-### Browser & QA
+### Agent Infrastructure
 
 | Skill | Mode | Description |
 |-------|------|-------------|
 | `/agent-browser` | Model+User | Playwright CLI for AI agents |
+| `delegate` | Reference | Multi-AI orchestration primitive |
+| `agent-tools` | Reference | Agent tool patterns |
+| `/agentic-bootstrap` | DMI | Bootstrap `.pi/` for autonomous repos |
+| `prompt-context-engineering` | Reference | Production prompt design |
+| `llm-communication` | Reference | Effective LLM instructions |
+| `/llm-infrastructure` | Model+User | LLM evaluation, gateway routing, prompt ops |
+
+### Ops, Testing & Infrastructure
+
+| Skill | Mode | Description |
+|-------|------|-------------|
+| `/changelog` | DMI | Changelog infrastructure and automation |
+| `/security-scan` | DMI | Whole-codebase vulnerability analysis |
+| `/sysadmin` | DMI | System health checks |
+| `/sysadmin-ops` | DMI | Incident triage and recovery |
+| `/observability` | DMI | Observability setup |
 | `/dogfood` | DMI | Exploratory QA with repro evidence |
-| `/visual-qa` | Model+User | Pre-commit visual regression |
-| `/flywheel-qa` | DMI | PR verification on preview deploys |
 | `webapp-testing` | Reference | Playwright test patterns |
+| `database` | Reference | Schema design, migrations, Convex patterns |
+| `guardrail` | DMI | Safety rails |
 
 ### References (auto-loaded)
 
 `git-mastery` · `naming-conventions` · `external-integration-patterns` · `ui-skills` · `business-model-preferences` · `toolchain-preferences` · `next-patterns` · `database` · `delegate` · `cli-reference` · `ralph-patterns` · `skill-builder` · `agentic-ui-contract` · `webapp-testing`
 
-### Domain Tools (DMI)
+## Domain Packs
 
-`bitcoin` · `lightning` · `posthog` · `bun` · `observability` · `stripe` · `crypto-gains` · `tax-check` · `finances-*` · `moneta-*` · `pencil-*` · `thinktank` · `tune-repo` · `guardrail` · `issue` · `og-hero-image` · `audit-website` · `visualize` · `agent-tools` · scaffolds (`mobile-migrate`, `monorepo-scaffold`, `slack-app-scaffold`, `github-app-scaffold`)
+Packs are loaded per-project via `sync.sh pack <name> <project-dir>`.
+
+### payments (3 skills + 5 checklists)
+`bitcoin` · `lightning` · `stripe`
+
+### growth (7 skills + 3 checklists)
+`brand` · `content` · `growth` · `ai-media` · `og-hero-image` · `app-screenshots` · `audit-website`
+
+### scaffold (5 skills + 1 checklist)
+`github-app-scaffold` · `slack-app-scaffold` · `monorepo-scaffold` · `mobile-migrate` · `bun`
+
+### finance (4 skills)
+`finances-ingest` · `finances-report` · `finances-snapshot` · `crypto-gains`
+
+## Repo-Local Skills
+
+These skills are hardcoded to specific projects and live in their repos:
+
+| Skill | Repo |
+|-------|------|
+| `deploy` | `cerberus-mono/.claude/skills/` |
+| `flywheel-qa` | `caesar-in-a-year/.claude/skills/` |
+| `moneta-ingest` | `moneta/.claude/skills/` |
+| `moneta-reconcile` | `moneta/.claude/skills/` |
+| `tax-check` | `moneta/.claude/skills/` |
 
 ## Anatomy of a Skill
 

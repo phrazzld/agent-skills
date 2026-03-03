@@ -4,18 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repo Is
 
-A unified skills monorepo (~74 skills) for multi-model AI agents (Claude, Codex, Gemini, Factory, Pi). Markdown-first, with some TypeScript helper scripts and tests (e.g., `core/web-search/`). Skills are distributed to agent harnesses via symlinks.
+A unified skills monorepo for multi-model AI agents (Claude, Codex, Gemini, Factory, Pi). Markdown-first, with some TypeScript helper scripts and tests (e.g., `core/web-search/`). Skills are distributed to agent harnesses via symlinks.
+
+**58 core skills** (universal engineering) + **4 domain packs** (19 skills, loaded per-project) + **5 repo-local** (live in their own repos).
 
 ## Repo Structure
 
 ```
 agent-skills/
-├── core/           # ~74 skills, synced to ~/.claude/skills/
+├── core/           # 58 universal skills, synced to ~/.claude/skills/
 │   ├── groom/
 │   ├── autopilot/
 │   ├── build/
 │   └── ...
 ├── packs/          # Domain packs, loaded per-project on demand
+│   ├── payments/   # bitcoin, lightning, stripe (3 skills + 5 checklists)
+│   ├── growth/     # brand, content, growth, ai-media, og-hero-image, app-screenshots, audit-website (7 skills + 3 checklists)
+│   ├── scaffold/   # github-app, slack-app, monorepo, mobile-migrate, bun (5 skills + 1 checklist)
+│   └── finance/    # finances-ingest, finances-report, finances-snapshot, crypto-gains (4 skills)
 ├── scripts/
 │   └── sync.sh
 └── CLAUDE.md
@@ -36,9 +42,14 @@ agent-skills/
 ./scripts/sync.sh --prune all
 
 # Load a domain pack into a project
-./scripts/sync.sh pack marketing ~/Development/myproject
-./scripts/sync.sh pack marketing --global
+./scripts/sync.sh pack payments ~/Development/cerberus
+./scripts/sync.sh pack growth ~/Development/cerberus-web
+./scripts/sync.sh pack finance --global
 ```
+
+Pack loading symlinks skills into the project's `.claude/skills/` and links
+`audit-references/*.md` into `core/audit/references/` so audit/fix/log-issues
+orchestrators find them automatically.
 
 No build, lint, or test commands — this repo is documentation only.
 
@@ -78,7 +89,8 @@ Claude Code has a ~16K char description budget. Skills consume budget based on m
 | Reference | `user-invocable: false` | Auto-loaded by model | **Consumes budget** |
 | DMI | `disable-model-invocation: true` | User via `/command` | **Free** |
 
-Current split: ~26 budget-consuming + ~48 DMI = ~74 total. Well within 16K.
+Current split: ~26 budget-consuming + ~32 DMI = ~58 core total. Well within 16K.
+Pack skills (19) don't consume budget — they're loaded per-project only when needed.
 
 ## Core Delivery Pipeline
 
@@ -98,14 +110,25 @@ Three unified skills replace all domain-specific check-*/fix-*/log-* skills:
 /log-issues production # Create GitHub issues from audit findings
 ```
 
-Domain checklists live in `audit/references/`, `fix/references/`.
+Core domain checklists live in `core/audit/references/`. Pack checklists live in
+`packs/<pack>/audit-references/` and get symlinked into `core/audit/references/`
+when a pack is loaded via `sync.sh pack <name>`. Audit/fix/log-issues discover
+available domains dynamically by scanning `references/*-checklist.md`.
 
-## Adding a Skill
+## Adding or Modifying a Skill
 
-1. Create `core/{name}/SKILL.md` with frontmatter
-2. Choose invocation mode: default (model+user), DMI (user-only), or reference (auto-load)
-3. Follow patterns from existing skills in the same category
-4. Run `./scripts/sync.sh all` to distribute
+**Always use both skill engineering skills:**
+
+1. **`/skill-builder`** (reference, auto-loaded) — Quality gates, classification (foundational vs workflow), when to create. Consult first to decide *whether* to create and *what kind*.
+2. **`/skill-creator`** (DMI, `/skill-creator`) — Structure, frontmatter, progressive disclosure, packaging. Follow its process for *how* to create well.
+
+**Workflow:**
+1. `/skill-builder` quality gates → pass all 4 (reusable, non-trivial, specific, verified)
+2. Classify: foundational (`user-invocable: false`) vs workflow (default/DMI)
+3. `/skill-creator` process → understand, plan resources, init, edit, package, iterate
+4. Choose invocation mode: default (model+user), DMI (user-only), or reference (auto-load)
+5. Follow patterns from existing skills in the same category
+6. Run `./scripts/sync.sh all` to distribute
 
 ## Principles
 
