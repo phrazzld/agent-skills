@@ -25,6 +25,14 @@ Take PR `$ARGUMENTS` (or current branch's PR) from blocked to mergeable: no conf
 
 Conflicts -> CI -> Self-Review -> Reviews. Can't run CI on conflicted code. Can't review broken code. Can't address others' reviews before fixing your own issues.
 
+## LLM-First Implementation Rule (Mandatory)
+
+For semantic fixes (classification/triage logic, intent inference, severity mapping, reviewer synthesis), prefer LLM reasoning over deterministic heuristics.
+
+Do not add heuristic-only semantic classifiers (regex-only labels, keyword score trees) unless the task is strictly syntactic.
+
+Keep deterministic code for mechanical guarantees only: schema contracts, exact format parsing, permissions/safety enforcement.
+
 ## Bounded Shell Output (MANDATORY)
 
 - Size before detail: counts/metadata first

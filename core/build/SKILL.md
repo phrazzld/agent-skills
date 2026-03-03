@@ -27,6 +27,14 @@ Implement Issue #`$ARGUMENTS`. Ship working, tested, committed code on a feature
 - If Codex goes off-rails, re-delegate with better direction
 - `dogfood`, `agent-browser`, and `browser-use` are available; use them to validate user-facing flows
 
+## LLM-First Implementation Rule (Mandatory)
+
+When building semantic behavior (classification, ranking, triage, intent interpretation, compliance judgment), use LLM-first designs.
+
+Avoid heuristic-only semantic logic (regex ladders, keyword scoring, brittle decision trees) unless the problem is purely syntactic.
+
+Use deterministic logic for strict mechanics only: schema/type validation, exact parsing, safety/permission gates.
+
 ## Startup
 
 ```bash
