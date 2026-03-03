@@ -29,6 +29,14 @@ and a clean dogfood QA pass.
 - Never skip an issue because it's "not ready" — YOU make it ready
 - `dogfood`, `agent-browser`, and `browser-use` are available in this environment; use them for user-flow validation
 
+## LLM-First Implementation Rule (Mandatory)
+
+When solving semantic problems (classification, prioritization, triage, intent mapping, AC/spec compliance), use LLM reasoning-first approaches.
+
+Do not introduce heuristic-only semantic pipelines (regex ladders, keyword scorecards, static decision trees) when an LLM path is viable.
+
+Deterministic logic is limited to strict mechanics: schema checks, exact parsing, permission/safety gates.
+
 ## Priority Selection
 
 **Always work on the highest priority issue. No exceptions.**
