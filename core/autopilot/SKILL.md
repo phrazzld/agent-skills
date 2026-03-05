@@ -63,7 +63,9 @@ Deterministic logic is limited to strict mechanics: schema checks, exact parsing
    - GREEN: same tests passing after implementation
    - If test harness is broken, stop and flag blocker (no implementation without explicit user bypass)
 7. **Visual QA** — If diff touches frontend files (`app/`, `components/`, `*.css`), run `/visual-qa --fix`. Fix P0/P1 before proceeding.
-8. **Refine** — `/pr-fix --refactor`, update docs inline, then `ousterhout` agent for module depth review
+8. **Refine** — `/pr-fix --refactor`, update docs inline, then run simplification pass:
+   - Preferred accelerator (if native in current harness): `/simplify`
+   - Portable fallback (required): `ousterhout` agent for module depth review + manual simplification edits
 9. **Dogfood QA** — Run automated QA against local dev server (see Dogfood QA section below).
    Iterate until no P0/P1 issues remain. **Do not open a PR until QA passes.**
 10. **Commit** — Create semantic commits for all remaining changes:
@@ -165,6 +167,9 @@ Lead sequences commits after all teammates finish. Then dogfood QA, then `/pr`.
 
 Use when: substantial feature with multiple refinement needs.
 Don't use when: small fix where sequential is fast enough.
+
+If native batch dispatch is available in the harness (e.g. `/batch`), use it.
+Otherwise launch teammates sequentially with normal agent calls.
 
 ## Stopping Conditions
 

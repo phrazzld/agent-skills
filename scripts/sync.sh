@@ -4,6 +4,7 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CORE_DIR="$REPO_DIR/core"
 PACKS_DIR="$REPO_DIR/packs"
+OVERLAYS_DIR="$REPO_DIR/overlays"
 
 usage() {
   echo "Usage: sync.sh <command> [options]"
@@ -16,6 +17,10 @@ usage() {
   echo ""
   echo "Options:"
   echo "  --dry-run    Preview without changes"
+  echo ""
+  echo "Overlays:"
+  echo "  overlays/<harness>/<skill>/ files are merged on top of core/<skill>/ at sync time."
+  echo "  Special file: SKILL.append.md appends harness-specific instructions to SKILL.md."
   exit 1
 }
 
@@ -59,6 +64,43 @@ link_skill() {
   fi
 }
 
+# Build a merged skill directory from base + harness overlay.
+# base dir always copied first, overlay files then override.
+# Special overlay file SKILL.append.md is appended to SKILL.md.
+materialize_overlay_skill() {
+  local base_src="$1" overlay_src="$2" target_dir="$3"
+  local skill_name dst
+  skill_name="$(basename "$base_src")"
+  dst="$target_dir/$skill_name"
+
+  if dry; then
+    log "[dry] materialize overlay skill $skill_name for $(basename "$(dirname "$overlay_src")")"
+    return
+  fi
+
+  if [[ -L "$dst" ]]; then
+    rm "$dst"
+  elif [[ -d "$dst" ]]; then
+    /usr/bin/trash "$dst" 2>/dev/null || rm -rf "$dst"
+  fi
+
+  mkdir -p "$dst"
+  cp -a "$base_src"/. "$dst"/
+
+  if [[ -f "$overlay_src/SKILL.append.md" && -f "$dst/SKILL.md" ]]; then
+    cat >> "$dst/SKILL.md" <<'EOF'
+
+EOF
+    cat "$overlay_src/SKILL.append.md" >> "$dst/SKILL.md"
+  fi
+
+  for overlay_item in "$overlay_src"/*; do
+    [[ ! -e "$overlay_item" ]] && continue
+    [[ "$(basename "$overlay_item")" == "SKILL.append.md" ]] && continue
+    cp -a "$overlay_item" "$dst"/
+  done
+}
+
 # Remove symlinks pointing to deleted skills
 prune_harness() {
   local target_dir="$1"
@@ -82,10 +124,11 @@ prune_harness() {
 }
 
 # Sync all core skills into a target directory.
-# $1 = target dir, $2... = skip patterns (optional)
+# $1 = target dir, $2 = harness name, $3... = skip patterns (optional)
 sync_harness() {
   local target_dir="$1"
-  shift
+  local harness_name="$2"
+  shift 2
   local -a skip_patterns=("$@")
 
   [[ ! -d "$target_dir" ]] && { log "SKIP: $target_dir does not exist"; return; }
@@ -105,7 +148,14 @@ sync_harness() {
     done
     $skip && continue
 
-    link_skill "$CORE_DIR/$skill_name" "$target_dir"
+    local base_skill="$CORE_DIR/$skill_name"
+    local overlay_skill="$OVERLAYS_DIR/$harness_name/$skill_name"
+
+    if [[ -d "$overlay_skill" ]]; then
+      materialize_overlay_skill "$base_skill" "$overlay_skill" "$target_dir"
+    else
+      link_skill "$base_skill" "$target_dir"
+    fi
     ((count++))
   done
 
@@ -115,13 +165,21 @@ sync_harness() {
 # Sync specific skills only (for Pi shared skills)
 sync_specific() {
   local target_dir="$1"
+  local harness_name="$2"
+  shift
   shift
   local -a skills=("$@")
 
   [[ ! -d "$target_dir" ]] && { log "SKIP: $target_dir does not exist"; return; }
 
   for skill_name in "${skills[@]}"; do
-    link_skill "$CORE_DIR/$skill_name" "$target_dir"
+    local base_skill="$CORE_DIR/$skill_name"
+    local overlay_skill="$OVERLAYS_DIR/$harness_name/$skill_name"
+    if [[ -d "$overlay_skill" ]]; then
+      materialize_overlay_skill "$base_skill" "$overlay_skill" "$target_dir"
+    else
+      link_skill "$base_skill" "$target_dir"
+    fi
   done
 
   log "$target_dir: ${#skills[@]} shared skills synced"
@@ -187,22 +245,22 @@ sync_pack() {
 
 do_claude() {
   log "=== Claude ==="
-  sync_harness "$HOME/.claude/skills"
+  sync_harness "$HOME/.claude/skills" "claude"
 }
 
 do_codex() {
   log "=== Codex ==="
-  sync_harness "$HOME/.codex/skills" ".system"
+  sync_harness "$HOME/.codex/skills" "codex" ".system"
 }
 
 do_factory() {
   log "=== Factory ==="
-  sync_harness "$HOME/.factory/skills"
+  sync_harness "$HOME/.factory/skills" "factory"
 }
 
 do_gemini() {
   log "=== Gemini ==="
-  sync_harness "$HOME/.gemini/skills"
+  sync_harness "$HOME/.gemini/skills" "gemini"
 
   # Also handle antigravity/global_skills symlinks
   local ag_dir="$HOME/.gemini/antigravity/global_skills"
@@ -224,7 +282,7 @@ do_pi() {
   local -a shared_skills=(
     agent-browser dogfood skill-creator design
   )
-  sync_specific "$pi_skills" "${shared_skills[@]}"
+  sync_specific "$pi_skills" "pi" "${shared_skills[@]}"
 }
 
 # Parse arguments

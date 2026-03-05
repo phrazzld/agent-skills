@@ -47,6 +47,15 @@ agent-skills/
 ./scripts/sync.sh pack finance --global
 ```
 
+Harness overlays are applied automatically during sync when present:
+
+```
+overlays/<harness>/<skill>/...
+```
+
+Overlay files are merged onto `core/<skill>/` at sync time. Special file:
+- `SKILL.append.md` appends harness-specific instructions to `SKILL.md`
+
 Pack loading symlinks skills into the project's `.claude/skills/` and links
 `audit-references/*.md` into `core/audit/references/` so audit/fix/log-issues
 orchestrators find them automatically.

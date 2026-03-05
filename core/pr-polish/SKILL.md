@@ -71,6 +71,16 @@ For architectural findings that require broader changes: create GitHub issues.
 gh issue create --title "[Arch] Finding from PR #$PR hindsight review" --body "..."
 ```
 
+### 3.5 Simplification Pass (Capability-Gated)
+
+After Pass 2, run a focused simplification sweep.
+
+- Preferred accelerator (if native in current harness): `/simplify`
+- Portable fallback (required): run `ousterhout` agent and apply resulting module-depth simplifications manually
+
+If native batch dispatch is available (e.g. `/batch`), use it to parallelize refine/test/docs subtasks.
+Otherwise execute those subtasks sequentially.
+
 ### 4. Test Audit
 
 Review test coverage for the PR's changed files. Look for:
