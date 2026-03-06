@@ -106,7 +106,9 @@ Present: "Here's what I understand. Let me explore the problem space."
    - Non-Goals: [Explicitly out of scope]
 
    ### Acceptance Criteria
-   - [ ] Given [precondition], when [action], then [outcome]
+   - [ ] [test] Given [precondition], when [action], then [expected assertion in tests]
+   - [ ] [command] Given [precondition], when `[shell command]`, then [expected output]
+   - [ ] [behavioral] Given [precondition], when [user action], then [observable behavior]
 
    ### User Stories
    - As [persona], I want [action] so that [value]
