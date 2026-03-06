@@ -67,7 +67,8 @@ Deterministic logic is limited to strict mechanics: schema checks, exact parsing
 8. **Agentic QA** — If diff touches prompts, model routing, tool schemas, or agent instructions, run `/llm-infrastructure` and inspect trace/eval coverage before shipping.
 9. **Refine** — `/pr-fix --refactor`, update docs inline, then run simplification pass:
     - Preferred accelerator (if native in current harness): `/simplify`
-    - Portable fallback (required): `ousterhout` agent for module depth review + manual simplification edits
+    - Portable fallback (required): manual module-depth review + simplification edits using Ousterhout checks: shallow modules, information leakage, pass-throughs, and compatibility shims with no active contract
+    - Optional accelerator: use an `ousterhout` persona/agent if the harness provides one
 10. **Dogfood QA** — Run automated QA against local dev server (see Dogfood QA section below).
    Iterate until no P0/P1 issues remain. **Do not open a PR until QA passes.**
 11. **Commit** — Create semantic commits for all remaining changes:
@@ -162,7 +163,7 @@ After `/build` completes, parallelize the refinement phase:
 | Teammate | Task |
 |----------|------|
 | **Simplifier** | Run code-simplifier agent, commit |
-| **Depth reviewer** | Run ousterhout agent, commit |
+| **Depth reviewer** | Run manual module-depth review, or `ousterhout` if available, commit |
 | **Doc updater** | Update docs (README, ADRs, API docs), commit |
 
 Lead sequences commits after all teammates finish. Then dogfood QA, then `/pr`.

@@ -22,6 +22,8 @@ agent-skills/
 │   ├── growth/     # brand, content, growth, ai-media, og-hero-image, app-screenshots, audit-website, product-marketing-context (8 skills + 3 checklists)
 │   ├── scaffold/   # github-app, slack-app, monorepo, mobile-migrate, bun (5 skills + 1 checklist)
 │   └── finance/    # finances-ingest, finances-report, finances-snapshot, crypto-gains (4 skills)
+├── docs/
+│   └── context/    # Starter cold-memory artifacts for tuned repos
 ├── scripts/
 │   └── sync.sh
 └── CLAUDE.md
@@ -65,10 +67,12 @@ No build, lint, or test commands — this repo is documentation only.
 
 ## Skill Directory Convention
 
-Every skill lives in `core/{skill-name}/` with a required `SKILL.md`:
+Core skills live in `core/{skill-name}/`.
+Pack skills live in `packs/{pack-name}/{skill-name}/`.
+Every skill directory needs a required `SKILL.md`:
 
 ```
-core/{skill-name}/
+{core|packs/<pack>}/{skill-name}/
 ├── SKILL.md          # Required. Frontmatter + skill definition.
 ├── AGENTS.md         # Optional. Multi-agent guidance.
 └── references/       # Optional. Supporting docs, templates.

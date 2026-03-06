@@ -50,6 +50,18 @@ cd agent-skills
 
 Skills are symlinked, not copied. Edit once, every harness sees the change.
 
+## Context Architecture
+
+This repo now ships starter cold-memory artifacts under `docs/context/`:
+
+- `docs/context/INDEX.md`
+- `docs/context/ROUTING.md`
+- `docs/context/DRIFT-WATCHLIST.md`
+- `docs/context/SUBSYSTEM-TEMPLATE.md`
+
+They are scaffolds, not encyclopedias. `/tune-repo` is expected to replace the
+starter rows with repo-specific subsystem docs and routing rules.
+
 ## Skills
 
 ### Delivery Pipeline

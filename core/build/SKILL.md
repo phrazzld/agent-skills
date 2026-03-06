@@ -67,8 +67,12 @@ Do not write production implementation before at least one relevant failing test
 Tests should target module exports, public interfaces, and observable behavior.
 Avoid mock-heavy "unit tests" that pin internal structure.
 Default against backward-compat scaffolding that exists only to keep current
-tests green. In greenfield or low-user systems, delete bad layers instead of
-preserving them.
+tests green. Remove a compatibility layer only if one of these is true:
+- the spec/design explicitly allows the break
+- usage is proven dead or internal-only
+- the user explicitly approved the removal
+
+If evidence is missing, keep the behavior stable and log the cleanup separately.
 
 If tests cannot run (harness/env failure), stop and report blocker. Do not continue implementation unless user explicitly approves bypass.
 
@@ -80,6 +84,7 @@ Before delegating any chunk:
 - Pattern to follow? Include reference file path
 - Boundary to test? State the module export/public behavior explicitly
 - Mocks needed? Only for external boundaries and nondeterminism
+- Compatibility path safe to remove? Cite spec, usage evidence, or user approval
 - Quality gates? Include verify command
 
 ## Execution Loop

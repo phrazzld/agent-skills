@@ -18,7 +18,7 @@ Senior engineer unblocking a PR. Methodical, not reactive. Each phase resolves a
 
 ## Objective
 
-Take PR `$ARGUMENTS` (or current branch's PR) from blocked to mergeable: no conflicts, CI green, reviews addressed.
+Take PR `$ARGUMENTS` (or current branch's PR) from blocked to mergeable: no conflicts, CI green, reviews addressed, and **all open conversations on the PR resolved**.
 `dogfood`, `agent-browser`, and `browser-use` are available in this environment for user-flow verification.
 
 ## Dependency Order
@@ -128,6 +128,8 @@ This phase catches what CI cannot: code that compiles and passes tests but is wr
 
 ### 5. Address Reviews
 
+**Exit criterion for this phase:** the PR has zero unresolved review threads and zero remaining actionable open conversations. Do not call the PR unblocked while any conversation is still open.
+
 **Skip condition**: ALL THREE of these are zero: unresolved review threads, unreplied review comments, AND unaddressed bot issue comments. Use the queries below — never rely on `reviewDecision` alone or prior "PR Unblocked" summary comments.
 
 ```bash
@@ -217,7 +219,7 @@ Bot feedback (CodeRabbit, Gemini, Codex, and other reviewer bots) gets the same 
    - `Change: <what changed>`
    - `Verification: <tests/checks run or N/A>`
 
-5. **Resolve every thread via GraphQL** — Replies alone do NOT resolve threads. Non-outdated comments stay visible as open issues to reviewers even after fixing the code and replying. You MUST resolve them:
+5. **Resolve every thread via GraphQL** — Replies alone do NOT resolve threads. Non-outdated comments stay visible as open issues to reviewers even after fixing the code and replying. You MUST resolve them. The phase is incomplete until the unresolved thread count is `0`:
 
 ```bash
 # Get unresolved thread IDs
@@ -312,7 +314,7 @@ Max 2 full-pipeline retries when fixing one phase breaks another. After 2: stop 
 
 ## Output
 
-Summary: blockers found, phases executed, conflicts resolved, CI fixes applied, reviews addressed/deferred/declined, final check status.
+Summary: blockers found, phases executed, conflicts resolved, CI fixes applied, reviews addressed/deferred/declined, final check status, and explicit confirmation that open conversation count is zero.
 
 ## Absorbed Skills (References)
 

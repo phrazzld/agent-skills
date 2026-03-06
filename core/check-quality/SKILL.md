@@ -75,9 +75,9 @@ grep -q '"strict": true' tsconfig.json 2>/dev/null && echo "V Strict mode" || ec
 # Custom guardrails
 [ -d "guardrails" ] && echo "V guardrails/" || echo "- No custom guardrails"
 
-# Design tokens (if design system exists)
-rg -n "@theme|--color-|--spacing-|tailwind\\.config|globals\\.css|app\\.css" . -g '!node_modules' >/dev/null 2>&1 && echo "V Design system detected" || echo "- No obvious design system"
-rg -n "guardrails/.+(token|color|spacing|radius)|no-raw-(hex|spacing|radius)" . -g '!node_modules' >/dev/null 2>&1 && echo "V Token guardrails" || echo "- No token guardrails"
+# Design tokens (heuristic only; confirm by reading the theme files)
+rg -n "(@theme|--(color|space|spacing|radius|font|shadow)-|tailwind\\.config|globals\\.css|app\\.css|tokens\\.(ts|js|json)|theme\\.(ts|js)|components/ui|src/components/ui)" . -g '!node_modules' >/dev/null 2>&1 && echo "V Design system detected (heuristic)" || echo "- No obvious design system"
+rg -n "(guardrails/.+(token|theme|color|spacing|radius)|no-raw-(color|hex|spacing|radius)|semantic-token|token-(usage|enforce)|design-token)" . -g '!node_modules' >/dev/null 2>&1 && echo "V Token guardrails (heuristic)" || echo "- No token guardrails"
 ```
 
 Spawn `security-sentinel` agent for vulnerability analysis.
@@ -153,7 +153,8 @@ Coverage is diagnostic, not a goal. 60% meaningful > 95% testing implementation 
 - Don't test implementation details -- test behavior
 - Don't rely on heavy mocking -- prefer integration tests
 - Don't put slow, flaky suites in pre-commit
-- Don't ship a design system with unenforced raw hex/magic spacing drift
+- Don't trust regex heuristics alone for design systems -- read the token files
+- Don't ship a design system with unenforced raw color/magic spacing drift
 - CI on every PR, not just main
 
 ## Output Format

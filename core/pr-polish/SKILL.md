@@ -31,10 +31,14 @@ gh pr view $PR --json mergeable,statusCheckRollup,reviewDecision
 
 Requirements:
 - No merge conflicts
-- CI green
+- CI green for any relevant existing checks
 - No unaddressed critical review feedback
 
-**If any fail**: Tell user to run `/pr-fix` first. Do not proceed.
+If mergeability is broken, relevant CI is red, or critical review feedback is still open:
+- run `/pr-fix` first
+- do not proceed with polish
+
+If the repo simply lacks the relevant CI checks, continue. Missing CI is a polish target and must be called out in the merge-confidence ledger.
 
 ## Workflow
 

@@ -14,7 +14,11 @@ Break:
 Lesson:
 - the answer was a relationship, not a scored noun
 
-## Brandon / Zosia Copy
+## Brandon / Zosia Copy Tightening
+
+Setup:
+- article anecdote about Brandon's agent refusing to answer a stranger bot
+- goal was not "write a joke," it was "tell this story in a way that feels true"
 
 Symptoms:
 - repeated craft moves

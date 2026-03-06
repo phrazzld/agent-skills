@@ -53,6 +53,7 @@ Accept input: raw idea (string), issue ID, or observation.
 2. If issue exists: `gh issue view $1 --comments`
 3. Load `project.md` if present (falls back to `vision.md`)
 4. Read relevant codebase context — adjacent features, existing patterns, constraints
+5. If `docs/context/` is missing, bootstrap `INDEX.md`, `ROUTING.md`, and `DRIFT-WATCHLIST.md` from `codified-context-architecture/references/templates.md` or explicitly note that repo context is not tuned yet. Do not cite cold-memory docs that do not exist.
 
 Present: "Here's what I understand. Let me explore the problem space."
 

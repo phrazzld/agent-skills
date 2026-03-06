@@ -194,7 +194,7 @@ Naming convention: `--category-variant-state`
 ```
 
 Minimum guardrails for tokenized systems:
-- no raw hex colors outside token/theme files
+- no raw color literals outside token/theme files (`#hex`, `rgb[a]`, `hsl[a]`, `oklch`, named colors)
 - no arbitrary spacing/radius values outside token/theme files
 - components consume semantic tokens, not palette literals
 
