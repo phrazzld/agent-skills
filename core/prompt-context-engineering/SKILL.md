@@ -54,8 +54,9 @@ Before shipping a prompt, verify:
 
 - Overly defensive prompts full of repeated warnings
 - Huge procedural checklists that reduce model adaptability
-- Relying on second-pass repair for core quality
+- Relying on second-pass repair for core quality (e.g. regex stripping preambles instead of telling the model not to add them)
 - Runtime prompt drift from eval/benchmark prompts
+- Building deterministic output filters when the prompt is missing a rule — fix the prompt, not the consumer
 
 ## Output contract for this skill
 

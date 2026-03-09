@@ -105,4 +105,23 @@ messages.push(...response.messages);
 - Over-fragmented tools that mirror internal implementation.
 - Allowing model narration to replace data tool calls.
 - No eval harness for prompt/tool regressions.
+- Adding deterministic NLP/parsing libraries when the LLM already handles the task
+  (e.g., chrono-node for time parsing when the agent can infer "last week" from context).
+- Pre-computing fixed insight categories when the LLM can reason over rich data.
+- Building classifiers, entity extractors, or intent parsers alongside an LLM agent.
+
+## The Capability Test
+
+Before proposing any new feature for an agentic product:
+
+> "Does the application already have an LLM in the loop that can do this?"
+
+If yes: improve the prompt, expand tool data access, or add a tool parameter.
+If no: write code.
+
+**Model territory:** intent parsing, NL understanding, synthesis, insight generation,
+flexible input interpretation — anything where the value IS the intelligence.
+
+**Code territory:** data access, metrics computation, schema validation, security,
+rendering, mechanical operations — anything requiring correctness guarantees.
 
