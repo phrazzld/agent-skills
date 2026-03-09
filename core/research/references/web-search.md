@@ -9,6 +9,8 @@ Retrieval-first web research with citations and recency controls.
 - `/research web-docs <query>`: library/docs-focused retrieval
 
 Legacy aliases: `/web`, `/web-deep`, `/web-news`, `/web-docs`.
+`meta.command` below stores the normalized internal routing value, not the full
+user-facing slash command.
 
 ## Behavior Contract
 - Return structured result envelope (see schema below)
@@ -48,6 +50,9 @@ Legacy aliases: `/web`, `/web-deep`, `/web-news`, `/web-docs`.
   }
 }
 ```
+
+`meta.command` is the normalized internal route selected by the umbrella skill,
+not the full user-facing slash command.
 
 ## Safety and Quality
 - Never fabricate URLs

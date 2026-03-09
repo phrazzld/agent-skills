@@ -135,9 +135,9 @@ dynamically by scanning both checklist directories.
 Umbrella skills consolidate related standalone skills into one budget entry.
 Sub-capabilities become `references/{name}.md` files, loaded on-demand.
 
-**Three-level progressive disclosure:** description → SKILL.md body → one reference.
+**Three-level progressive disclosure:** description → SKILL.md body → one or more references loaded on-demand.
 
-```
+```text
 core/{umbrella}/
 ├── SKILL.md          # Routing table (consumes budget)
 └── references/

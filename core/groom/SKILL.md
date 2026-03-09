@@ -21,7 +21,7 @@ into prioritized, agent-executable issues.
 **Research-first.** Every theme gets web research, cross-repo investigation, and codebase
 deep-dive before scoping decisions are made.
 
-**Multi-model validation.** Strategic directions pass through `/thinktank` before locking.
+**Multi-model validation.** Strategic directions pass through `/research thinktank` before locking.
 
 **Quality gate on output.** Every created issue must score >= 70 on `/issue lint`.
 
@@ -99,7 +99,7 @@ See `references/tidy-procedure.md` for the full procedure.
 | I want to... | Skill |
 |--------------|-------|
 | Full planning for one idea | `/shape` |
-| Multi-model validation | `/thinktank` |
+| Multi-model validation | `/research thinktank` |
 
 ### Standalone Domain Work
 ```bash

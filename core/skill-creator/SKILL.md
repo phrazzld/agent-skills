@@ -210,7 +210,7 @@ Sub-capabilities become reference files loaded on-demand via progressive disclos
 
 ### Structure
 
-```
+```text
 core/{umbrella-name}/
 ├── SKILL.md              # Routing table + description (consumes budget)
 ├── references/
@@ -240,7 +240,7 @@ Body contains:
 
 ### Invocation
 
-```
+```bash
 /umbrella sub-capability "args"    # Explicit routing
 /umbrella                          # Model auto-routes from context
 ```

@@ -166,7 +166,7 @@ For each selected theme:
 1. Pitch research brief plus 3-5 plausible approaches
 2. Recommend one approach and explain why
 3. Discuss with the user
-4. Validate with `/thinktank` before locking direction
+4. Validate with `/research thinktank` before locking direction
 5. Decide and record the direction
 
 Use plain conversation by default. Structured questions only when a real decision needs it.
