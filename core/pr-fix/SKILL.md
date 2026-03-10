@@ -260,9 +260,10 @@ If fixes touch UI or user behavior (`app/`, `components/`, styles, route handler
 
 `/dogfood` is a skill command, not a shell binary probe.
 
-### 7. Update PR Description with Before / After
+### 7. Update PR Description with Before / After + Walkthrough
 
-Edit the PR body to preserve the richer `/pr` structure and update the relevant sections documenting the fix:
+Edit the PR body to preserve the richer `/pr` structure and update the relevant sections documenting the fix.
+Refresh the `## Walkthrough` section too when the fix changes the merge case, evidence, or protecting check:
 
 ```bash
 # Get current body, refresh the affected sections
@@ -283,6 +284,14 @@ Example: "Before: CI failing on type error in auth module. After: Types correcte
 **Screenshots (when applicable)**: Capture before/after for any visible change — CI status pages, error output, UI changes from review fixes. Use `![before](url)` / `![after](url)`.
 
 Skip screenshots only when all fixes are purely internal (conflict resolution with no behavior change, CI config fixes with no visible output difference).
+
+If the fixes materially change what reviewers should see, rerun `/pr-walkthrough` and update:
+
+- artifact link
+- claim proven
+- before/after scope
+- persistent verification
+- residual gap
 
 ### 8. Signal
 

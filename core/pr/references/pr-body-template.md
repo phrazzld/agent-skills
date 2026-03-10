@@ -7,6 +7,7 @@ Use this structure when creating or heavily rewriting a PR description.
 - Lead with significance, not mechanics.
 - Explain value added, trade-offs accepted, and why those trade-offs are worth it.
 - Make the diff legible with before/after diagrams, not a single abstract chart.
+- Make the walkthrough artifact part of the merge case, not an afterthought.
 - Keep the top of the PR skimmable; push heavier detail into `<details>` blocks.
 
 ## Top-Level Shape
@@ -61,6 +62,7 @@ Use `<details>` for sections that are valuable but not needed at first glance:
 - `Acceptance Criteria`
 - `Alternatives Considered`
 - `Manual QA`
+- `Walkthrough`
 - `Test Coverage`
 - `Merge Confidence`
 - `Screenshots / before-after evidence`
@@ -150,6 +152,18 @@ Copy or derive from the issue. Use checkboxes.
 
 Exact commands, URLs, setup, expected output. Keep long logs or screenshots under `<details>`.
 
+### `## Walkthrough`
+
+This is the proof package for the PR.
+
+- Renderer used
+- Artifact link
+- Core claim proven
+- Before / after scope covered
+- Persistent verification that protects this path
+- Residual gap, if any
+
+For the script and rubric, load `../../pr-walkthrough/references/walkthrough-contract.md`.
 ### `## Test Coverage`
 
 Point to exact test files or suites. Call out gaps plainly.
@@ -183,3 +197,4 @@ For Mermaid syntax examples and GitHub rendering constraints, load
 - Do not use a single diagram when before/after comparison is the actual point.
 - Do not force screenshots for purely internal changes, but do provide text before/after.
 - Do use `<details>` to keep the PR readable when sections get long.
+- Do make the walkthrough point to one durable automated check, not just a polished artifact.

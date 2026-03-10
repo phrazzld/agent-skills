@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A unified skills monorepo for multi-model AI agents (Claude, Codex, Gemini, Factory, Pi). Markdown-first, with some TypeScript helper scripts and tests (e.g., `core/research/`). Skills are distributed to agent harnesses via symlinks.
 
-**63 core skills** (universal engineering) + **4 domain packs** (20 skills, loaded per-project) + **5 repo-local** (live in their own repos).
+**64 core skills** (universal engineering) + **4 domain packs** (20 skills, loaded per-project) + **5 repo-local** (live in their own repos).
 
 ## Repo Structure
 
 ```
 agent-skills/
-├── core/           # 63 universal skills, synced to ~/.claude/skills/
+├── core/           # 64 universal skills, synced to ~/.claude/skills/
 │   ├── groom/
 │   ├── autopilot/
 │   ├── build/
@@ -103,7 +103,7 @@ Claude Code has a ~16K char description budget. Skills consume budget based on m
 | Reference | `user-invocable: false` | Auto-loaded by model | **Consumes budget** |
 | DMI | `disable-model-invocation: true` | User via `/command` | **Free** |
 
-Current split: ~36 budget-consuming + ~27 DMI = ~63 core total. Well within 16K.
+Current split: ~36 budget-consuming + ~28 DMI = ~64 core total. Well within 16K.
 Pack skills (20) don't consume budget — they're loaded per-project only when needed.
 
 ## Core Delivery Pipeline
@@ -112,7 +112,7 @@ Pack skills (20) don't consume budget — they're loaded per-project only when n
 /groom → /shape → /autopilot → /pr-fix → /pr-polish → merge
 ```
 
-`/autopilot` chains shape → build → pr with commit/PR behavior inlined.
+`/autopilot` chains shape → build → walkthrough → pr with commit/PR behavior inlined.
 
 ## Unified Audit / Fix / Log
 

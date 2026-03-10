@@ -18,8 +18,8 @@ Engineering lead running a sprint. Find work, ensure it's ready, delegate implem
 
 ## Objective
 
-Deliver Issue `$ARGUMENTS` (or highest-priority eligible open issue) as a draft PR with tests passing
-and a clean dogfood QA pass.
+Deliver Issue `$ARGUMENTS` (or highest-priority eligible open issue) as a draft PR with tests passing,
+a clean dogfood QA pass, and a walkthrough artifact that makes the merge case legible.
 
 ## Latitude
 
@@ -104,33 +104,23 @@ The point is single ownership. One issue should map to one active autopilot lane
     - Optional accelerator: use an `ousterhout` persona/agent if the harness provides one
 11. **Dogfood QA** — Run automated QA against local dev server (see Dogfood QA section below).
    Iterate until no P0/P1 issues remain. **Do not open a PR until QA passes.**
-12. **Commit** — Create semantic commits for all remaining changes:
+12. **Walkthrough** — Run `/pr-walkthrough` and produce the mandatory walkthrough package for the branch. Every PR needs an artifact, even if the change is internal or architectural.
+13. **Commit** — Create semantic commits for all remaining changes:
     - Categorize files: commit, gitignore, delete, consolidate
     - Group into logical commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
     - Subject: imperative, lowercase, no period, ~50 chars. Body: why not what.
     - Run quality gates (`lint`, `typecheck`, `test`) before pushing
     - `git fetch origin && git push origin HEAD` (rebase if behind)
     - Never force push. Never push to main without confirmation.
-13. **Ship** — Open a draft PR:
+14. **Ship** — Open a draft PR:
     - Stage and commit any uncommitted changes with semantic message
     - Read linked issue from branch name or recent commits
-    - Load `../pr/references/pr-body-template.md` and mirror it
-    - PR body must contain all sections:
-      - **Why This Matters**: Problem, value added, why now, issue link. This is top-of-line.
-      - **Trade-offs / Risks**: Costs accepted, remaining concerns, why the trade is worthwhile.
-      - **Intent Reference**: Copy/paste issue intent contract summary + link to source issue section.
-      - **Changes**: Concise list of what was done. Key files/functions.
-      - **Alternatives Considered**: Do nothing, credible alternative(s), and why current approach won.
-      - **Acceptance Criteria**: From linked issue. Checkboxes.
-      - **Manual QA**: Step-by-step verification. Commands, expected output.
-      - **What Changed**: Mermaid flow chart for base branch, Mermaid flow chart for this PR, and a third Mermaid architecture/state/sequence diagram, plus explanation of why the new shape is better.
-      - **Before / After**: Text description mandatory. Screenshots for UI changes. Use `<details>` for heavy evidence.
-      - **Test Coverage**: Specific test files/functions. Note gaps.
-      - **Merge Confidence**: Confidence level, strongest evidence, residual risk.
-    - Keep deep sections under `<details>` where useful, but do not hide the topline significance/trade-off story
+    - Load `../pr/references/pr-body-template.md` and follow it
+    - PR body must include: `Why This Matters`, `Trade-offs / Risks`, `What Changed`, `Changes`, `Intent Reference`, `Alternatives Considered`, `Acceptance Criteria`, `Manual QA`, `Walkthrough`, `Before / After`, `Test Coverage`, and `Merge Confidence`
+    - The `Walkthrough` section must link the artifact and name the persistent verification that protects the demonstrated path
     - `gh pr create --draft --assignee phrazzld`
     - Add context comment if notable decisions were made
-14. **Retro** — Ensure `.groom/retro.md` exists first; initialize it with a minimal heading/template if missing. Then append implementation signals:
+15. **Retro** — Ensure `.groom/retro.md` exists first; initialize it with a minimal heading/template if missing. Then append implementation signals:
     ```
     mkdir -p .groom
     [ -f .groom/retro.md ] || cat > .groom/retro.md <<'EOF'
@@ -226,7 +216,7 @@ NOT stopping conditions: lacks description, seems big, unclear approach.
 
 ## Output
 
-Report: issue worked, spec status, design status, TDD evidence (RED/GREEN), commits made, dogfood QA summary (issues found/fixed), PR URL.
+Report: issue worked, spec status, design status, TDD evidence (RED/GREEN), dogfood QA summary (issues found/fixed), walkthrough artifact summary, commits made, PR URL.
 
 ## Review Cadence
 

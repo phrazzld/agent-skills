@@ -156,9 +156,10 @@ pnpm typecheck && pnpm lint && pnpm test
 All gates must pass. Fix anything that doesn't.
 If repo-wide gates are already red from unrelated debt, still add the strongest PR-scoped automated checks you can and record the residual gap.
 
-### 7. Update PR Description with Before / After
+### 7. Update PR Description with Before / After + Walkthrough
 
-Edit the PR body to preserve the richer `/pr` structure and update the sections affected by the polish pass:
+Edit the PR body to preserve the richer `/pr` structure and update the sections affected by the polish pass.
+Refresh the `## Walkthrough` section too if the polish changes the strongest merge evidence:
 
 ```bash
 gh pr edit $PR --body "$(updated body)"
@@ -178,6 +179,14 @@ Refresh:
 **Screenshots (when applicable)**: Capture before/after for any visible change — refactored UI output, improved error messages, updated docs pages. Use `![before](url)` / `![after](url)`.
 
 Skip screenshots only when all polish was purely internal (refactoring with no visible output change).
+
+If polish changes the story reviewers should trust, rerun `/pr-walkthrough` and update:
+
+- artifact link
+- claim proven
+- before/after scope
+- persistent verification
+- residual gap
 
 ### 7.5 Diagram Audit
 

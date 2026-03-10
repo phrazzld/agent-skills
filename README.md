@@ -1,6 +1,6 @@
 # Agent Skills
 
-63 core skills + 4 domain packs for AI coding agents. Works with Claude Code, Codex, Gemini, Factory, and Pi.
+64 core skills + 4 domain packs for AI coding agents. Works with Claude Code, Codex, Gemini, Factory, and Pi.
 
 Skills are Markdown-first with a handful of Python helper scripts. No application code, no dependencies. They teach agents *how to work*: debugging methodology, PR workflows, design systems, incident response, and dozens of domain-specific playbooks.
 
@@ -12,7 +12,7 @@ AI agents are only as good as their instructions. Generic prompts produce generi
 
 | Tier | Location | Distribution | Budget cost |
 |------|----------|-------------|-------------|
-| **Core** (63) | `core/` | `sync.sh claude` → global | Per-mode |
+| **Core** (64) | `core/` | `sync.sh claude` → global | Per-mode |
 | **Pack** (20) | `packs/` | `sync.sh pack <name> <project>` → per-project | Per-mode |
 | **Repo-local** (5) | `<repo>/.claude/skills/` | Lives in destination repo | Per-mode |
 
@@ -73,6 +73,7 @@ starter rows with repo-specific subsystem docs and routing rules.
 | `/autopilot` | Model+User | Autonomous delivery: shape → build → commit → PR |
 | `/build` | Model+User | Implementation with TDD workflow |
 | `/commit` | DMI | Semantic commits with quality gates |
+| `/pr-walkthrough` | DMI | Mandatory walkthrough package: script, artifact, evidence, persistent check |
 | `/pr` | DMI | PR creation with mandatory sections |
 | `/pr-fix` | Model+User | Unblock PRs: conflicts, CI, review feedback, refactoring |
 | `/pr-polish` | Model+User | Hindsight review and quality elevation |
