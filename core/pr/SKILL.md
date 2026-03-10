@@ -33,64 +33,7 @@ Create a draft PR from current branch. Link to issue, make the significance obvi
 ## PR Body Requirements (MANDATORY)
 
 Every PR body must follow [references/pr-body-template.md](./references/pr-body-template.md).
-A PR missing these sections is not ready.
-
-```
-## Why This Matters
-Top-line significance first:
-- what problem existed
-- what value this adds
-- why this is worth doing now
-- link to issue
-
-## Trade-offs / Risks
-State the value gained, the costs/risks incurred, and why the trade is still worth it.
-
-## What Changed
-Show the delta, not just the end state:
-- Mermaid flow chart for the base branch
-- Mermaid flow chart for this PR
-- Mermaid architecture/state/sequence diagram for the deeper structural change
-- Short explanation of why this is an improvement
-
-## Changes
-Concise mechanical summary. Reference key files/functions.
-
-## Intent Reference
-Link to the issue/spec/intent contract that justifies the work.
-
-## Alternatives Considered
-At minimum: do nothing, one credible alternate approach, and why the chosen approach won.
-
-## Acceptance Criteria
-Copied or derived from the linked issue. Checkboxes.
-
-## Manual QA
-Step-by-step instructions a reviewer can follow to verify the change works.
-Include: setup steps, exact commands, expected output, URLs to visit.
-
-## Walkthrough
-Link the walkthrough package for this PR.
-Include: renderer used, artifact link, core claim proven, before/after scope covered,
-the persistent verification check that now protects this path, and any residual gap.
-
-## Before / After
-Show the state before and after this PR. MANDATORY for every PR.
-
-**Text**: Describe the previous behavior/state and the new behavior/state.
-**Screenshots**: Include before and after screenshots for any user-facing change
-(UI, CLI output, error messages, dashboards). Use `![before](url)` / `![after](url)`.
-
-Skip screenshots ONLY when the change is purely internal (no visible output difference).
-When in doubt, screenshot.
-
-## Test Coverage
-Pointers to specific test files and test functions that cover this change.
-Note any gaps: what ISN'T tested and why.
-
-## Merge Confidence
-State confidence level, strongest evidence, and residual risk.
-```
+A PR missing template sections is not ready.
 
 Use `<details>/<summary>` to collapse larger sections such as Alternatives,
 Manual QA, Acceptance Criteria, Test Coverage, Walkthrough evidence, and screenshot-heavy Before / After evidence.
@@ -118,7 +61,7 @@ Keep `Why This Matters`, `Trade-offs / Risks`, and the opening `What Changed` ex
 9. **Open / Update** — Use `gh pr create --draft --assignee phrazzld --body-file <path>` for new PRs. Use `gh pr edit --body-file <path>` when the branch already has a PR.
 10. **Comment** — Add context comment if notable decisions were made, and use `--body-file` for comment bodies.
 11. **Retro** — If this PR closes a GitHub issue, append implementation feedback:
-  ```
+   ```bash
   /retro append --issue $ISSUE --predicted {effort_label} --actual {actual_effort} \
      --scope "{what_changed_from_spec}" --blocker "{blockers}" --pattern "{insight}"
    ```

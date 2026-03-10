@@ -70,7 +70,7 @@ starter rows with repo-specific subsystem docs and routing rules.
 |-------|------|-------------|
 | `/groom` | DMI | Backlog grooming, health checks, hygiene |
 | `/shape` | DMI | Product + technical planning (absorbs spec, architect, brainstorming) |
-| `/autopilot` | Model+User | Autonomous delivery: shape → build → commit → PR |
+| `/autopilot` | Model+User | Autonomous delivery: shape → build → walkthrough → commit → PR |
 | `/build` | Model+User | Implementation with TDD workflow |
 | `/commit` | DMI | Semantic commits with quality gates |
 | `/pr-walkthrough` | DMI | Mandatory walkthrough package: script, artifact, evidence, persistent check |

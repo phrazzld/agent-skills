@@ -14,7 +14,7 @@ Use this structure when creating or heavily rewriting a PR description.
 
 These sections should stay visible on first load:
 
-```md
+````markdown
 ## Why This Matters
 - Problem:
 - Value:
@@ -51,7 +51,7 @@ graph TD
 Why this is better:
 - ...
 - ...
-```
+````
 
 ## Visibility Toggles
 
@@ -156,14 +156,23 @@ Exact commands, URLs, setup, expected output. Keep long logs or screenshots unde
 
 This is the proof package for the PR.
 
-- Renderer used
-- Artifact link
-- Core claim proven
-- Before / after scope covered
-- Persistent verification that protects this path
-- Residual gap, if any
+- Renderer
+- Artifact
+- Claim
+- Before / After scope
+- Persistent verification
+- Residual gap
 
 For the script and rubric, load `../../pr-walkthrough/references/walkthrough-contract.md`.
+
+### `## Before / After`
+
+Show the previous state and the new state explicitly.
+
+- Text is mandatory for every PR
+- Screenshots are mandatory for user-visible changes
+- For internal-only changes, explain why screenshots are not needed
+
 ### `## Test Coverage`
 
 Point to exact test files or suites. Call out gaps plainly.

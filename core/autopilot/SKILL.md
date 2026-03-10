@@ -116,7 +116,6 @@ The point is single ownership. One issue should map to one active autopilot lane
     - Stage and commit any uncommitted changes with semantic message
     - Read linked issue from branch name or recent commits
     - Load `../pr/references/pr-body-template.md` and follow it
-    - PR body must include: `Why This Matters`, `Trade-offs / Risks`, `What Changed`, `Changes`, `Intent Reference`, `Alternatives Considered`, `Acceptance Criteria`, `Manual QA`, `Walkthrough`, `Before / After`, `Test Coverage`, and `Merge Confidence`
     - The `Walkthrough` section must link the artifact and name the persistent verification that protects the demonstrated path
     - `gh pr create --draft --assignee phrazzld`
     - Add context comment if notable decisions were made

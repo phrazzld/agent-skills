@@ -287,11 +287,11 @@ Skip screenshots only when all fixes are purely internal (conflict resolution wi
 
 If the fixes materially change what reviewers should see, rerun `/pr-walkthrough` and update:
 
-- artifact link
-- claim proven
-- before/after scope
-- persistent verification
-- residual gap
+- Artifact
+- Claim
+- Before / After scope
+- Persistent verification
+- Residual gap
 
 ### 8. Signal
 

@@ -54,32 +54,14 @@ Do not script from the diff alone. The walkthrough must explain significance, no
 
 ### 2. Pick the renderer
 
-Use the renderer that best matches the change surface:
-
-| Change type | Primary renderer |
-|-------------|------------------|
-| UI, product flow, interaction | Browser walkthrough |
-| CLI, API, backend behavior | Terminal walkthrough with commands and outputs |
-| Infra, CI, architecture, refactor | Diagram-led walkthrough with command evidence |
-| Cross-cutting or stakeholder-facing change | Remotion walkthrough with narration |
-
-If multiple surfaces matter, use a mixed walkthrough. If a polished Remotion cut adds value, generate it after the deterministic evidence pass.
+Use the renderer selection in `references/walkthrough-contract.md`.
+If multiple surfaces matter, use a mixed walkthrough.
+If a polished Remotion cut adds value, treat it as a non-blocking pass after the deterministic evidence flow is already strong.
 
 ### 3. Write the walkthrough spec
 
 Use the contract in `references/walkthrough-contract.md`.
-
-At minimum, script these beats:
-
-1. Title and merge claim
-2. Why this work exists now
-3. Before state
-4. Change summary
-5. After state
-6. Verification evidence
-7. Residual risk
-8. Merge recommendation
-
+Use its default script beats as the canonical sequence.
 Every scene must map to observable evidence.
 
 ### 4. Capture evidence first

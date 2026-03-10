@@ -182,11 +182,11 @@ Skip screenshots only when all polish was purely internal (refactoring with no v
 
 If polish changes the story reviewers should trust, rerun `/pr-walkthrough` and update:
 
-- artifact link
-- claim proven
-- before/after scope
-- persistent verification
-- residual gap
+- Artifact
+- Claim
+- Before / After scope
+- Persistent verification
+- Residual gap
 
 ### 7.5 Diagram Audit
 
