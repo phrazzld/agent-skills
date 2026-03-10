@@ -41,6 +41,35 @@ Before creating a skill, verify ALL gates pass:
 
 If ANY gate fails → Stop. Not skill-worthy.
 
+## Skill Lifecycle: Absorption
+
+Standalone skills can be **absorbed** into umbrella skills to reduce budget consumption.
+An umbrella skill consolidates related skills into one budget entry with reference-based routing.
+
+### When to Absorb
+
+- 3+ skills share a natural domain boundary (research, standards, delivery)
+- Budget pressure requires consolidation
+- Skills are frequently co-triggered
+
+### How to Absorb
+
+1. Create umbrella `SKILL.md` with routing table mapping intent → reference file
+2. Copy each absorbed skill's body (minus frontmatter) → `references/{name}.md`
+3. Move `scripts/`, `assets/`, existing `references/` into umbrella (merge, prefix if collisions)
+4. Delete old `core/{name}/` directory
+5. `./scripts/sync.sh all`
+
+### Canonical Examples
+
+- `core/design/` — 11 skills absorbed, mode-based routing
+- `core/audit/` — dynamic domain routing via `references/{domain}-checklist.md`
+- `core/research/` — 4 skills absorbed (web-search, delegate, thinktank, introspect)
+
+### Budget Impact
+
+Budget scales O(umbrellas), not O(skills). Adding sub-capabilities costs zero budget.
+
 ## Skill Creation Workflow
 
 ### 0. Research Best Practices

@@ -203,6 +203,56 @@ Claude reads REDLINING.md or OOXML.md only when the user needs those features.
 - **Scope tool requirements** - If a skill depends on special tools, say so precisely instead of implying broad access.
 - **Avoid brevity bias** - Some risky domains need substantial embedded context; don't compress them into useless slogans.
 
+## Umbrella Skills (Absorption Pattern)
+
+Umbrella skills consolidate related standalone skills into one budget entry.
+Sub-capabilities become reference files loaded on-demand via progressive disclosure.
+
+### Structure
+
+```text
+core/{umbrella-name}/
+├── SKILL.md              # Routing table + description (consumes budget)
+├── references/
+│   ├── {sub-cap-1}.md    # Former standalone skill body
+│   ├── {sub-cap-2}.md    # Former standalone skill body
+│   └── ...
+├── scripts/              # Merged from absorbed skills
+└── __tests__/            # Merged from absorbed skills
+```
+
+### SKILL.md Pattern
+
+```yaml
+---
+name: umbrella-name
+description: |
+  One-line covering all sub-capabilities.
+  Trigger keywords from ALL absorbed skills.
+argument-hint: "[sub-capability] [args]"
+---
+```
+
+Body contains:
+1. **Absorbed Skills** list (which former skills this replaces)
+2. **Routing table** mapping intent → reference file
+3. Instruction to read relevant reference and follow it
+
+### Invocation
+
+```bash
+/umbrella sub-capability "args"    # Explicit routing
+/umbrella                          # Model auto-routes from context
+```
+
+### Canonical Examples
+
+- `core/design/` — 11 skills, mode-based routing (Explore/Extend/Audit/Sprint)
+- `core/audit/` — dynamic domain routing via argument (`/audit stripe`)
+- `core/research/` — 4 skills, intent + argument routing
+
+See `/skill-builder` for absorption lifecycle and quality gates.
+
 ## Skill Creation Process
 
 Skill creation involves these steps:

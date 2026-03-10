@@ -18,26 +18,47 @@ Engineer shipping clean, well-documented PRs.
 
 ## Objective
 
-Create a draft PR from current branch. Link to issue, explain what/why/how.
+Create a draft PR from current branch. Link to issue, make the significance obvious, and give reviewers the value/trade-off context they need at a glance.
 
 ## Latitude
 
 - Stage and commit any uncommitted changes with semantic message
 - Read linked issue from branch name or recent commits
-- Write PR body that explains decisions, not just changes
+- Write PR body that explains significance, value, trade-offs, and alternatives, not just changes
 - `dogfood`, `agent-browser`, and `browser-use` are available here; use them for flow QA evidence
+- Load [references/pr-body-template.md](./references/pr-body-template.md) before writing the PR body
 
 ## PR Body Requirements (MANDATORY)
 
-Every PR body must contain all six sections. A PR missing any section is not ready.
+Every PR body must follow [references/pr-body-template.md](./references/pr-body-template.md).
+A PR missing these sections is not ready.
 
 ```
-## Summary
-What changed and why it matters. Not a diff recap — explain the significance.
-Link to the issue. State the problem this solves or the capability this adds.
+## Why This Matters
+Top-line significance first:
+- what problem existed
+- what value this adds
+- why this is worth doing now
+- link to issue
+
+## Trade-offs / Risks
+State the value gained, the costs/risks incurred, and why the trade is still worth it.
+
+## What Changed
+Show the delta, not just the end state:
+- Mermaid flow chart for the base branch
+- Mermaid flow chart for this PR
+- Mermaid architecture/state/sequence diagram for the deeper structural change
+- Short explanation of why this is an improvement
 
 ## Changes
-Concise list of what was done. Reference key files/functions.
+Concise mechanical summary. Reference key files/functions.
+
+## Intent Reference
+Link to the issue/spec/intent contract that justifies the work.
+
+## Alternatives Considered
+At minimum: do nothing, one credible alternate approach, and why the chosen approach won.
 
 ## Acceptance Criteria
 Copied or derived from the linked issue. Checkboxes.
@@ -45,23 +66,6 @@ Copied or derived from the linked issue. Checkboxes.
 ## Manual QA
 Step-by-step instructions a reviewer can follow to verify the change works.
 Include: setup steps, exact commands, expected output, URLs to visit.
-
-## What Changed
-
-Mermaid diagram showing the nature of the change. Selection:
-
-| Change type | Diagram |
-|------------|---------|
-| New feature / component | `graph TD` of new components and their relationships |
-| Bug fix | `stateDiagram-v2` showing broken state → fixed state |
-| Refactor | `graph TD` before vs. after (two diagrams, labeled Before/After) |
-| Data model change | `erDiagram` of affected tables/relations |
-| API change | `sequenceDiagram` of old vs. new call flow |
-| Simple/internal change | Omit — don't force a diagram when it adds no signal |
-
-**Decision rule:** If the change can be explained in one sentence with no branching or relationships → omit. Otherwise → include.
-
-Load `~/.claude/skills/visualize/references/github-mermaid-patterns.md` for annotated examples and GitHub gotchas.
 
 ## Before / After
 Show the state before and after this PR. MANDATORY for every PR.
@@ -76,7 +80,14 @@ When in doubt, screenshot.
 ## Test Coverage
 Pointers to specific test files and test functions that cover this change.
 Note any gaps: what ISN'T tested and why.
+
+## Merge Confidence
+State confidence level, strongest evidence, and residual risk.
 ```
+
+Use `<details>/<summary>` to collapse larger sections such as Alternatives,
+Manual QA, Acceptance Criteria, Test Coverage, and screenshot-heavy Before / After evidence.
+Keep `Why This Matters`, `Trade-offs / Risks`, and the opening `What Changed` explanation visible.
 
 ## Workflow
 
@@ -87,8 +98,8 @@ Note any gaps: what ISN'T tested and why.
    `/dogfood` is a skill command (not a PATH CLI check). Use `agent-browser` / `browser-use` for focused repro as needed.
    Fix all P0/P1 issues found. Iterate until clean. **Do not open a PR until this passes.**
    Include dogfood summary (issues found, fixed) in PR body under Manual QA section.
-5. **Describe** — Title from issue, body follows PR Body Requirements above (capture before state FIRST, before making changes if possible)
-6. **Before/After** — Use screenshots from visual QA + dogfood steps. For non-UI changes, describe behavioral difference in text.
+5. **Describe** — Title from issue, body follows [references/pr-body-template.md](./references/pr-body-template.md). Lead with significance/value/trade-offs, not the diff recap.
+6. **Before/After** — Use screenshots from visual QA + dogfood steps. For non-UI changes, describe behavioral difference in text. If the PR body gets long, move heavy evidence into `<details>`.
 7. **Open** — `gh pr create --draft --assignee phrazzld`
 8. **Comment** — Add context comment if notable decisions were made
 9. **Retro** — If this PR closes a GitHub issue, append implementation feedback:

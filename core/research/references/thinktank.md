@@ -1,14 +1,4 @@
----
-name: thinktank
-disable-model-invocation: true
-description: |
-  Multi-model expert review with synthesis.
-  Runs multiple AI models in parallel for diverse perspectives.
-  Use when: architecture decisions, code review, security audit, need consensus.
-argument-hint: '"<query>" [file...]'
----
-
-# /thinktank
+# Thinktank
 
 Multiple expert perspectives on any question.
 
@@ -30,9 +20,9 @@ Answer `$ARGUMENTS` with diverse AI perspectives, synthesized into actionable re
 ## Usage
 
 ```
-/thinktank "Is this auth implementation secure?" ./src/auth
-/thinktank "What are the tradeoffs of this architecture?"
-/thinktank "Review this PR for issues" $(git diff main --name-only)
+/research thinktank "Is this auth implementation secure?" ./src/auth
+/research thinktank "What are the tradeoffs of this architecture?"
+/research thinktank "Review this PR for issues" $(git diff main --name-only)
 ```
 
 ## Output

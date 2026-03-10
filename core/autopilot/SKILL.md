@@ -114,15 +114,20 @@ The point is single ownership. One issue should map to one active autopilot lane
 13. **Ship** — Open a draft PR:
     - Stage and commit any uncommitted changes with semantic message
     - Read linked issue from branch name or recent commits
+    - Load `../pr/references/pr-body-template.md` and mirror it
     - PR body must contain all sections:
-      - **Summary**: What changed and why. Link to issue. `Closes #N`.
+      - **Why This Matters**: Problem, value added, why now, issue link. This is top-of-line.
+      - **Trade-offs / Risks**: Costs accepted, remaining concerns, why the trade is worthwhile.
       - **Intent Reference**: Copy/paste issue intent contract summary + link to source issue section.
       - **Changes**: Concise list of what was done. Key files/functions.
+      - **Alternatives Considered**: Do nothing, credible alternative(s), and why current approach won.
       - **Acceptance Criteria**: From linked issue. Checkboxes.
       - **Manual QA**: Step-by-step verification. Commands, expected output.
-      - **What Changed**: Mermaid diagram (graph TD for features, stateDiagram-v2 for fixes, sequenceDiagram for APIs).
-      - **Before / After**: Text description mandatory. Screenshots for UI changes.
+      - **What Changed**: Mermaid flow chart for base branch, Mermaid flow chart for this PR, and a third Mermaid architecture/state/sequence diagram, plus explanation of why the new shape is better.
+      - **Before / After**: Text description mandatory. Screenshots for UI changes. Use `<details>` for heavy evidence.
       - **Test Coverage**: Specific test files/functions. Note gaps.
+      - **Merge Confidence**: Confidence level, strongest evidence, residual risk.
+    - Keep deep sections under `<details>` where useful, but do not hide the topline significance/trade-off story
     - `gh pr create --draft --assignee phrazzld`
     - Add context comment if notable decisions were made
 14. **Retro** — Ensure `.groom/retro.md` exists first; initialize it with a minimal heading/template if missing. Then append implementation signals:

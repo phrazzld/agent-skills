@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repo Is
 
-A unified skills monorepo for multi-model AI agents (Claude, Codex, Gemini, Factory, Pi). Markdown-first, with some TypeScript helper scripts and tests (e.g., `core/web-search/`). Skills are distributed to agent harnesses via symlinks.
+A unified skills monorepo for multi-model AI agents (Claude, Codex, Gemini, Factory, Pi). Markdown-first, with some TypeScript helper scripts and tests (e.g., `core/research/`). Skills are distributed to agent harnesses via symlinks.
 
 **63 core skills** (universal engineering) + **4 domain packs** (20 skills, loaded per-project) + **5 repo-local** (live in their own repos).
 
@@ -129,6 +129,30 @@ Core domain checklists live in `core/audit/references/`. Pack checklists live in
 `core/audit/generated-references/` when a pack is loaded via
 `sync.sh pack <name>`. Audit/fix/log-issues discover available domains
 dynamically by scanning both checklist directories.
+
+## Umbrella Skills (Absorption Pattern)
+
+Umbrella skills consolidate related standalone skills into one budget entry.
+Sub-capabilities become `references/{name}.md` files, loaded on-demand.
+
+**Three-level progressive disclosure:** description → SKILL.md body → one or more references loaded on-demand.
+
+```text
+core/{umbrella}/
+├── SKILL.md          # Routing table (consumes budget)
+└── references/
+    ├── sub-cap-1.md  # Former standalone skill body
+    └── sub-cap-2.md  # Loaded only when needed
+```
+
+Budget scales O(umbrellas), not O(skills). Adding sub-capabilities costs zero.
+
+**Canonical examples:**
+- `core/design/` — 11 absorbed skills, mode-based routing
+- `core/audit/` — dynamic domain routing (`/audit stripe`)
+- `core/research/` — 4 absorbed skills (web-search, delegate, thinktank, introspect)
+
+See `skill-builder` (absorption lifecycle) and `skill-creator` (umbrella creation process).
 
 ## Adding or Modifying a Skill
 

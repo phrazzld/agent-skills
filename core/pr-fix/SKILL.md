@@ -262,12 +262,20 @@ If fixes touch UI or user behavior (`app/`, `components/`, styles, route handler
 
 ### 7. Update PR Description with Before / After
 
-Edit the PR body to include a Before / After section documenting the fix:
+Edit the PR body to preserve the richer `/pr` structure and update the relevant sections documenting the fix:
 
 ```bash
-# Get current body, append Before/After section
-gh pr edit $PR --body "$(current body + before/after section)"
+# Get current body, refresh the affected sections
+gh pr edit $PR --body "$(updated body)"
 ```
+
+Before editing, read `../pr/references/pr-body-template.md`.
+
+Do not only append text. Refresh:
+- `Why This Matters` if the fix changed the PR's significance
+- `Trade-offs / Risks` if the fix changed reviewer concerns
+- `What Changed` diagrams if the final implementation shape drifted
+- `Before / After` evidence for the blocked vs unblocked state
 
 **Text (MANDATORY)**: Describe the blocked state (before) and the unblocked state (after).
 Example: "Before: CI failing on type error in auth module. After: Types corrected, CI green."

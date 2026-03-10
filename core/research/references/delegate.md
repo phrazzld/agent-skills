@@ -1,13 +1,4 @@
----
-name: delegate
-user-invocable: false
-description: |
-  Multi-AI orchestration primitive. Delegate to specialized AI tools, collect outputs, synthesize.
-  Use when: analysis, review, audit, investigation tasks need multiple expert perspectives.
-  Keywords: orchestrate, delegate, multi-ai, parallel, synthesis, consensus, dag, swarm
----
-
-# /delegate
+# Delegate
 
 > You orchestrate. Specialists do the work.
 
@@ -186,10 +177,10 @@ After each phase:
 
 | Scenario | Use DAG? |
 |----------|----------|
-| Large migration (10+ files, phases) | ✅ Yes |
-| Multi-feature release | ✅ Yes |
-| Single feature (1-5 files) | ❌ Overkill |
-| Quick fix | ❌ Overkill |
+| Large migration (10+ files, phases) | Yes |
+| Multi-feature release | Yes |
+| Single feature (1-5 files) | Overkill |
+| Quick fix | Overkill |
 
 For typical feature work, simple parallel spawning is sufficient.
 
@@ -247,5 +238,4 @@ use the Task tool with `subagent_type: "general-purpose"`.
 
 - `/llm-communication` — Prompt writing principles
 - `/pr-fix` — Example implementation
-- `/thinktank` — Multi-model synthesis
-- `/codex-coworker` — Codex delegation patterns
+- `/research thinktank` — Multi-model synthesis

@@ -158,11 +158,20 @@ If repo-wide gates are already red from unrelated debt, still add the strongest 
 
 ### 7. Update PR Description with Before / After
 
-Edit the PR body to include (or update) a Before / After section documenting the polish pass:
+Edit the PR body to preserve the richer `/pr` structure and update the sections affected by the polish pass:
 
 ```bash
-gh pr edit $PR --body "$(current body + before/after section)"
+gh pr edit $PR --body "$(updated body)"
 ```
+
+Before editing, read `../pr/references/pr-body-template.md`.
+
+Refresh:
+- `Why This Matters` if the polish changed the meaning or significance of the PR
+- `Trade-offs / Risks` if the polish removed or introduced reviewer concerns
+- `What Changed` diagrams if the final architecture/flow drifted during review
+- `Before / After` to document what the polish improved
+- `Merge Confidence` to reflect the new evidence level after polish
 
 **Text (MANDATORY)**: Describe the state before polish (e.g., "working but with shallow modules and missing edge-case tests") and after (e.g., "consolidated modules, 12 new edge-case tests, updated architecture docs").
 
@@ -178,9 +187,9 @@ Check PR body for visual communication:
 gh pr view $PR --json body | jq -r '.body'
 ```
 
-- Does the PR body have a `## What Changed` Mermaid diagram?
-- If no, and the change involves logic/architecture/data flow: generate one using `~/.claude/skills/visualize/references/github-mermaid-patterns.md`
-- If yes: validate it accurately reflects the **final state** (diagrams drift during review)
+- Does it include base-branch and PR-branch flow charts plus the deeper architecture/state diagram when the change has meaningful flow?
+- If no, and the change involves logic/architecture/data flow: generate them using `~/.claude/skills/visualize/references/github-mermaid-patterns.md`
+- If yes: validate they accurately reflect the **final state** and make the improvement legible
 - Add or update diagram in PR body: `gh pr edit $PR --body "$(updated body)"`
 
 Omit only when the change is purely internal with no branching or relationships.
