@@ -1,6 +1,6 @@
 # Agent Skills
 
-64 core skills + 4 domain packs for AI coding agents. Works with Claude Code, Codex, Gemini, Factory, and Pi.
+65 core skills + 4 domain packs for AI coding agents. Works with Claude Code, Codex, Gemini, Factory, and Pi.
 
 Skills are Markdown-first with a handful of Python helper scripts. No application code, no dependencies. They teach agents *how to work*: debugging methodology, PR workflows, design systems, incident response, and dozens of domain-specific playbooks.
 
@@ -72,6 +72,7 @@ starter rows with repo-specific subsystem docs and routing rules.
 | `/shape` | DMI | Product + technical planning (absorbs spec, architect, brainstorming) |
 | `/autopilot` | Model+User | Autonomous delivery: shape → build → walkthrough → commit → PR |
 | `/build` | Model+User | Implementation with TDD workflow |
+| `/simplify` | DMI | First-principles repo simplification: understand, redesign, refactor, PR |
 | `/commit` | DMI | Semantic commits with quality gates |
 | `/pr-walkthrough` | DMI | Mandatory walkthrough package: script, artifact, evidence, persistent check |
 | `/pr` | DMI | PR creation with mandatory sections |
