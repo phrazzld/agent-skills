@@ -140,7 +140,7 @@ The point is single ownership. One issue should map to one active autopilot lane
       - **Merge Confidence**: Confidence level, strongest evidence, residual risk.
     - Keep deep sections under `<details>` where useful, but do not hide the topline significance/trade-off story
     - Use `--body-file` for `gh pr create`, `gh pr edit`, and PR comments
-    - `gh pr create --draft --assignee phrazzld`
+    - `gh pr create --draft --assignee phrazzld --body-file <path>`
     - Add context comment if notable decisions were made
 15. **Retro** — Ensure `.groom/retro.md` exists first; initialize it with a minimal heading/template if missing. Then append implementation signals:
     ```

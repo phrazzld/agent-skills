@@ -65,9 +65,9 @@ without mutating tracked source.
 
 No build, lint, or test commands — this repo is documentation only.
 
-## Auto-Sync (post-merge hook)
+## Auto-Sync (git hooks)
 
-A `post-merge` git hook auto-runs `sync.sh all --prune` after every `git pull` / `git merge`, keeping all harness symlinks current.
+Git hooks auto-run `sync.sh all --prune` after pulls and merges, keeping all harness symlinks current. Covers both merge-based (`post-merge`) and rebase-based (`post-rewrite`) pulls.
 
 **New machine setup (one-time):**
 ```bash

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Auto-sync skills after rebase (covers git pull --rebase)
+[ "$1" = "rebase" ] || exit 0
+echo "[agent-skills] syncing skills to harnesses..."
+./scripts/sync.sh all --prune
