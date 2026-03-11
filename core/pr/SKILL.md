@@ -1,8 +1,8 @@
 ---
 name: pr
 description: |
-  Full PR workflow from working directory to draft PR.
-  Commits uncommitted changes, analyzes diff, writes description, opens draft.
+  Full PR workflow from working directory to live PR.
+  Commits uncommitted changes, analyzes diff, writes description, opens the PR.
   Use when: opening a pull request, shipping to review, creating PR.
   Trigger: /pr, "open PR", "create pull request", "ship to review".
 disable-model-invocation: true
@@ -18,7 +18,7 @@ Engineer shipping clean, well-documented PRs.
 
 ## Objective
 
-Create a draft PR from current branch. Link to issue, make the significance obvious, give reviewers the value/trade-off context they need at a glance, and attach the walkthrough package that proves the merge case.
+Create a live PR from current branch. Link to issue, make the significance obvious, give reviewers the value/trade-off context they need at a glance, and attach the walkthrough package that proves the merge case.
 
 `/pr` opens or updates the review lane. It does not certify that the live PR is review-clean after async reviewer automation runs.
 
@@ -28,6 +28,7 @@ Create a draft PR from current branch. Link to issue, make the significance obvi
 - Read linked issue from branch name or recent commits
 - Write PR body that explains significance, value, trade-offs, and alternatives, not just changes
 - Run `/pr-walkthrough` and treat its output as required PR evidence
+- Own ship blockers surfaced by the required gates; fix adjacent repo debt when it is the only thing keeping the lane from opening cleanly
 - `dogfood`, `agent-browser`, and `browser-use` are available here; use them for flow QA evidence
 - Load [references/pr-body-template.md](./references/pr-body-template.md) before writing the PR body
 - Treat an existing PR for the same branch or issue as the lane to update, not a reason to create another PR
@@ -60,7 +61,7 @@ Keep `Why This Matters`, `Trade-offs / Risks`, and the opening `What Changed` ex
 6. **Walkthrough** — Run `/pr-walkthrough`. Every PR needs a walkthrough package, even when the change is not user-facing. Use browser, terminal, diagram, Remotion, or mixed media as appropriate.
 7. **Describe** — Title from issue, body follows [references/pr-body-template.md](./references/pr-body-template.md). Lead with significance/value/trade-offs, not the diff recap.
 8. **Before/After** — Use screenshots or evidence from visual QA, dogfood, and `/pr-walkthrough`. For non-UI changes, describe behavioral or architectural difference in text. If the PR body gets long, move heavy evidence into `<details>`.
-9. **Open / Update** — Use `gh pr create --draft --assignee phrazzld --body-file <path>` for new PRs. Use `gh pr edit --body-file <path>` when the branch already has a PR.
+9. **Open / Update** — Use `gh pr create --assignee phrazzld --body-file <path>` for new PRs. Use `gh pr edit --body-file <path>` when the branch already has a PR.
 10. **Review Settlement Handoff** — If the final push, `gh pr ready`, or PR update triggered async reviewers:
    - do not post `PR Unblocked` or claim the PR is review-clean
    - route live review reconciliation through `/pr-fix`

@@ -18,7 +18,7 @@ Engineering lead running a sprint. Find work, ensure it's ready, delegate implem
 
 ## Objective
 
-Deliver Issue `$ARGUMENTS` (or highest-priority eligible open issue) as a draft PR with tests passing,
+Deliver Issue `$ARGUMENTS` (or highest-priority eligible open issue) as a live PR with tests passing,
 a clean dogfood QA pass, and a walkthrough artifact that makes the merge case legible.
 
 An open PR for that issue counts as the active delivery lane. Do not create a duplicate PR
@@ -30,6 +30,7 @@ for the same issue unless you first surface and justify a superseding lane.
 - You orchestrate, review, clean up, commit, ship
 - Flesh out incomplete issues yourself (spec, design)
 - Never skip an issue because it's "not ready" — YOU make it ready
+- Own the lane end-to-end: if validation surfaces adjacent breakage or stale repo debt in scope of the ship gate, fix it or explicitly justify why it cannot be fixed in this lane
 - `dogfood`, `agent-browser`, and `browser-use` are available in this environment; use them for user-flow validation
 
 ## LLM-First Implementation Rule (Mandatory)
@@ -123,7 +124,7 @@ The point is single ownership. One issue should map to one active autopilot lane
     - Run quality gates (`lint`, `typecheck`, `test`) before pushing
     - `git fetch origin && git push origin HEAD` (rebase if behind)
     - Never force push. Never push to main without confirmation.
-14. **Ship** — Open a draft PR:
+14. **Ship** — Open or update a live PR:
     - Stage and commit any uncommitted changes with semantic message
     - Read linked issue from branch name or recent commits
     - Re-run `python3 scripts/issue_lane.py --repo <owner/name> --issue <N>` immediately before opening the PR when available
@@ -146,7 +147,7 @@ The point is single ownership. One issue should map to one active autopilot lane
       - **Merge Confidence**: Confidence level, strongest evidence, residual risk.
     - Keep deep sections under `<details>` where useful, but do not hide the topline significance/trade-off story
     - Use `--body-file` for `gh pr create`, `gh pr edit`, and PR comments
-    - `gh pr create --draft --assignee phrazzld --body-file <path>`
+    - `gh pr create --assignee phrazzld --body-file <path>`
     - Add context comment if notable decisions were made
     - Opening or updating the PR creates the review lane. It does **not** mean the PR is review-clean.
     - If your final push, `gh pr ready`, or PR edit triggers async reviewers, do not post any "PR Unblocked" or "ready for merge" signal unless `/pr-fix` has passed its live settlement gate on that PR

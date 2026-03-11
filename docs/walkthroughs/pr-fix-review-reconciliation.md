@@ -48,8 +48,8 @@ The redesign moved the critical rule into the skill contract:
 
 ```mermaid
 stateDiagram-v2
-  [*] --> DraftPR
-  DraftPR --> Reconciling: review findings arrive
+  [*] --> OpenPR
+  OpenPR --> Reconciling: review findings arrive
   Reconciling --> Waiting: replies posted + threads resolved
   Waiting --> Reconciling: new async findings appear
   Waiting --> ReviewClean: settled inventory is clean

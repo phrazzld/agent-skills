@@ -38,9 +38,9 @@ If the user asks to "open/create/make/update the PR" (or invokes a PR prompt/ski
 
 ## Safe command patterns
 
-### Create draft PR
+### Create PR
 ```bash
-gh pr create --draft --title "<title>" --body-file /tmp/pr-body.md
+gh pr create --title "<title>" --body-file /tmp/pr-body.md
 ```
 
 ### Edit PR body

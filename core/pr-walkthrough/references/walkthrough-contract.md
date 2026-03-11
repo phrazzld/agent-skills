@@ -25,7 +25,8 @@ Judge every walkthrough against this rubric:
 
 | Situation | Best format | Evidence to include |
 |-----------|-------------|---------------------|
-| Frontend UX or workflow | Browser recording | before/after screenshots, happy path, one key edge case |
+| Frontend UX or workflow with meaningful interaction | Browser recording | before/after screenshots, happy path, one key edge case |
+| Static UI delta or non-interactive visual proof | Screenshot bundle | before/after screenshots, annotations, protecting check |
 | CLI or developer workflow | Terminal walkthrough | commands, expected output, before/after behavior |
 | Backend or API change | Terminal plus diagrams | request/response traces, data/state change, regression test |
 | Infra, CI, architecture, refactor | Diagram-led walkthrough | old vs new flow, invariants preserved, proof commands |
@@ -67,6 +68,13 @@ For each scene, capture at least one of:
 
 If a scene has no evidence, cut or rewrite the claim.
 
+## Motion Rule
+
+- Use video only when motion is part of the proof: a user action, animation, state transition, navigation flow, drag/drop, async update, or other observable behavior.
+- If the truth can be understood from a still frame, prefer screenshots.
+- A video that shows no action is a failed artifact, not a richer screenshot.
+- If recording a flow, perform the real action in the recording and hold long enough to show the resulting state.
+
 ## PR Body Template
 
 Every PR should include a section like this:
@@ -74,7 +82,7 @@ Every PR should include a section like this:
 ```md
 ## Walkthrough
 
-- Renderer: Browser walkthrough | Terminal walkthrough | Remotion walkthrough | Mixed
+- Renderer: Screenshot bundle | Browser walkthrough | Terminal walkthrough | Remotion walkthrough | Mixed
 - Artifact: [link to video or walkthrough bundle]
 - Claim: [the single sentence this walkthrough proves]
 - Before / After scope: [what surfaces are covered]

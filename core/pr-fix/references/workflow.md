@@ -70,6 +70,7 @@ If the PR links an issue with `## Acceptance Criteria`, run `verify-ac` as a sec
 - treat `PARTIAL` as advisory evidence to report in the PR, not a hard stop by default
 - never mark self-review complete while acceptance-criteria drift is still unexplained
 
+
 ## 5. Build the Review Inventory
 
 Read [reconciliation-ledger.md](./reconciliation-ledger.md) and use the inventory script.
@@ -157,7 +158,7 @@ If the repo is known to post delayed findings even after checks complete, requir
 
 If the fix materially changes implementation, evidence, or merge risk, update the PR body and walkthrough.
 
-Before editing, read `../pr/references/pr-body-template.md`.
+Before editing, read `../../pr/references/pr-body-template.md`.
 
 Refresh:
 - `Why This Matters`
