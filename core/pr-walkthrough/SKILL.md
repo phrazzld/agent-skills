@@ -37,6 +37,7 @@ Every run must leave behind:
    - why the change matters
    - what test now protects it
 2. A primary artifact:
+   - screenshot bundle
    - browser recording
    - terminal walkthrough
    - Remotion-rendered narrated video
@@ -79,10 +80,13 @@ The walkthrough artifact is not enough on its own. The evidence must stand on it
 
 Preferred order:
 
-1. deterministic browser or terminal walkthrough
+1. screenshot bundle when the claim is static and there is no meaningful action to demonstrate
+2. deterministic browser or terminal walkthrough when an action, transition, or workflow matters
 2. optional polished Remotion cut with narration or music
 
 Never block a PR on a cinematic pass if the deterministic walkthrough is already strong and truthful.
+Never record a motionless video just because "video" sounds richer than screenshots.
+If you choose video, the recording must show the actual action being performed and the resulting state change or interaction.
 
 ### 6. Tie it to persistent verification
 
@@ -109,6 +113,8 @@ Add a `## Walkthrough` section that includes:
 - All PRs get a walkthrough. No exceptions.
 - The artifact must strengthen reviewer confidence, not just advertise polish.
 - Prefer deterministic evidence over high-production ambiguity.
+- If nothing moves, use screenshots instead of video.
+- If something important does move, record the real action and its result. Do not ship idle footage that is visually indistinguishable from a screenshot.
 - Remotion is encouraged for high-value communication, not as a substitute for proof.
 - If the PR changes nothing user-visible, narrate invariants, architecture, and verification instead.
 
