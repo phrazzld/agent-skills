@@ -21,6 +21,8 @@ def gh_json(args: list[str]) -> Any:
 
 def repo_parts(repo: str | None) -> tuple[str, str]:
     if repo:
+        if "/" not in repo:
+            raise ValueError(f"Invalid --repo format: expected 'owner/name', got '{repo}'")
         owner, name = repo.split("/", 1)
         return owner, name
     payload = gh_json(["repo", "view", "--json", "owner,name"])
@@ -40,7 +42,7 @@ def rest_pages(path: str) -> list[dict[str, Any]]:
         if not payload:
             break
         if not isinstance(payload, list):
-            raise RuntimeError(f"expected list payload from {path}, got {type(payload).__name__}")
+            raise TypeError(f"expected list from {path}, got {type(payload).__name__}")
         items.extend(payload)
         if len(payload) < 100:
             break
@@ -92,6 +94,7 @@ query($owner:String!, $repo:String!, $threadId:ID!, $after:String) {
         comments.extend(payload["nodes"])
         cursor = payload["pageInfo"]["endCursor"] if payload["pageInfo"]["hasNextPage"] else None
     return comments
+
 
 
 def review_threads(owner: str, repo: str, pr: int) -> list[dict[str, Any]]:
@@ -240,7 +243,7 @@ def main() -> int:
                     "comments": [
                         {
                             "id": comment["id"],
-                            "author": comment["author"]["login"] if comment.get("author") else None,
+                            "author": (comment.get("author") or {}).get("login"),
                             "path": comment.get("path"),
                             "line": comment.get("line"),
                             "url": comment.get("url"),

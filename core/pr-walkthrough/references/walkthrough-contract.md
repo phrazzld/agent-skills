@@ -82,7 +82,6 @@ Every PR should include a section like this:
 ```md
 ## Walkthrough
 
-- Renderer: Browser walkthrough | Terminal walkthrough | Remotion walkthrough | Mixed
 - Renderer: Screenshot bundle | Browser walkthrough | Terminal walkthrough | Remotion walkthrough | Mixed
 - Artifact: [link to video or walkthrough bundle]
 - Claim: [the single sentence this walkthrough proves]

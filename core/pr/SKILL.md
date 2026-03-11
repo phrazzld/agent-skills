@@ -22,6 +22,8 @@ Create a live PR from current branch. Link to issue, make the significance obvio
 
 `/pr` opens or updates the review lane. It does not certify that the live PR is review-clean after async reviewer automation runs.
 
+`/pr` opens or updates the review lane. It does not certify that the live PR is review-clean after async reviewer automation runs.
+
 ## Latitude
 
 - Stage and commit any uncommitted changes with semantic message

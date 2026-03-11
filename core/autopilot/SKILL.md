@@ -110,6 +110,12 @@ The point is single ownership. One issue should map to one active autopilot lane
     - Optional accelerator: use an `ousterhout` persona/agent if the harness provides one
 11. **Dogfood QA** — Run automated QA against local dev server (see Dogfood QA section below).
    Iterate until no P0/P1 issues remain. **Do not open a PR until QA passes.**
+11a. **Verify ACs** — Invoke `verify-ac` against the linked issue's `## Acceptance Criteria`.
+   - Honor explicit AC tags (`[test]`, `[command]`, `[behavioral]`) when present; otherwise let `verify-ac` choose the narrowest credible strategy from the diff and repo context
+   - Retry `UNVERIFIED` checks once (2 attempts total)
+   - If any AC remains `UNVERIFIED` after attempt 2: keep remediating the code, tests, or docs and rerun `verify-ac`; do not commit or ship while the gate is failing
+   - Escalate to the user only when further progress is genuinely blocked after reasonable remediation attempts
+   - `PARTIAL` may proceed only if no AC is `UNVERIFIED`, but it must be reported in the final handoff and PR body
 12. **Walkthrough** — Run `/pr-walkthrough` and produce the mandatory walkthrough package for the branch. Every PR needs an artifact, even if the change is internal or architectural.
 13. **Commit** — Create semantic commits for all remaining changes:
     - Categorize files: commit, gitignore, delete, consolidate

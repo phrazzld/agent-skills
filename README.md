@@ -1,6 +1,6 @@
 # Agent Skills
 
-64 core skills + 4 domain packs for AI coding agents. Works with Claude Code, Codex, Gemini, Factory, and Pi.
+Portable skill library for AI coding agents. Works with Claude Code, Codex, Gemini, Factory, and Pi.
 
 Skills are Markdown-first with a handful of Python helper scripts. No application code, no dependencies. They teach agents *how to work*: debugging methodology, PR workflows, design systems, incident response, and dozens of domain-specific playbooks.
 
@@ -12,9 +12,9 @@ AI agents are only as good as their instructions. Generic prompts produce generi
 
 | Tier | Location | Distribution | Budget cost |
 |------|----------|-------------|-------------|
-| **Core** (64) | `core/` | `sync.sh claude` → global | Per-mode |
-| **Pack** (20) | `packs/` | `sync.sh pack <name> <project>` → per-project | Per-mode |
-| **Repo-local** (5) | `<repo>/.claude/skills/` | Lives in destination repo | Per-mode |
+| **Core** | `core/` | `sync.sh claude` → global | Per-mode |
+| **Pack** | `packs/` | `sync.sh pack <name> <project>` → per-project | Per-mode |
+| **Repo-local** | `<repo>/.claude/skills/` | Lives in destination repo | Per-mode |
 
 Invocation modes within each tier:
 
@@ -72,6 +72,7 @@ starter rows with repo-specific subsystem docs and routing rules.
 | `/shape` | DMI | Product + technical planning (absorbs spec, architect, brainstorming) |
 | `/autopilot` | Model+User | Autonomous delivery: shape → build → walkthrough → commit → PR |
 | `/build` | Model+User | Implementation with TDD workflow |
+| `/simplify` | DMI | First-principles repo simplification: understand, redesign, refactor, PR |
 | `/commit` | DMI | Semantic commits with quality gates |
 | `/pr-walkthrough` | DMI | Mandatory walkthrough package: script, artifact, evidence, persistent check |
 | `/pr` | DMI | PR creation with mandatory sections |
@@ -148,16 +149,16 @@ Domains: bitcoin, btcpay, bun, docs, landing, lightning, observability, onboardi
 
 Packs are loaded per-project via `sync.sh pack <name> <project-dir>`.
 
-### payments (3 skills + 5 checklists)
+### payments
 `bitcoin` · `lightning` · `stripe`
 
-### growth (8 skills + 3 checklists)
+### growth
 `brand` · `content` · `growth` · `ai-media` · `og-hero-image` · `app-screenshots` · `audit-website` · `product-marketing-context`
 
-### scaffold (5 skills + 1 checklist)
+### scaffold
 `github-app-scaffold` · `slack-app-scaffold` · `monorepo-scaffold` · `mobile-migrate` · `bun`
 
-### finance (4 skills)
+### finance
 `finances-ingest` · `finances-report` · `finances-snapshot` · `crypto-gains`
 
 ## Repo-Local Skills

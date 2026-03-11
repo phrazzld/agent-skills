@@ -65,6 +65,12 @@ Look for:
 
 Fix what you find. Re-run the relevant verification before moving on.
 
+If the PR links an issue with `## Acceptance Criteria`, run `verify-ac` as a secondary check before leaving self-review:
+- treat `UNVERIFIED` criteria as a blocker to resolve or defer explicitly before signaling the branch is clean
+- treat `PARTIAL` as advisory evidence to report in the PR, not a hard stop by default
+- never mark self-review complete while acceptance-criteria drift is still unexplained
+
+
 ## 5. Build the Review Inventory
 
 Read [reconciliation-ledger.md](./reconciliation-ledger.md) and use the inventory script.

@@ -196,8 +196,7 @@ agent-browser --session {SESSION} close
 ## Guidance
 
 - **Repro is everything.** Every issue needs proof -- but match the evidence to the issue. Interactive bugs need video and step-by-step screenshots. Static bugs (typos, placeholder text, visual glitches visible on load) only need a single annotated screenshot.
-- **Don't record video for static issues.** A typo or clipped text doesn't benefit from a video. Save video for issues that involve user interaction, timing, or state changes.
-- **Never ship a motionless repro video.** If the issue is static, use screenshots only. If you record video, the recording must show the actual interaction that triggers the issue.
+- **Don't record video for static issues.** A typo or clipped text doesn't benefit from a video. Save video only for issues that involve user interaction, timing, or state changes — and the recording must show the actual action that triggers the issue.
 - **For interactive issues, screenshot each step.** Capture the before, the action, and the after -- so someone can see the full sequence.
 - **Write repro steps that map to screenshots.** Each numbered step in the report should reference its corresponding screenshot. A reader should be able to follow the steps visually without touching a browser.
 - **Be thorough but use judgment.** You are not following a test script -- you are exploring like a real user would. If something feels off, investigate.

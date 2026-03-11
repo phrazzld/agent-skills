@@ -6,22 +6,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A unified skills monorepo for multi-model AI agents (Claude, Codex, Gemini, Factory, Pi). Markdown-first, with some TypeScript helper scripts and tests (e.g., `core/research/`). Skills are distributed to agent harnesses via symlinks.
 
-**64 core skills** (universal engineering) + **4 domain packs** (20 skills, loaded per-project) + **5 repo-local** (live in their own repos).
+Core skills, domain packs, and repo-local skills for AI coding agents. Skills are added, absorbed, and reorganized over time, so avoid hard-coding inventory counts in docs.
 
 ## Repo Structure
 
 ```
 agent-skills/
-├── core/           # 64 universal skills, synced to ~/.claude/skills/
+├── core/           # Universal skills, synced to ~/.claude/skills/
 │   ├── groom/
 │   ├── autopilot/
 │   ├── build/
 │   └── ...
 ├── packs/          # Domain packs, loaded per-project on demand
-│   ├── payments/   # bitcoin, lightning, stripe (3 skills + 5 checklists)
-│   ├── growth/     # brand, content, growth, ai-media, og-hero-image, app-screenshots, audit-website, product-marketing-context (8 skills + 3 checklists)
-│   ├── scaffold/   # github-app, slack-app, monorepo, mobile-migrate, bun (5 skills + 1 checklist)
-│   └── finance/    # finances-ingest, finances-report, finances-snapshot, crypto-gains (4 skills)
+│   ├── payments/   # Payment-focused skills and checklists
+│   ├── growth/     # Growth and marketing skills
+│   ├── scaffold/   # Project scaffolding and migration skills
+│   └── finance/    # Personal finance workflows
 ├── docs/
 │   └── context/    # Starter cold-memory artifacts for tuned repos
 ├── scripts/
@@ -114,8 +114,7 @@ Claude Code has a ~16K char description budget. Skills consume budget based on m
 | Reference | `user-invocable: false` | Auto-loaded by model | **Consumes budget** |
 | DMI | `disable-model-invocation: true` | User via `/command` | **Free** |
 
-Current split: ~36 budget-consuming + ~28 DMI = ~64 core total. Well within 16K.
-Pack skills (20) don't consume budget — they're loaded per-project only when needed.
+Keep the budget-consuming surface lean. Prefer DMI for user-only workflows, and use packs for per-project specialization so the global core stays within budget.
 
 ## Core Delivery Pipeline
 
