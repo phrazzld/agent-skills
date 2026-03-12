@@ -215,6 +215,8 @@ After quality gates pass, run visual QA:
 - Fix P0/P1 issues, note P2s in PR body
 ```
 
+Scratch screenshots should stay in `/tmp` or another ignored location. Do not commit visual QA media unless the user explicitly asks for durable repo-hosted evidence, and if you must commit it, use a PR- or branch-unique path.
+
 ## Output
 
 Findings list with severities, screenshot paths, and fix status.

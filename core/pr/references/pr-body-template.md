@@ -110,13 +110,17 @@ Put the proof before the prose when the PR has user-visible evidence.
 - Link the video in a way that does not drop reviewers into a confusing code viewer
 - Surface 1-3 screenshots inline when they materially help
 - State the merge claim in one sentence
+- Include at least one durable artifact from real branch execution
+- Do not treat a markdown note or prose summary as sufficient reviewer evidence
 
 For private repositories:
 
 - prefer GitHub-uploaded attachments for screenshots and video
+- if repo-hosted evidence is necessary, use a PR- or branch-unique path such as `walkthrough/pr-123/...`
 - fallback screenshot syntax in PR bodies/comments: `../blob/<ref>/path/to/image.png?raw=true`
 - fallback repo-hosted video link: `../blob/<ref>/path/to/video.mp4?raw=1`
 - do not use `raw.githubusercontent.com/...` or bare asset paths like `walkthrough/screenshots/foo.png`
+- do not use shared filenames like `walkthrough/reviewer-evidence.md` for PR-local evidence
 
 ### `## Why This Matters`
 
@@ -184,6 +188,7 @@ This is the proof package for the PR.
 - Before / After scope
 - Persistent verification
 - Residual gap
+- Observable artifact from actual execution on this branch
 
 For the script and rubric, load `../../pr-walkthrough/references/walkthrough-contract.md`.
 
@@ -225,8 +230,10 @@ For Mermaid syntax examples and GitHub rendering constraints, load
 
 - Do not bury the value proposition below a long diff recap.
 - Do not bury the reviewer evidence below the narrative when the branch has user-visible proof.
+- Do not present prose-only reviewer evidence as proof.
 - Do not present risks only as a footnote.
 - Do not use a single diagram when before/after comparison is the actual point.
 - Do not force screenshots for purely internal changes, but do provide text before/after.
 - Do use `<details>` to keep the PR readable when sections get long.
 - Do make the walkthrough point to one durable automated check, not just a polished artifact.
+- Do keep repo-hosted PR artifacts uniquely scoped to the PR or branch. Shared artifact paths create needless merge conflicts.

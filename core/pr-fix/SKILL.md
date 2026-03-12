@@ -24,6 +24,7 @@ Take PR `$ARGUMENTS` (or the current branch PR) to this state:
 - every actionable review item handled
 - no open review threads
 - no misleading "PR Unblocked" comment while review automation can still add findings
+- durable PR evidence still truthful after the last fix or push
 
 ## Latitude
 
@@ -37,6 +38,7 @@ Take PR `$ARGUMENTS` (or the current branch PR) to this state:
 2. **Reply per item.** Aggregate "covered above" comments are not enough for actionable review findings.
 3. **Settle async reviewers before signaling success.** After every push, `gh pr ready`, or any action that can retrigger bots, rerun the review inventory after reviewer activity settles.
 4. **No quality-gate downgrades.** Fix the code or the tests. Do not weaken thresholds.
+5. **Evidence must stay current.** If a fix changes behavior, verification, or review confidence, refresh the walkthrough and reviewer evidence before signaling success.
 
 ## Dependency Order
 
@@ -82,6 +84,7 @@ Do not post `PR Unblocked` if any of these are still true:
 - any actionable PR review comment lacks a direct reply
 - any actionable review thread remains unresolved
 - the post-settlement inventory changed and has not been reconciled
+- the PR walkthrough or reviewer evidence is stale, text-only, or no longer proves the current branch state
 
 ## Retry Policy
 

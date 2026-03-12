@@ -64,6 +64,7 @@ Look for:
 - semantic mismatches between names, comments, and behavior
 
 Fix what you find. Re-run the relevant verification before moving on.
+If the branch already has walkthrough or reviewer evidence, check whether self-review changes invalidated it. If so, plan to refresh the artifact before signaling success.
 
 If the PR links an issue with `## Acceptance Criteria`, run `verify-ac` as a secondary check before leaving self-review:
 - treat `UNVERIFIED` criteria as a blocker to resolve or defer explicitly before signaling the branch is clean
@@ -122,6 +123,7 @@ git push --force-with-lease
 ```
 
 After any push, rerun the review inventory and reconcile again. Do not assume previously closed gaps stayed closed.
+After any push that changes behavior, update or regenerate the walkthrough artifact if the old evidence is no longer truthful.
 
 If a review fix breaks CI, go back to step 3.
 
@@ -166,6 +168,9 @@ Refresh:
 - `What Changed`
 - `Before / After`
 - `Walkthrough`
+- `Reviewer Evidence`
+
+Do not leave a text-only or stale walkthrough artifact attached to a branch that has changed since it was recorded.
 
 ## 11. Signal
 

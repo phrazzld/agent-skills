@@ -186,3 +186,12 @@ See `skill-builder` (absorption lifecycle) and `skill-creator` (umbrella creatio
 - **Budget-aware** — use DMI for user-only workflows to keep budget free
 - **References auto-load** — `user-invocable: false` skills provide ambient context
 - **Agent-agnostic** — skills work across Claude, Codex, Gemini, Pi
+
+## Artifact Hygiene
+
+Workflow skills must not create merge-conflict bait.
+
+- Default scratch output goes to `/tmp` or another ignored ephemeral directory, not repo-relative shared paths.
+- If a durable repo-hosted artifact is truly required, it must use a PR- or branch-unique path such as `walkthrough/pr-123/...` or `walkthrough/<branch-slug>/...`.
+- Never require stable shared filenames for PR-local evidence, QA reports, screenshots, or videos.
+- Commit artifacts only when the repo explicitly wants them versioned. Otherwise prefer PR bodies, comments, attachments, or temp files.

@@ -20,13 +20,14 @@ Only the **Target URL** is required. Everything else has sensible defaults -- us
 |-----------|---------|-----------------|
 | **Target URL** | _(required)_ | `vercel.com`, `http://localhost:3000` |
 | **Session name** | Slugified domain (e.g., `vercel.com` -> `vercel-com`) | `--session my-session` |
-| **Output directory** | `./dogfood-output/` | `Output directory: /tmp/qa` |
+| **Output directory** | `/tmp/dogfood/{session}-{timestamp}/` | `Output directory: /tmp/qa` |
 | **Scope** | Full app | `Focus on the billing page` |
 | **Authentication** | None | `Sign in to user@example.com` |
 
 If the user says something like "dogfood vercel.com", start immediately with defaults. Do not ask clarifying questions unless authentication is mentioned but credentials are missing.
 
 Always use `agent-browser` directly -- never `npx agent-browser`. The direct binary uses the fast Rust client. `npx` routes through Node.js and is significantly slower.
+Dogfood outputs are scratch QA artifacts by default. Do not commit them unless the user explicitly asks or the repo has a dedicated ignored artifact location.
 
 ## Workflow
 
@@ -202,6 +203,7 @@ agent-browser --session {SESSION} close
 - **Be thorough but use judgment.** You are not following a test script -- you are exploring like a real user would. If something feels off, investigate.
 - **Write findings incrementally.** Append each issue to the report as you discover it. If the session is interrupted, findings are preserved. Never batch all issues for the end.
 - **Never delete output files.** Do not `rm` screenshots, videos, or the report mid-session. Do not close the session and restart. Work forward, not backward.
+- **Keep outputs ephemeral by default.** Use `/tmp` or another ignored location unless the user explicitly wants a durable checked-in report. Shared repo-relative output dirs create avoidable merge conflicts.
 - **Never read the target app's source code.** You are testing as a user, not auditing code. Do not read HTML, JS, or config files of the app under test. All findings must come from what you observe in the browser.
 - **Check the console.** Many issues are invisible in the UI but show up as JS errors or failed requests.
 - **Test like a user, not a robot.** Try common workflows end-to-end. Click things a real user would click. Enter realistic data.
