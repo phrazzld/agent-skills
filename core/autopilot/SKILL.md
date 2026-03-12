@@ -151,17 +151,10 @@ The point is single ownership. One issue should map to one active autopilot lane
     - Add context comment if notable decisions were made
     - Opening or updating the PR creates the review lane. It does **not** mean the PR is review-clean.
     - If your final push, `gh pr ready`, or PR edit triggers async reviewers, do not post any "PR Unblocked" or "ready for merge" signal unless `/pr-fix` has passed its live settlement gate on that PR
-15. **Retro** — Ensure `.groom/retro.md` exists first; initialize it with a minimal heading/template if missing. Then append implementation signals:
-    ```
-    mkdir -p .groom
-    [ -f .groom/retro.md ] || cat > .groom/retro.md <<'EOF'
-    # Retro Log
-
-    Append one entry per delivered issue.
-    EOF
-    /retro append --issue $1 --predicted {effort_label} --actual {actual_effort} \
-      --scope "{scope_changes}" --blocker "{blockers}" --pattern "{insight}"
-    ```
+15. **Retro (Optional)** — Only capture implementation signals when the repo already uses issue-scoped retro notes and the signal is worth keeping.
+    - Use one file per issue under `.groom/retro/<issue>.md`.
+    - Never append to a shared `.groom/retro.md`; skip retro entirely instead of creating merge-hot churn for low-value notes.
+    - If you do append, prefer the repo's issue-scoped retro command/path (for example `/done append --issue ...`) rather than inventing a new shared log format.
 
 ## Dogfood QA
 

@@ -22,7 +22,7 @@ Use this skill when creating or redesigning a repository's local Pi foundation.
    - Inspect local policy/context (`AGENTS.md`, `CLAUDE.md`, README/docs, scripts).
    - Mine existing automation/context layers (`.claude/`, `.codex/`, existing `.pi/`).
    - Analyze the **git history** (`git log --oneline -n 30`, `git log --stat`, major refactors) to understand where the project came from.
-   - Review the **backlog, issues, and retrospectives** (e.g., `TODO`s, `.groom/retro.md`) to understand where it's going.
+   - Review the **backlog, issues, and retrospectives** (e.g., `TODO`s, `.groom/retro/*.md`) to understand where it's going.
    - Run parallel lanes when useful (scout, docs, critic, context-bridge).
 
 2. **Route models by job**

@@ -68,13 +68,10 @@ Keep `Reviewer Evidence`, `Why This Matters`, `Trade-offs / Risks`, and the open
    - route live review reconciliation through `/pr-fix`
    - only treat the PR as unblocked after `/pr-fix` closes the post-settlement review inventory
 11. **Comment** — Add context comment if notable decisions were made, and use `--body-file` for comment bodies.
-12. **Retro** — If this PR closes a GitHub issue, append implementation feedback:
-   ```bash
-   /retro append --issue $ISSUE --predicted {effort_label} --actual {actual_effort} \
-     --scope "{what_changed_from_spec}" --blocker "{blockers}" --pattern "{insight}"
-   ```
-   This feeds the grooming feedback loop — `/groom` reads retro.md to calibrate
-   future effort estimates and issue scoping.
+12. **Retro (Optional)** — If this PR closes a GitHub issue and the repo already uses issue-scoped retro notes, append feedback under `.groom/retro/<issue>.md`.
+   - Never append to a shared `.groom/retro.md`; skip the retro step instead of creating merge-conflict churn.
+   - Only write a retro note when it adds real planning signal.
+   - Prefer the repo's existing issue-scoped retro command/path (for example `/done append --issue ...`).
 
 ## Comment Style
 
@@ -86,4 +83,4 @@ Like a colleague leaving context for future-you:
 
 ## Output
 
-PR URL. Retro entry appended to `.groom/retro.md` (if issue-linked). If review automation is pending or unresolved, say that explicitly instead of implying the PR is unblocked.
+PR URL. Say whether a retro note was intentionally skipped or appended. If review automation is pending or unresolved, say that explicitly instead of implying the PR is unblocked.

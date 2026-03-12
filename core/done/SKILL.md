@@ -65,7 +65,7 @@ If a risky subsystem had no relevant doc, record that retrieval miss explicitly.
 If this session implemented a GitHub issue, append implementation feedback:
 
 ```
-{repo}/.groom/retro.md
+{repo}/.groom/retro/<issue>.md
 ```
 
 Capture:
@@ -128,10 +128,10 @@ For each item:
 ## Retro Storage
 
 ```
-{repo}/.groom/retro.md
+{repo}/.groom/retro/<issue>.md
 ```
 
-Created automatically if missing. Appended to, never overwritten.
+Created automatically if missing. One file per issue to avoid branch-hot append conflicts.
 
 ### Retro Entry Format
 
@@ -148,7 +148,7 @@ Created automatically if missing. Appended to, never overwritten.
 
 ### How /groom Uses Retro
 
-During planning, `/groom` reads retro.md and extracts:
+During planning, `/groom` reads `.groom/retro/*.md` and extracts:
 - Effort calibration ("Payment issues take 1.5x estimates")
 - Scope patterns ("Webhook issues always need retry logic")
 - Blocker patterns ("External API docs frequently wrong")
@@ -171,12 +171,12 @@ During planning, `/groom` reads retro.md and extracts:
 | `git diff`, `git log` | New/updated skill files |
 | Task list state | New/updated hooks |
 | Error logs | Auto-memory entries |
-| | `.groom/retro.md` entries |
+| | `.groom/retro/<issue>.md` entries |
 
 **Hands off to:** `/commit` (if artifacts to commit), `/distill` (if staging section long)
 
 ## Related
 
-- `/groom` -- Reads retro.md during planning
-- `/pr` -- Also appends retro signals
+- `/groom` -- Reads `.groom/retro/*.md` during planning
+- `/pr` -- May append issue-scoped retro signals
 - `/distill` -- Graduate staging learnings to skills/agents
