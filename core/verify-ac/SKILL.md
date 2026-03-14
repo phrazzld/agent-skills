@@ -65,6 +65,19 @@ Machine-verifies `## Acceptance Criteria` from a GitHub issue body.
   - `PARTIAL` when path exists but confidence/coverage is incomplete
   - `UNVERIFIED` when behavior is absent or contradicted
 
+### `formal` (inferred only)
+
+- Applicable when AC involves temporal properties ("never", "always", "eventually")
+  in a concurrent context.
+- Check for existing `.tla` or `.py` Z3 specs in the repo.
+- If found, verify AC maps to a checked invariant in the spec.
+- If no spec exists but AC has temporal properties, note as "formal verification candidate"
+  but fall back to `behavioral` strategy.
+- Output:
+  - `VERIFIED` with spec file:invariant evidence
+  - `PARTIAL` when AC maps to spec but spec hasn't been re-checked against current design
+  - `UNVERIFIED` when no formal spec covers this AC (fall back to behavioral)
+
 ## Hard Gate Policy
 
 - Run up to 2 attempts for `UNVERIFIED` items.

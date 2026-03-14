@@ -96,7 +96,7 @@ The point is single ownership. One issue should map to one active autopilot lane
    - **Never skip an issue because it scored low — YOU make it ready**
 5. **Intent gate** — Ensure issue has `## Product Spec` and `### Intent Contract`.
    If missing, invoke `/shape --spec-only $1` and re-check before coding.
-6. **Design** — Invoke `/shape --design-only` if no `## Technical Design` section
+6. **Design** — Invoke `/shape --design-only` if no `## Technical Design` section. If design contains a state machine or concurrent protocol, consider `/formal-verify loop` before proceeding to build.
 7. **Build (TDD Enforced)** — Invoke `/build` and require RED→GREEN evidence per acceptance criterion:
    - RED: failing targeted tests before implementation
    - GREEN: same tests passing after implementation
