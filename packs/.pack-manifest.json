@@ -1,0 +1,18 @@
+{
+  "payments": {
+    "detect": ["stripe", "@stripe/stripe-js", "stripity_stripe", "btcpay"],
+    "files": ["package.json", "mix.exs", "Gemfile", "requirements.txt", "go.mod"]
+  },
+  "growth": {
+    "detect": ["posthog-js", "@posthog/react", "posthog"],
+    "files": ["package.json", "mix.exs"]
+  },
+  "scaffold": {
+    "detect": [],
+    "manual": true
+  },
+  "finance": {
+    "detect": [],
+    "manual": true
+  }
+}
