@@ -10,14 +10,14 @@ architecture critique, research, and exploration.
 Check for `project.md` in project root:
 
 **If `project.md` exists:**
-1. Read and display current vision/focus
-2. Ask: "Is this still accurate? Any updates?"
-3. If updates, rewrite `project.md`
+1. Read and display current vision/principles
+2. Only update if vision, principles, philosophy, or domain language have genuinely changed
+3. Never inject ephemeral data (versions, issue numbers, sprint themes) — see `project-md-format.md`
 
 **If `project.md` doesn't exist (but `vision.md` does):**
 1. Read `vision.md`
 2. Migrate content into `project.md` format (see `project-md-format.md`)
-3. Interview for missing sections (domain glossary, quality bar, patterns)
+3. Interview for missing sections (principles, philosophy, domain glossary, quality bar)
 4. Write `project.md`, delete `vision.md`
 
 **If neither exists:**

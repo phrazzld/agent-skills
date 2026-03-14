@@ -17,19 +17,15 @@ Query the user's Readwise Reader library for saved articles, highlights, and doc
 
 ## Authentication
 
-Token is in `$READWISE_ACCESS_TOKEN`. If not in env, source it:
+Source the token, then validate:
 ```bash
 eval "$(grep READWISE_ACCESS_TOKEN ~/.secrets)"
-```
-
-All requests use header: `Authorization: Token $READWISE_ACCESS_TOKEN`
-
-Validate before first use:
-```bash
 curl -s -o /dev/null -w "%{http_code}" https://readwise.io/api/v2/auth/ \
   -H "Authorization: Token $READWISE_ACCESS_TOKEN"
 # 204 = valid
 ```
+
+All requests use header: `Authorization: Token $READWISE_ACCESS_TOKEN`
 
 ## Core Operations
 
@@ -38,20 +34,20 @@ curl -s -o /dev/null -w "%{http_code}" https://readwise.io/api/v2/auth/ \
 No full-text search endpoint exists. Strategy: fetch documents, filter client-side.
 
 ```bash
-curl -s "https://readwise.io/api/v3/list/?category=article&location=later" \
+curl -s "https://readwise.io/api/v3/list/?limit=100" \
   -H "Authorization: Token $READWISE_ACCESS_TOKEN" \
-  | jq '[.results[] | select(.title + " " + (.summary // "") | test("TOPIC"; "i"))]
-        | .[] | {title, source_url, summary, reading_progress, word_count, saved_at}'
+  | jq '[.results[] | select(((.title // "") + " " + (.summary // "")) | test("TOPIC"; "i"))]
+        | .[] | {title: (.title // "(untitled)"), source_url, summary: (.summary // ""), reading_progress, word_count, saved_at}'
 ```
 
-For broader search, omit `category` and `location` filters. Search across `new`, `later`, and `archive`.
+Searches all locations by default. Add `&location=later` or `&category=article` to narrow.
 
 ### List Recent Saves
 
 ```bash
 curl -s "https://readwise.io/api/v3/list/?location=new&limit=20" \
   -H "Authorization: Token $READWISE_ACCESS_TOKEN" \
-  | jq '.results[] | {title, category, source_url, summary, saved_at, word_count}'
+  | jq '.results[] | {title: (.title // "(untitled)"), category, source_url, summary: (.summary // ""), saved_at, word_count}'
 ```
 
 ### List by Category
@@ -75,7 +71,7 @@ curl -s "https://readwise.io/api/v3/tags/" \
 ```bash
 curl -s "https://readwise.io/api/v3/list/?tag=TAG_NAME&limit=20" \
   -H "Authorization: Token $READWISE_ACCESS_TOKEN" \
-  | jq '.results[] | {title, source_url, summary}'
+  | jq '.results[] | {title: (.title // "(untitled)"), source_url, summary: (.summary // "")}'
 ```
 
 Up to 5 `tag` params allowed. Empty `tag=` finds untagged documents.
@@ -96,7 +92,7 @@ Highlights are documents with `parent_id` pointing to the source document.
 curl -s "https://readwise.io/api/v3/list/?category=highlight&limit=100" \
   -H "Authorization: Token $READWISE_ACCESS_TOKEN" \
   | jq '[.results[] | select(.parent_id == "DOCUMENT_ID")]
-        | .[] | {title, summary, notes}'
+        | .[] | {title: (.title // "(untitled)"), summary: (.summary // ""), notes: (.notes // "")}'
 ```
 
 ## Pagination
