@@ -44,12 +44,14 @@ Hard rules for building interfaces. MUST/NEVER are non-negotiable.
 
 - MUST use `text-balance` for headings and `text-pretty` for body/paragraphs
 - MUST use `tabular-nums` for data
+- MUST apply `antialiased` (Tailwind) on `<body>` for crisp text rendering on macOS
 - SHOULD use `truncate` or `line-clamp` for dense UI
 - NEVER modify `letter-spacing` (`tracking-`) unless explicitly requested
 
 ## Layout
 
 - MUST use a fixed `z-index` scale (no arbitrary `z-x`)
+- MUST use concentric border radii when nesting rounded elements: `outer-radius = inner-radius + padding`
 - SHOULD use `size-x` for square elements instead of `w-x` + `h-x`
 
 ## Performance
