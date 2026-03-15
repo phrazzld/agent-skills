@@ -14,5 +14,25 @@
   "finance": {
     "detect": [],
     "manual": true
+  },
+  "web": {
+    "detect": ["next", "react", "vue", "@sveltejs", "nuxt", "playwright", "cypress"],
+    "files": ["package.json"]
+  },
+  "design": {
+    "detect": [],
+    "manual": true
+  },
+  "agent": {
+    "detect": ["@anthropic-ai/sdk", "anthropic", "openai", "langchain", "llamaindex"],
+    "files": ["package.json", "requirements.txt", "pyproject.toml", "mix.exs"]
+  },
+  "infra": {
+    "detect": [],
+    "manual": true
+  },
+  "quality": {
+    "detect": [],
+    "manual": true
   }
 }

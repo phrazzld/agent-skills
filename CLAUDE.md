@@ -6,21 +6,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A unified skills monorepo for multi-model AI agents (Claude, Codex, Gemini, Factory, Pi). Markdown-first, with some TypeScript helper scripts and tests (e.g., `core/research/`). Skills are distributed to agent harnesses via symlinks.
 
-Core skills, domain packs, and repo-local skills for AI coding agents. Skills are added, absorbed, and reorganized over time, so avoid hard-coding inventory counts in docs.
+**Architecture**: CLAUDE.md for universal norms → Skills for workflows → Packs for domain specialization → MCP for external capabilities.
 
 ## Repo Structure
 
 ```
 agent-skills/
-├── core/           # Universal skills, synced to ~/.claude/skills/
-│   ├── groom/
-│   ├── autopilot/
-│   ├── build/
-│   └── ...
-├── packs/          # Domain packs, loaded per-project on demand
-│   ├── payments/   # Payment-focused skills and checklists
-│   ├── growth/     # Growth and marketing skills
-│   ├── scaffold/   # Project scaffolding and migration skills
+├── core/           # 7 universal skills, synced to ~/.claude/skills/
+│   ├── debug/      # Investigate, audit, triage, fix (implicit)
+│   ├── research/   # Web search, delegation, validation (implicit)
+│   ├── forage/     # Skill discovery + pack activation (implicit)
+│   ├── autopilot/  # Full delivery pipeline (DMI)
+│   ├── groom/      # Backlog grooming and planning (DMI)
+│   ├── moonshot/   # Strategic divergent thinking (DMI)
+│   └── reflect/    # Session retrospective + codification (DMI)
+├── packs/          # Domain packs, loaded per-project via /forage
+│   ├── web/        # Frontend, UI, visual QA, browser testing
+│   ├── design/     # Design systems, aesthetics, tokens
+│   ├── agent/      # AI/LLM agent infrastructure, skill engineering
+│   ├── infra/      # DevOps, sysadmin, security, CI/CD, observability
+│   ├── quality/    # Code quality, naming, patterns, linting
+│   ├── payments/   # Stripe, Bitcoin, Lightning
+│   ├── growth/     # SEO, ads, CRO, content, brand
+│   ├── scaffold/   # Project scaffolding and migration
 │   └── finance/    # Personal finance workflows
 ├── docs/
 │   └── context/    # Starter cold-memory artifacts for tuned repos
@@ -28,6 +36,22 @@ agent-skills/
 │   └── sync.sh
 └── CLAUDE.md
 ```
+
+## Core Skills (7)
+
+Only 3 skills compete for automatic model routing. 4 are user-invoked only (DMI = free budget).
+
+| Skill | Mode | Role |
+|-------|------|------|
+| **debug** | implicit | Investigate, audit, triage, fix |
+| **research** | implicit | Web search, delegation, multi-perspective validation |
+| **forage** | implicit | Skill discovery, pack activation |
+| **autopilot** | DMI | Full delivery: plan → build → ship → settle |
+| **groom** | DMI | Backlog grooming, planning, prioritization |
+| **moonshot** | DMI | Strategic divergent thinking |
+| **reflect** | DMI | Session retrospective, codification |
+
+Autopilot's sub-commands (`/build`, `/shape`, `/pr`, `/pr-fix`, `/pr-polish`, `/simplify`, `/commit`, `/issue`, `/check-quality`, `/test-coverage`, `/verify-ac`, `/pr-walkthrough`) are routed via its SKILL.md routing table to `references/`.
 
 ## Key Commands
 
@@ -47,6 +71,12 @@ agent-skills/
 ./scripts/sync.sh pack payments ~/Development/cerberus
 ./scripts/sync.sh pack growth ~/Development/cerberus-web
 ./scripts/sync.sh pack finance --global
+
+# Auto-detect packs from project dependencies
+./scripts/sync.sh detect ~/Development/myproject
+
+# Search pack skills (used by /forage)
+./scripts/sync.sh index                # Rebuild pack skill index
 ```
 
 Harness overlays are applied automatically during sync when present:
@@ -60,7 +90,7 @@ Overlay files are merged onto `core/<skill>/` at sync time. Special file:
 
 Pack loading symlinks skills into the project's `.claude/skills/` and syncs
 `audit-references/*.md` into ignored runtime state at
-`core/audit/generated-references/` so audit/fix/log-issues can discover them
+`core/debug/generated-references/` so audit/fix/log-issues can discover them
 without mutating tracked source.
 
 No build, lint, or test commands — this repo is documentation only.
@@ -75,6 +105,18 @@ git config core.hooksPath .githooks
 ```
 
 Manual `sync.sh` is still needed for pack loading and explicit refresh.
+
+## Project Pack Declaration
+
+Add `.claude/packs` to any repo for explicit pack loading:
+
+```
+# .claude/packs
+payments
+growth
+```
+
+Read by `sync.sh detect` alongside auto-detection. Committed to git.
 
 ## Skill Directory Convention
 
@@ -114,67 +156,61 @@ Claude Code has a ~16K char description budget. Skills consume budget based on m
 | Reference | `user-invocable: false` | Auto-loaded by model | **Consumes budget** |
 | DMI | `disable-model-invocation: true` | User via `/command` | **Free** |
 
-Keep the budget-consuming surface lean. Prefer DMI for user-only workflows, and use packs for per-project specialization so the global core stays within budget.
+Core budget: ~1.4K (3 implicit skills). Down from ~10.2K with 67 skills.
 
-## Core Delivery Pipeline
-
-```
-/groom → /shape → /autopilot → /pr-fix → /pr-polish → merge
-```
-
-`/autopilot` chains shape → build → walkthrough → pr with commit/PR behavior inlined.
-
-## Unified Audit / Fix / Log
-
-Three unified skills replace all domain-specific check-*/fix-*/log-* skills:
+## Delivery Pipeline
 
 ```
-/audit stripe          # Domain audit (dispatches via argument)
-/fix stripe            # Domain fix (model-invocable for autonomous work)
-/log-issues production # Create GitHub issues from audit findings
+/groom → /autopilot (shape → build → pr → pr-fix → pr-polish → merge)
 ```
 
-Core domain checklists live in `core/audit/references/`. Pack checklists live in
-`packs/<pack>/audit-references/` and get symlinked into ignored runtime state at
-`core/audit/generated-references/` when a pack is loaded via
-`sync.sh pack <name>`. Audit/fix/log-issues discover available domains
-dynamically by scanning both checklist directories.
+All pipeline steps are sub-capabilities of `/autopilot`, loaded on-demand from `references/`.
+
+## Audit / Fix / Log (via debug)
+
+Absorbed into debug as sub-capabilities:
+
+```
+/debug audit stripe          # Domain audit (routes via debug)
+/debug fix stripe            # Audit then fix top issue
+/debug log-issues production # Create GitHub issues from findings
+```
+
+Domain checklists live in `core/debug/references/audit-*.md`. Pack checklists live in
+`packs/<pack>/audit-references/` and get symlinked into `core/debug/generated-references/`
+when a pack is loaded.
 
 ## Umbrella Skills (Absorption Pattern)
 
-Umbrella skills consolidate related standalone skills into one budget entry.
+Umbrella skills consolidate related capabilities into one budget entry.
 Sub-capabilities become `references/{name}.md` files, loaded on-demand.
 
-**Three-level progressive disclosure:** description → SKILL.md body → one or more references loaded on-demand.
+**Three-level progressive disclosure:** description → SKILL.md body → references loaded on-demand.
 
 ```text
 core/{umbrella}/
-├── SKILL.md          # Routing table (consumes budget)
+├── SKILL.md          # Routing table
 └── references/
-    ├── sub-cap-1.md  # Former standalone skill body
-    └── sub-cap-2.md  # Loaded only when needed
+    ├── sub-cap-1.md  # Loaded only when needed
+    └── sub-cap-2.md  # Zero budget cost
 ```
 
 Budget scales O(umbrellas), not O(skills). Adding sub-capabilities costs zero.
 
-**Canonical examples:**
-- `core/design/` — 11 absorbed skills, mode-based routing
-- `core/audit/` — dynamic domain routing (`/audit stripe`)
-- `core/research/` — 4 absorbed skills (web-search, delegate, thinktank, introspect)
-
-See `skill-builder` (absorption lifecycle) and `skill-creator` (umbrella creation process).
+**Current umbrellas:**
+- `core/autopilot/` — 12 absorbed delivery skills
+- `core/debug/` — 4 absorbed investigation/audit skills
+- `core/reflect/` — 4 absorbed retrospective skills
+- `core/research/` — 5 absorbed research/delegation skills
 
 ## Adding or Modifying a Skill
 
-**Always use both skill engineering skills:**
-
-1. **`/skill-builder`** (reference, auto-loaded) — Quality gates, classification (foundational vs workflow), when to create. Consult first to decide *whether* to create and *what kind*.
-2. **`/skill-creator`** (DMI, `/skill-creator`) — Structure, frontmatter, progressive disclosure, packaging. Follow its process for *how* to create well.
+Use `/forage agent` to load the agent pack, which contains skill-builder and skill-creator.
 
 **Workflow:**
-1. `/skill-builder` quality gates → pass all 4 (reusable, non-trivial, specific, verified)
-2. Classify: foundational (`user-invocable: false`) vs workflow (default/DMI)
-3. `/skill-creator` process → understand, plan resources, init, edit, package, iterate
+1. Skill-builder quality gates → pass all 4 (reusable, non-trivial, specific, verified)
+2. Classify: core skill (rare — only if universal workflow) vs pack skill (normal)
+3. Skill-creator process → understand, plan resources, init, edit, package, iterate
 4. Choose invocation mode: default (model+user), DMI (user-only), or reference (auto-load)
 5. Follow patterns from existing skills in the same category
 6. Run `./scripts/sync.sh all` to distribute
@@ -184,7 +220,7 @@ See `skill-builder` (absorption lifecycle) and `skill-creator` (umbrella creatio
 - **Deep modules** — hide complexity behind simple interfaces
 - **Compose, don't duplicate** — orchestrators call primitives
 - **Budget-aware** — use DMI for user-only workflows to keep budget free
-- **References auto-load** — `user-invocable: false` skills provide ambient context
+- **Packs over core** — domain knowledge goes in packs, discovered via forage
 - **Agent-agnostic** — skills work across Claude, Codex, Gemini, Pi
 
 ## Artifact Hygiene
