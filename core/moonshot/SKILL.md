@@ -91,6 +91,11 @@ Enough detail to judge feasibility.]
 - Safe, incremental, obvious next steps (that's the backlog)
 - Ignoring constraints (team size, tech stack, market position)
 
+## Creative Reframing
+
+When the divergent search feels stuck producing variations instead of new ideas,
+load `references/break-the-frame.md` for signal detection and hard reframing moves.
+
 ## Composability
 
 After `/moonshot`, the user may:

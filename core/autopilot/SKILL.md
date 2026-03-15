@@ -1,16 +1,40 @@
 ---
 name: autopilot
 description: |
-  Full autonomous delivery from issue to PR.
-  Finds highest-priority issue, specs it, designs it, builds it, ships it.
-  Use when: shipping an issue end-to-end, autonomous delivery, sprint execution.
-  Trigger: /autopilot, "ship this issue", "build and ship", "sprint execute".
-argument-hint: "[issue-id]"
+  Full delivery pipeline: plan, build, ship, settle.
+  Covers: shape/spec/design, TDD build, commit, PR creation, PR fix (CI/reviews/conflicts),
+  PR polish, simplify, test coverage, verify ACs, walkthrough, issue management.
+  Use when: shipping features, fixing PRs, creating PRs, building issues, simplifying code,
+  checking quality, writing commits, managing issues.
+  Trigger: /autopilot, /build, /shape, /pr-fix, /pr-polish, /simplify,
+  /commit, /issue, /check-quality, /test-coverage, /verify-ac, /pr-walkthrough.
+disable-model-invocation: true
+argument-hint: "[issue-id] or [sub-command]"
 ---
 
 # /autopilot
 
-From issue to PR in one command.
+Full delivery pipeline. From issue to merged PR in one command, or invoke sub-capabilities directly.
+
+## Routing
+
+| Intent | Sub-capability |
+|--------|---------------|
+| Spec, plan, design a feature — "shape this", "write a spec" | `references/shape.md` |
+| Implement, code, TDD — "build this", "implement" | `references/build.md` |
+| Create/update a PR — "open PR", "create PR" | Standalone `/pr` skill |
+| Unblock PR (CI, conflicts, reviews) — "fix PR", "CI red" | `references/pr-fix.md` |
+| Hindsight review, quality elevation — "polish PR" | `references/pr-polish.md` |
+| Reduce complexity — "simplify", >200 LOC mandatory | `references/simplify.md` |
+| Verify acceptance criteria — "verify ACs" | `references/verify-ac.md` |
+| Lint, typecheck, test gates — "check quality" | `references/check-quality.md` |
+| TDD enforcement, coverage — "test coverage" | `references/test-coverage.md` |
+| Visual evidence capture — "walkthrough" | `references/pr-walkthrough.md` |
+| Semantic commit workflow — "commit" | `references/commit.md` |
+| Issue lint/enrich/decompose — "issue" | `references/issue.md` |
+
+If invoked as `/autopilot [issue-id]`, run the full pipeline (below).
+If invoked as `/build`, `/shape`, `/pr-fix`, etc., read the corresponding reference and follow it.
 
 ## Role
 
@@ -18,8 +42,8 @@ Engineering lead running a sprint. Find work, ensure it's ready, delegate implem
 
 ## Objective
 
-Deliver Issue `$ARGUMENTS` (or highest-priority eligible open issue) as a live PR with tests passing,
-a clean dogfood QA pass, and a walkthrough artifact that makes the merge case legible.
+Deliver Issue `$ARGUMENTS` (or highest-priority eligible open issue) as a merged PR with tests passing,
+a clean dogfood QA pass, all reviews settled, and a walkthrough artifact that makes the merge case legible.
 
 An open PR for that issue counts as the active delivery lane. Do not create a duplicate PR
 for the same issue unless you first surface and justify a superseding lane.
@@ -151,7 +175,26 @@ The point is single ownership. One issue should map to one active autopilot lane
     - Add context comment if notable decisions were made
     - Opening or updating the PR creates the review lane. It does **not** mean the PR is review-clean.
     - If your final push, `gh pr ready`, or PR edit triggers async reviewers, do not post any "PR Unblocked" or "ready for merge" signal unless `/pr-fix` has passed its live settlement gate on that PR
-15. **Retro (Optional)** — Only capture implementation signals when the repo already uses issue-scoped retro notes and the signal is worth keeping.
+15. **CI Gate** — Wait for CI to complete on the PR.
+    - Poll with `gh pr checks <PR> --watch` or `gh run list --branch <branch> --limit 1`
+    - If any checks are red/failing: investigate root cause, fix, commit, push, then wait for CI again
+    - Repeat until all checks pass
+    - Do not proceed to review settlement while CI is red
+16. **Review Settlement** — Read every single PR review and comment. Think critically about each. For every review point, determine one of three dispositions:
+    - **In scope**: Fix it in the branch. Commit, push. Reply to the comment confirming the fix.
+    - **Valid but out of scope**: Create a separate GitHub issue (or add to BACKLOG.md if the repo uses one). Reply to the comment linking the tracking item.
+    - **Invalid**: Reply with clear reasoning for why the feedback doesn't apply.
+    - Every review point gets a written response on the PR — none are silently ignored.
+    - If fixes were pushed, return to step 15 (CI Gate) and re-verify before proceeding.
+17. **Polish** — Once CI is green and every review comment is addressed:
+    - Run `/pr-polish`
+    - Run `/simplify`
+    - If these generate changes, commit and push, then return to step 15 (CI Gate) to re-verify
+18. **Merge** — Once CI is green, all reviews are settled, and polish is complete:
+    - Squash merge via `gh pr merge --squash`
+    - Never merge with failing checks
+    - Never merge with unaddressed review comments
+19. **Retro (Optional)** — Only capture implementation signals when the repo already uses issue-scoped retro notes and the signal is worth keeping.
     - Use one file per issue under `.groom/retro/<issue>.md`.
     - Never append to a shared `.groom/retro.md`; skip retro entirely instead of creating merge-hot churn for low-value notes.
     - If you do append, prefer the repo's issue-scoped retro command/path (for example `/done append --issue ...`) rather than inventing a new shared log format.
@@ -240,7 +283,7 @@ NOT stopping conditions: lacks description, seems big, unclear approach.
 
 ## Output
 
-Report: issue worked, spec status, design status, TDD evidence (RED/GREEN), dogfood QA summary (issues found/fixed), walkthrough artifact summary, commits made, PR URL, and whether review cleanup was merely handed off or actually closed via `/pr-fix`.
+Report: issue worked, spec status, design status, TDD evidence (RED/GREEN), dogfood QA summary (issues found/fixed), walkthrough artifact summary, commits made, PR URL, review comments settled (count + dispositions), and merge status.
 
 ## Review Cadence
 

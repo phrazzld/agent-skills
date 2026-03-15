@@ -4,8 +4,9 @@ description: |
   Web research, multi-AI delegation, and multi-perspective validation.
   /research [query], /research delegate [task], /research thinktank [topic].
   Triggers: "search for", "look up", "research", "delegate", "get perspectives",
-  "web search", "find out", "investigate", "introspect", "session analysis".
-argument-hint: "[query] or [web-search|web-deep|web-news|web-docs|delegate|thinktank|introspect] [args]"
+  "web search", "find out", "investigate", "introspect", "session analysis",
+  "check readwise", "saved articles", "reading list", "highlights".
+argument-hint: "[query] or [web-search|web-deep|web-news|web-docs|delegate|thinktank|introspect|readwise] [args]"
 ---
 
 # Research
@@ -24,9 +25,10 @@ This skill consolidates: `web-search`, `delegate`, `thinktank`, `introspect`.
 | Delegate work to Codex/Gemini/agents, orchestrate multi-AI | `references/delegate.md` |
 | Multi-perspective expert validation, consensus | `references/thinktank.md` |
 | Analyze session history, usage patterns, improvement opportunities | `references/introspect.md` |
+| Search saved articles, highlights, reading list | `references/readwise.md` |
 
 If first argument matches `web-search`, `web-deep`, `web-news`, `web-docs`,
-`delegate`, `thinktank`, or `introspect`, read the corresponding reference.
+`delegate`, `thinktank`, `introspect`, or `readwise`, read the corresponding reference.
 If no argument, select based on user intent. If user specifies a sub-capability
 by name (e.g., "delegate this to codex"), route directly.
 

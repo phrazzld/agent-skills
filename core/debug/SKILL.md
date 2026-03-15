@@ -1,16 +1,33 @@
 ---
 name: debug
 description: |
-  Systematic debugging and investigation for local and production issues.
-  Four-phase protocol: root cause, pattern analysis, hypothesis test, fix.
-  Use for: any bug, test failure, production incident, unexpected behavior,
-  "investigate", "why is this broken", "debug this", "what went wrong".
-argument-hint: <symptoms - error message, unexpected behavior, what's broken>
+  Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle,
+  domain auditing, and issue logging. Four-phase protocol: root cause → pattern
+  analysis → hypothesis test → fix.
+  Use for: any bug, test failure, production incident, error spikes, audit,
+  triage, postmortem, "investigate", "why is this broken", "debug this",
+  "production down", "is production ok", "audit stripe", "log issues".
+argument-hint: <symptoms or domain> e.g. "error in auth" or "audit stripe"
 ---
 
 # /debug
 
 Find root cause. Fix it. Prove it works.
+
+## Routing
+
+| Intent | Sub-capability |
+|--------|---------------|
+| Debug a bug, test failure, unexpected behavior | This file (below) |
+| Incident lifecycle: triage, investigate, postmortem | `references/triage.md` |
+| Domain audit: "audit stripe", "audit quality" | `references/audit.md` |
+| Audit then fix highest priority issue | `references/fix.md` |
+| Create GitHub issues from audit findings | `references/log-issues.md` |
+
+If first argument matches a domain name (stripe, quality, etc.), route to `references/audit.md`.
+If "triage", "incident", "postmortem", "production down" → `references/triage.md`.
+If "fix" → `references/fix.md`. If "log issues" → `references/log-issues.md`.
+Otherwise, this is a debugging session — continue below.
 
 **The user's symptoms:** $ARGUMENTS
 
@@ -202,10 +219,9 @@ For non-trivial production issues, create `INCIDENT-{timestamp}.md`:
 
 ## References
 
-- `references/systematic-debugging.md` -- Full four-phase protocol with examples
-- `references/investigation-protocol.md` -- Production incident investigation
-
-## Related
-
-- `/triage` -- Full incident lifecycle (triage through postmortem)
-- `/test-coverage` -- Test audit and coverage analysis
+- `references/systematic-debugging.md` — Full four-phase protocol with examples
+- `references/investigation-protocol.md` — Production incident investigation
+- `references/triage.md` — Incident lifecycle (triage through postmortem)
+- `references/audit.md` — Domain auditing with dynamic checklist routing
+- `references/fix.md` — Audit then fix highest priority issue
+- `references/log-issues.md` — Create GitHub issues from findings
