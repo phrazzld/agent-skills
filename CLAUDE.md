@@ -12,14 +12,18 @@ A unified skills monorepo for multi-model AI agents (Claude, Codex, Gemini, Fact
 
 ```
 agent-skills/
-├── core/           # 7 universal skills, synced to ~/.claude/skills/
+├── core/           # 11 universal skills, synced to ~/.claude/skills/
 │   ├── debug/      # Investigate, audit, triage, fix (implicit)
 │   ├── research/   # Web search, delegation, validation (implicit)
 │   ├── forage/     # Skill discovery + pack activation (implicit)
 │   ├── autopilot/  # Full delivery pipeline (DMI)
+│   ├── calibrate/  # Mid-session harness postmortem (DMI)
 │   ├── groom/      # Backlog grooming and planning (DMI)
 │   ├── moonshot/   # Strategic divergent thinking (DMI)
-│   └── reflect/    # Session retrospective + codification (DMI)
+│   ├── pr/         # Commit and open pull requests (DMI)
+│   ├── reflect/    # Session retrospective + codification (DMI)
+│   ├── settle/     # Fix, polish, simplify PRs (DMI)
+│   └── skill/      # Create and update skills (DMI)
 ├── packs/          # Domain packs, loaded per-project via /forage
 │   ├── web/        # Frontend, UI, visual QA, browser testing
 │   ├── design/     # Design systems, aesthetics, tokens
@@ -37,9 +41,9 @@ agent-skills/
 └── CLAUDE.md
 ```
 
-## Core Skills (7)
+## Core Skills (11)
 
-Only 3 skills compete for automatic model routing. 4 are user-invoked only (DMI = free budget).
+Only 3 skills compete for automatic model routing. 8 are user-invoked only (DMI = free budget).
 
 | Skill | Mode | Role |
 |-------|------|------|
@@ -47,9 +51,13 @@ Only 3 skills compete for automatic model routing. 4 are user-invoked only (DMI 
 | **research** | implicit | Web search, delegation, multi-perspective validation |
 | **forage** | implicit | Skill discovery, pack activation |
 | **autopilot** | DMI | Full delivery: plan → build → ship → settle |
+| **calibrate** | DMI | Mid-session harness postmortem |
 | **groom** | DMI | Backlog grooming, planning, prioritization |
 | **moonshot** | DMI | Strategic divergent thinking |
+| **pr** | DMI | Commit and open pull requests |
 | **reflect** | DMI | Session retrospective, codification |
+| **settle** | DMI | Fix, polish, simplify PRs to merge-ready |
+| **skill** | DMI | Create and update agent skills |
 
 Autopilot's sub-commands (`/build`, `/shape`, `/pr`, `/pr-fix`, `/pr-polish`, `/simplify`, `/commit`, `/issue`, `/check-quality`, `/test-coverage`, `/verify-ac`, `/pr-walkthrough`) are routed via its SKILL.md routing table to `references/`.
 
