@@ -154,7 +154,7 @@ The point is single ownership. One issue should map to one active autopilot lane
     - Otherwise re-run the in-flight gate immediately before opening the PR
     - If an open PR already exists for the branch, use `gh pr edit`, not `gh pr create`
     - If another open PR already exists for the same issue, stop and surface the duplication instead of creating a second lane
-    - Load `../pr/references/pr-body-template.md` and follow it
+    - Load `references/pr-body-template.md` and follow it
     - The `Walkthrough` section must link the artifact and name the persistent verification that protects the demonstrated path
     - PR body must contain all sections:
       - **Why This Matters**: Problem, value added, why now, issue link. This is top-of-line.

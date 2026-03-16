@@ -194,7 +194,7 @@ This is the proof package for the PR.
 - For UX work, default the artifact to a real video or terminal recording rather than prose or a static note
 - For UX work, ensure the artifact is readable at normal speed and does not bury the changed surface under explanatory overlays
 
-For the script and rubric, load `../../pr-walkthrough/references/walkthrough-contract.md`.
+For the script and rubric, load `./pr-walkthrough-contract.md`.
 
 ### `## Before / After`
 

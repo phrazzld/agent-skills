@@ -16,7 +16,7 @@ For the whole repo or `$ARGUMENTS`, answer four questions with evidence:
 3. If rebuilding today, what are the cleanest plausible designs?
 4. Which one refactor removes the most complexity per unit of risk right now?
 
-Then implement that refactor, verify behavior, and open or update a draft PR via `../pr/SKILL.md`.
+Then implement that refactor, verify behavior, and open or update a draft PR via `../../pr/SKILL.md`.
 Local code changes plus a summary are not a completed `/simplify` run.
 
 ## Latitude
@@ -26,7 +26,7 @@ Local code changes plus a summary are not a completed `/simplify` run.
 - Prefer deletion, consolidation, and stronger module boundaries over new abstractions
 - Use an `ousterhout` reviewer/persona if available; otherwise apply the same checks manually
 - Treat the PR lane as part of the task, not optional follow-up work
-- If `../pr/SKILL.md` blocks on missing evidence, duplicate PRs, auth, or another concrete prerequisite, resolve it when feasible; otherwise report that explicit blocker instead of silently stopping short of the PR step
+- If `../../pr/SKILL.md` blocks on missing evidence, duplicate PRs, auth, or another concrete prerequisite, resolve it when feasible; otherwise report that explicit blocker instead of silently stopping short of the PR step
 - If no safe, high-impact, single-PR simplification exists, say so explicitly instead of inventing churn
 
 ## Workflow
@@ -37,7 +37,7 @@ Local code changes plus a summary are not a completed `/simplify` run.
 4. **Evaluate trade-offs** — Read `references/refactor-rubric.md`. Score the options on module depth, information hiding, operational simplicity, migration cost, behavior risk, and single-PR feasibility.
 5. **Choose one refactor** — Pick the change that maximizes complexity removed per unit of risk and fits in one pull request. Name what will be deleted, what will be consolidated, and what behavior must remain unchanged.
 6. **Implement with proof** — Before edits, write down the module invariants and external contract that must remain stable. Add or adjust tests against that contract where behavior risk is non-trivial. Make the refactor. Update docs if architecture or workflow meaningfully changes. Verify with the tightest commands that cover the affected surface.
-7. **Ship** — After boundary simplification and verification are complete, invoke `../pr/SKILL.md` and follow its workflow all the way through opening or updating the PR. Do not stop after local verification or a narrative summary. The PR should explain the current shape, the first-principles alternatives considered, why this refactor won, and the follow-up work left behind.
+7. **Ship** — After boundary simplification and verification are complete, invoke `../../pr/SKILL.md` and follow its workflow all the way through opening or updating the PR. Do not stop after local verification or a narrative summary. The PR should explain the current shape, the first-principles alternatives considered, why this refactor won, and the follow-up work left behind.
 8. **Codify leftovers** — If the best future architecture cannot fit in one PR, create focused follow-up issues or record the roadmap in the PR body.
 
 ## Output
@@ -49,7 +49,7 @@ Default deliverable:
 - Trade-off evaluation
 - Chosen single-PR simplification
 - Verification evidence
-- PR URL, or the explicit blocker returned by `../pr/SKILL.md`
+- PR URL, or the explicit blocker returned by `../../pr/SKILL.md`
 
 ## References
 

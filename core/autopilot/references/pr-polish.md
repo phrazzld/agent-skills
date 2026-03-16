@@ -156,7 +156,7 @@ Refresh the `## Walkthrough` section too if the polish changes the strongest mer
 gh pr edit $PR --body "$(updated body)"
 ```
 
-Before editing, read `../pr/references/pr-body-template.md`.
+Before editing, read `./pr-body-template.md`.
 
 Refresh:
 - `Why This Matters` if the polish changed the meaning or significance of the PR

@@ -192,7 +192,7 @@ If the repo is known to post delayed findings even after checks complete, requir
 
 If the fix materially changes implementation, evidence, or merge risk, update the PR body and walkthrough.
 
-Before editing, read `../../pr/references/pr-body-template.md`.
+Before editing, read `./pr-body-template.md`.
 
 Refresh:
 - `Why This Matters`

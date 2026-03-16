@@ -100,4 +100,4 @@ Broken image links are a walkthrough failure.
 
 ## References
 
-- `references/walkthrough-contract.md` — renderer selection rubric, evidence quality bar
+- `pr-walkthrough-contract.md` — renderer selection rubric, evidence quality bar

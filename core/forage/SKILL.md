@@ -87,7 +87,7 @@ If "find skills", "skills.sh", "marketplace" → read `references/find-skills.md
 ## What Forage Is NOT
 
 - NOT a skill recommender during autonomous pipelines
-- NOT a skill creator (use /skill-builder or /skill-creator)
+- NOT a skill creator (use `/skill`)
 
 ## Anti-Patterns
 
