@@ -1,0 +1,99 @@
+# Spellbook Collections
+# Named groups of skills for bulk activation.
+# Used by /focus to resolve collection references in .spellbook.yaml manifests.
+
+payments:
+  description: Payment processing, billing, and financial integrations
+  skills:
+    - stripe
+    - bitcoin
+    - lightning
+
+web:
+  description: Frontend development, visual QA, and browser testing
+  skills:
+    - next-patterns
+    - visual-qa
+    - dogfood
+    - ux-polish
+    - ui-skills
+    - webapp-testing
+    - agentic-ui-contract
+    - pencil-renderer
+    - pencil-to-code
+    - visualize
+
+design:
+  description: Design systems, aesthetics, and visual craft
+  skills:
+    - design
+
+agent:
+  description: AI/LLM agent infrastructure, skill engineering, and prompt design
+  skills:
+    - agent-browser
+    - agent-tools
+    - codified-context-architecture
+    - context-engineering
+    - formal-verify
+    - harness-engineering
+    - llm-infrastructure
+    - llm-semantic-match
+    - otp-agent-orchestration
+    - ralph-patterns
+    - skill-builder
+    - skill-creator
+
+infra:
+  description: DevOps, sysadmin, security, CI/CD, and observability
+  skills:
+    - canary
+    - ci-spend-optimizer
+    - cli-reference
+    - database
+    - observability
+    - org-quality-governance
+    - posthog
+    - security-scan
+    - standup
+    - sysadmin
+    - sysadmin-ops
+
+quality:
+  description: Code quality, naming, patterns, and linting
+  skills:
+    - external-integration-patterns
+    - git-mastery
+    - github-cli-hygiene
+    - guardrail
+    - naming-conventions
+
+growth:
+  description: SEO, ads, CRO, content, brand, and media
+  skills:
+    - ai-media
+    - app-screenshots
+    - audit-website
+    - brand
+    - business-model-preferences
+    - content
+    - growth
+    - og-hero-image
+    - product-marketing-context
+
+scaffold:
+  description: Project scaffolding and migration
+  skills:
+    - bun
+    - github-app-scaffold
+    - mobile-migrate
+    - monorepo-scaffold
+    - slack-app-scaffold
+
+finance:
+  description: Personal finance workflows
+  skills:
+    - crypto-gains
+    - finances-ingest
+    - finances-report
+    - finances-snapshot

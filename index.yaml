@@ -1,0 +1,226 @@
+# Spellbook Index
+# Generated: 2026-03-16T21:22:31Z
+# Do not edit manually. Run: ./scripts/generate-index.sh
+
+skills:
+  - name: agent-browser
+    description: "Browser automation CLI for AI agents. Use when the user needs to interact with websites, including navigating pages, filling forms, clicking buttons, taking screenshots, extracting data, testing web a"
+    tags: [a,agents,ai,automation,browser,buttons,cli,clicking,data,extracting]
+  - name: agent-tools
+    description: "\"Run 150+ AI apps via inference.sh CLI - image generation, video creation, LLMs, search, 3D, Twitter automation. Models: FLUX, Veo, Gemini, Grok, Claude, Seedance, OmniHuman, Tavily, Exa, OpenRouter, "
+    tags: [,-,150,3d,ai,apps,automation,claude,cli,creation]
+  - name: agentic-ui-contract
+    description: "Design and implement agentic product flows using the contract: model decides what to do, tools decide how it is done, UI schema decides how it is rendered. Use for chat-first apps, tool-calling agents"
+    tags: [agentic,agents,apps,chat-first,contract,decide,decides,design,do,done]
+  - name: ai-media
+    description: "AI-powered media generation: images (FLUX, Gemini, Grok, Seedream, Reve, 50+ models), videos (Veo, Seedance, Wan, OmniHuman lipsync, 40+ models), Remotion programmatic video, voiceover (ElevenLabs), d"
+    tags: [40,50,ai-powered,d,elevenlabs,flux,gemini,generation,grok,images]
+  - name: app-screenshots
+    description: "Generate App Store and Play Store screenshots with device frames. Use when: preparing for app store submission, updating marketing assets, localizing screenshots, or automating screenshot generation i"
+    tags: [app,assets,automating,device,frames,generate,generation,i,localizing,marketing]
+  - name: audit-website
+    description: "Audit websites for SEO, performance, security, technical, content, and 15 other issue cateories with 230+ rules using the squirrelscan CLI. Returns LLM-optimized reports with health scores, broken lin"
+    tags: [15,230,audit,broken,cateories,cli,content,health,issue,lin]
+  - name: autopilot
+    description: "Full delivery pipeline: plan, build, ship, settle. Covers: shape/spec/design, TDD build, commit, PR creation, PR fix (CI/reviews/conflicts), PR polish, simplify, test coverage, verify ACs, walkthrough"
+    tags: [acs,build,ci,commit,conflicts,coverage,covers,creation,delivery,design]
+  - name: bitcoin
+    description: "Complete Bitcoin payment lifecycle. Audits current state, fixes all issues, and verifies payment flows work end-to-end. Every run does all of this."
+    tags: [audits,bitcoin,complete,current,end-to-end,every,fixes,flows,issues,lifecycle]
+  - name: brand
+    description: "Full brand-as-code pipeline: discovery, identity, tokens, assets, logo, video. Creates brand.yaml, compiles to CSS/Tailwind/TypeScript tokens, generates OG cards, social images, logos, and branded vid"
+    tags: [assets,brand,brand-as-code,branded,cards,compiles,creates,css,discovery,full]
+  - name: bun
+    description: "Complete Bun lifecycle management. Audits current state, plans migration, executes changes, verifies success. Full orchestrator for Bun adoption. Invoke for: migrate to bun, adopt bun, bun migration, "
+    tags: [adopt,adoption,audits,bun,changes,complete,current,executes,full,invoke]
+  - name: business-model-preferences
+    description: "Pricing philosophy and business model constraints. Auto-invoke when: evaluating pricing, checkout flows, subscription logic, tier structures."
+    tags: [auto-invoke,business,checkout,constraints,evaluating,flows,logic,model,philosophy,pricing]
+  - name: calibrate
+    description: "Mid-session harness postmortem. When the agent makes a wrong decision, diagnose WHY the harness (CLAUDE.md, skills, hooks, lints, types, tests) failed to prevent it — fix the harness BEFORE fixing the"
+    tags: [a,agent,before,claude,decision,diagnose,failed,fix,fixing,harness]
+  - name: canary
+    description: "Query errors, check health status, and manage monitoring targets on a self-hosted Canary observability instance. Use when: debugging errors across services, checking uptime/health, managing health che"
+    tags: [a,across,canary,che,check,checking,debugging,errors,health,instance]
+  - name: ci-spend-optimizer
+    description: "Audit and reduce GitHub Actions spend across repositories. Use when minutes are exhausted, CI is noisy/duplicative, or multiple AI reviewers run together. Produces top spend drivers, overlap hotspots,"
+    tags: [across,actions,ai,audit,ci,drivers,duplicative,exhausted,github,hotspots]
+  - name: cli-reference
+    description: "CLI commands for all infrastructure services. Invoke when: - Configuring any external service (Vercel, Convex, Stripe, Sentry, PostHog, GitHub) - Before suggesting any dashboard action - Setting envir"
+    tags: [-,action,before,cli,commands,configuring,convex,dashboard,envir,external]
+  - name: codified-context-architecture
+    description: "Organize project knowledge for AI agents into hot memory, specialist routing, and cold-memory subsystem docs. Use when tuning a repo, designing agent infrastructure, deciding where knowledge should li"
+    tags: [a,agent,agents,ai,cold-memory,deciding,designing,docs,hot,infrastructure]
+  - name: content
+    description: "Content creation and optimization: copywriting, copy editing, social media, launch announcements, email sequences, and AI-writing cleanup. Covers the full content lifecycle from first draft to polishe"
+    tags: [ai-writing,announcements,cleanup,content,copy,copywriting,covers,creation,draft,editing]
+  - name: context-engineering
+    description: "Context lifecycle for AI agents: write, select, compress, isolate. Design high-signal context windows, instruction hierarchies, and memory strategies. Use when designing agent prompts, debugging conte"
+    tags: [agent,agents,ai,compress,conte,context,debugging,design,designing,hierarchies]
+  - name: crypto-gains
+    description: "Calculate capital gains with FIFO, wash sale detection, term classification, and Form 8949 outputs."
+    tags: [8949,calculate,capital,classification,detection,fifo,form,gains,outputs,sale]
+  - name: database
+    description: "Database design, operations, and platform-specific patterns. Schema design principles, migrations, query optimization, transactions, connection pooling, and Convex-specific best practices. Reference s"
+    tags: [best,connection,convex-specific,database,design,migrations,operations,optimization,patterns,platform-specific]
+  - name: debug
+    description: "Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle, domain auditing, and issue logging. Four-phase protocol: root cause → pattern analysis → hypothesis test → fix. Use for: "
+    tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
+  - name: design
+    description: "Full design orchestrator: audit, explore, catalog, theme, tokens, build, QA. Two modes: Explore (greenfield, 6 directions) or Extend (refinement). Composes design tokens, aesthetic system, taste const"
+    tags: [6,aesthetic,audit,build,catalog,composes,const,design,directions,explore]
+  - name: dogfood
+    description: "Systematically explore and test a web application to find bugs, UX issues, and other problems. Produces a structured report with full reproduction evidence -- screenshots, repro videos, and detailed r"
+    tags: [--,a,application,bugs,detailed,evidence,explore,find,full,issues]
+  - name: external-integration-patterns
+    description: "\"Patterns for reliable external service integration: env validation, health checks, error handling, observability. Invoke when integrating Stripe, Clerk, Sendgrid, or any external API.\""
+    tags: [,api,checks,clerk,env,error,external,handling,health,integrating]
+  - name: finances-ingest
+    description: "Parse new financial exports into the append-only ledger at ~/Documents/finances/. Handles: BofA CSV, Strike annual statement, River activity CSV, Robinhood CSV, Copilot Money transactions export. Dedu"
+    tags: [activity,annual,append-only,at,bofa,copilot,csv,dedu,documents,export]
+  - name: finances-report
+    description: "Generate financial analytics and insights from ~/Documents/finances/ data. Terminal report shows: net worth trends (30d/90d/1y), asset allocation, liability table with APR and monthly interest, cash f"
+    tags: [1y,30d,90d,allocation,analytics,apr,asset,cash,data,documents]
+  - name: finances-snapshot
+    description: "Capture current financial state into the append-only ledger at ~/Documents/finances/. Updates prices (BTC, gold, silver), reads current balance sheet CSVs, and appends a timestamped snapshot to data/s"
+    tags: [a,append-only,appends,at,balance,btc,capture,csvs,current,data]
+  - name: focus
+    description: "Configure the active set of Spellbook primitives for the current project. Reads .spellbook.yaml manifest, pulls skills and agents from GitHub, manages harness-specific setup (Claude Code, Codex, Pi). "
+    tags: [active,agents,claude,code,codex,configure,current,github,harness-specific,manages]
+  - name: forage
+    description: "Check for relevant skills before starting any domain-specific task. Search pack skills for specialized guidance not in core, load content inline. Invoke PROACTIVELY before: writing code in any framewo"
+    tags: [before,check,code,content,core,domain-specific,framewo,guidance,in,inline]
+  - name: formal-verify
+    description: "Formal verification of system designs using TLA+, Z3, and Apalache. Finds bugs in design BEFORE implementation. Agent feedback loop: spec → model check → counterexample → fix → repeat. Use for state m"
+    tags: [agent,apalache,before,bugs,check,counterexample,design,designs,feedback,finds]
+  - name: git-mastery
+    description: "Git workflow enforcement and best practices. Use when: - Writing commit messages or reviewing commits - Creating branches or choosing merge strategies - Setting up CI/CD pipelines with git operations "
+    tags: [-,best,branches,cd,choosing,ci,commit,commits,creating,enforcement]
+  - name: github-app-scaffold
+    description: "\"Scaffold and implement GitHub Apps from existing automation ideas using Probot + @octokit/app. Use when turning scripts, bots, or manual GitHub workflows into a proper GitHub App.\""
+    tags: [,a,app,apps,automation,bots,existing,github,ideas,implement]
+  - name: github-cli-hygiene
+    description: "Safe, well-formatted GitHub CLI writes for PRs/issues/reviews using body files and post-write validation."
+    tags: [body,cli,files,github,issues,post-write,prs,reviews,safe,using]
+  - name: groom
+    description: "Interactive backlog grooming, backlog doctrine, and automated cleanup. Explore, brainstorm, research, synthesize into prioritized GitHub issues. Backlog strategy, ordering, pruning, agent-ready issue "
+    tags: [agent-ready,automated,backlog,brainstorm,cleanup,doctrine,explore,github,grooming,interactive]
+  - name: growth
+    description: "Growth and marketing orchestrator: SEO, ads, CRO, analytics, pricing, launches, referrals, competitor analysis, and pSEO generation. Covers the full growth stack from baseline SEO to scaled paid acqui"
+    tags: [acqui,ads,analysis,analytics,baseline,competitor,covers,cro,full,generation]
+  - name: guardrail
+    description: "Generate custom lint rules from architectural patterns. ESLint local plugins (JS/TS) or ast-grep YAML rules (Python/Go/Rust/any). Invoke when: codifying an import boundary, enforcing API conventions, "
+    tags: [an,api,architectural,ast-grep,boundary,codifying,conventions,custom,enforcing,eslint]
+  - name: harness-engineering
+    description: "Design development environments where AI agents thrive. CI/linters/tests as agent feedback loops, documentation as machine-readable artifacts, mechanical enforcement of architectural boundaries, sessi"
+    tags: [agent,agents,ai,architectural,artifacts,as,boundaries,ci,design,development]
+  - name: lightning
+    description: "Complete Lightning Network lifecycle. Audits channels, routing, invoices. Plans capacity, executes rebalancing, verifies payments. Every run does all."
+    tags: [audits,capacity,channels,complete,every,executes,invoices,lifecycle,lightning,network]
+  - name: llm-infrastructure
+    description: "Audit and maintain LLM-powered features. Model currency, prompt quality, evals, gateway routing, observability, CI/CD. Ensures all AI features follow best practices. CRITICAL: Training data lags month"
+    tags: [ai,audit,best,cd,ci,critical,currency,data,ensures,evals]
+  - name: llm-semantic-match
+    description: "Use LLM sub-calls to resolve user intent to one item from a finite set. Replace all fuzzy/substring string matching in agent tools with this pattern."
+    tags: [a,agent,finite,fuzzy,in,intent,item,llm,matching,one]
+  - name: mobile-migrate
+    description: "\"Add an Expo + EAS React Native mobile app to an existing web project, sharing logic, design tokens, auth, and backend integrations. Use when migrating a web codebase into a web+mobile monorepo.\""
+    tags: [,a,add,an,app,auth,backend,codebase,design,eas]
+  - name: monorepo-scaffold
+    description: "\"Convert single-app repos into a Turborepo monorepo using pnpm workspaces. Use when splitting apps into apps/ and shared code into packages/ with cached pipelines.\""
+    tags: [,a,apps,cached,code,convert,monorepo,packages,pipelines,pnpm]
+  - name: moonshot
+    description: "Identify the single highest-leverage, most innovative addition to the project. Forces divergent thinking beyond the current roadmap. One answer, fully argued. Use when: \"what should we build next\", \"w"
+    tags: [addition,answer,argued,beyond,build,current,divergent,forces,fully,highest-leverage]
+  - name: naming-conventions
+    description: "\"Apply universal naming principles: avoid Manager/Helper/Util, use intention-revealing names, domain language, verb+noun functions. Use when naming variables, functions, classes, reviewing names, or r"
+    tags: [,apply,avoid,classes,domain,functions,helper,intention-revealing,language,manager]
+  - name: next-patterns
+    description: "Next.js patterns, best practices, cache components, and upgrade guides. Auto-invoke when: writing Next.js code, configuring next.config, using App Router, implementing caching, upgrading Next.js versi"
+    tags: [app,auto-invoke,best,cache,caching,code,components,config,configuring,guides]
+  - name: observability
+    description: "Complete observability infrastructure. Error tracking, alerting, logging, health checks. Optimized for indie dev: minimal services, CLI-manageable, AI agent integration."
+    tags: [agent,ai,alerting,checks,cli-manageable,complete,dev,error,health,indie]
+  - name: og-hero-image
+    description: "Generate premium open-graph hero images for brands using AI. Use when: creating social sharing images, website headers, marketing collateral. Keywords: og image, open graph, hero image, social header,"
+    tags: [ai,brands,collateral,creating,generate,graph,header,headers,hero,image]
+  - name: org-quality-governance
+    description: "Enforce organization quality policy across org and repos: protected default branches, required CI checks, conversation resolution, deterministic gates, security defaults (Dependabot + secret scanning "
+    tags: [across,branches,checks,ci,conversation,default,defaults,dependabot,deterministic,enforce]
+  - name: otp-agent-orchestration
+    description: "Elixir/OTP patterns for concurrent AI agent orchestration services. Use when designing systems that manage many concurrent, long-running LLM agent processes (10-60+ min each) with fault tolerance, rat"
+    tags: [10-60,agent,ai,concurrent,designing,elixir,fault,llm,long-running,manage]
+  - name: pencil-renderer
+    description: "Render DNA codes to Pencil .pen frames. Does ONE thing well."
+    tags: [codes,dna,frames,one,pen,pencil,render,thing,to,well]
+  - name: pencil-to-code
+    description: "Export .pen design to React/Tailwind code. Does ONE thing well."
+    tags: [code,design,export,one,pen,react,tailwind,thing,to,well]
+  - name: posthog
+    description: "Complete PostHog lifecycle management. Audits current state, fixes all issues, and verifies event tracking works end-to-end. Every run does all of this."
+    tags: [audits,complete,current,end-to-end,event,every,fixes,issues,lifecycle,management]
+  - name: pr
+    description: "Tidy, commit, and open a world-class pull request. Organizes working directory, ensures correct branch, creates semantic conventional commits, then opens a high-quality PR with full evidence. Use when"
+    tags: [a,branch,commit,commits,conventional,correct,creates,directory,ensures,evidence]
+  - name: product-marketing-context
+    description: "Shared product-marketing context for growth-pack skills. Read this before writing copy, planning launches, doing CRO, pricing, SEO, social content, or campaign strategy. Builds a minimal context bundl"
+    tags: [a,before,builds,bundl,campaign,content,context,copy,cro,doing]
+  - name: ralph-patterns
+    description: "Patterns for Ralph loop tasks. Auto-loaded to provide guidance on completion signals, progress tracking, and iteration patterns. Ralph = autonomous issue-to-merged-PR loop."
+    tags: [auto-loaded,autonomous,completion,guidance,issue-to-merged-pr,iteration,loop,on,patterns,progress]
+  - name: reflect
+    description: "Session retrospective, codification, and implementation feedback capture. Distill learnings to CLAUDE.md/hooks/rules, propose lean improvements, tune repos for agents, generate changelogs. Invoke for:"
+    tags: [agents,capture,changelogs,claude,codification,distill,feedback,generate,hooks,implementation]
+  - name: research
+    description: "Web research, multi-AI delegation, and multi-perspective validation. /research [query], /research delegate [task], /research thinktank [topic]. Triggers: \"search for\", \"look up\", \"research\", \"delegate"
+    tags: [delegate,delegation,look,multi-ai,multi-perspective,query,research,search,task,thinktank]
+  - name: security-scan
+    description: "Whole-codebase vulnerability analysis leveraging 1M context window. Loads entire project source, runs deep security analysis in a single pass. OWASP Top 10, cross-module data flow tracing, dependency "
+    tags: [10,1m,a,analysis,context,cross-module,data,deep,dependency,entire]
+  - name: settle
+    description: "Unblock, polish, and simplify a PR until it's genuinely merge-ready. Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs), simplify (complexity reduction). Runs all three in sequ"
+    tags: [a,architecture,ci,complexity,conflicts,docs,fix,genuinely,in,it]
+  - name: skill-builder
+    description: "Create new agent skills from procedural knowledge. Invoke PROACTIVELY when: - Discovering a reusable workflow pattern worth preserving - User asks to \"capture this as a skill\" or \"make this reusable\" "
+    tags: [-,a,agent,as,asks,capture,create,discovering,invoke,knowledge]
+  - name: skill-creator
+    description: "Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workfl"
+    tags: [a,an,be,capabilities,claude,create,creating,effective,existing,extends]
+  - name: skill
+    description: "Create or update agent skills. Quality gates, classification, structure, frontmatter, progressive disclosure, packaging, absorption lifecycle. Use when: \"create a skill\", \"make this a skill\", \"update "
+    tags: [a,absorption,agent,classification,create,disclosure,frontmatter,gates,lifecycle,make]
+  - name: slack-app-scaffold
+    description: "\"Scaffold Slack apps from existing functionality using Bolt for JavaScript and the Slack CLI. Use when turning a service, script, or workflow into a Slack app with events, commands, modals, or automat"
+    tags: [,a,app,apps,automat,bolt,cli,commands,events,existing]
+  - name: standup
+    description: "Generate a daily standup report from the last 24 hours of GitHub activity across all repos and orgs. Pulls PRs authored/reviewed, issues engaged, commits pushed, and open PRs needing attention. Synthe"
+    tags: [24,a,across,activity,attention,authored,commits,daily,engaged,generate]
+  - name: stripe
+    description: "Complete Stripe lifecycle: audit, design, scaffold, configure, verify, and maintain payment integrations. Covers webhooks, subscriptions, checkout flows, billing UX, local dev, reconciliation, and sec"
+    tags: [audit,billing,checkout,complete,configure,covers,design,dev,flows,integrations]
+  - name: sysadmin-ops
+    description: "Investigate host stability incidents (memory/process pressure), triage likely culprits, and drive safe recovery + hardening for multi-workspace Pi operations."
+    tags: [culprits,drive,hardening,host,incidents,investigate,likely,memory,multi-workspace,operations]
+  - name: sysadmin
+    description: "System health diagnostics and maintenance for macOS. Resource usage, disk space, memory pressure, Docker, Homebrew, stuck processes. Quick health checks and safe maintenance actions."
+    tags: [actions,checks,diagnostics,disk,docker,health,homebrew,macos,maintenance,memory]
+  - name: ui-skills
+    description: "Opinionated constraints for building better interfaces with agents."
+    tags: [agents,better,building,constraints,interfaces,opinionated]
+  - name: ux-polish
+    description: "Find and ship the smallest UX improvement that meaningfully reduces friction in a working product. Use when a flow basically works but feels rough: unclear affordances, weak feedback, awkward spacing,"
+    tags: [a,affordances,awkward,basically,but,feedback,feels,find,flow,friction]
+  - name: visual-qa
+    description: "Browser-based visual QA for frontend changes. Opens the running app, takes screenshots, identifies layout/styling/UX issues. Use when: frontend changes are code-complete, before commit or PR. Composes"
+    tags: [app,before,browser-based,changes,code-complete,commit,composes,frontend,identifies,issues]
+  - name: visualize
+    description: "Generate beautiful, self-contained HTML pages that visually explain systems, code changes, plans, and data. Use when the user asks for a diagram, architecture overview, diff review, plan review, proje"
+    tags: [a,architecture,asks,beautiful,changes,code,data,diagram,diff,explain]
+  - name: webapp-testing
+    description: "Toolkit for testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing screenshots, and viewing browser logs. Reference skill for brow"
+    tags: [applications,behavior,brow,browser,capturing,debugging,frontend,functionality,local,logs]
+
+agents:
+  []
+
+# Collections are defined in collections.yaml
