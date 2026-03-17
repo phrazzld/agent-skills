@@ -89,9 +89,23 @@ Load harness-specific reference from `references/harnesses/${HARNESS}.md`.
 
 ### 2. Read or Create Manifest
 
-If `.spellbook.yaml` exists at project root, read it.
+If `.spellbook.yaml` exists at project root, read it. Proceed to step 3.
 
-If not, run the init flow (see `references/init.md`).
+If not, **STOP. You MUST run the full init flow.** Load `references/init.md`
+and follow it exactly. The init flow is 8 phases — do not shortcut it.
+
+**Critical init invariants (inlined because skipping these is the #1 failure mode):**
+
+1. **Analyze the project BEFORE searching the catalog.** Read code, deps,
+   services, recent git activity. Understand what the project IS.
+2. **Generate a wishlist from first principles.** What domain knowledge would
+   make an agent most effective here? Think from the project's needs, not
+   from what the catalog has.
+3. **Search AFTER thinking.** Match wishlist items against the catalog.
+4. **Identify gaps.** Wishlist items with no catalog match are skill gaps —
+   offer to create new skills for them. This is how spellbook grows.
+5. **Present the full picture:** analysis, wishlist, matches, AND gaps.
+   Get explicit confirmation before writing the manifest.
 
 ### 3. Resolve Skill References
 
@@ -208,3 +222,7 @@ When invoked with a task description:
 - **Never bulk-add a collection without filtering.** Every expanded skill must
   pass the "useful in THIS repo" test.
 - **Never skip agent syncing.** Agents are first-class primitives.
+- **Never skip init phases.** Jumping straight to catalog search without
+  first-principles project analysis produces shallow, technology-matched
+  results instead of need-matched results. The wishlist phase exists to
+  surface gaps the catalog doesn't cover yet.
