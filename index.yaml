@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-17T16:51:43Z
+# Generated: 2026-03-17T16:12:26Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -87,6 +87,9 @@ skills:
   - name: finances-snapshot
     description: "Capture current financial state into the append-only ledger at ~/Documents/finances/. Updates prices (BTC, gold, silver), reads current balance sheet CSVs, and appends a timestamped snapshot to data/s"
     tags: [a,append-only,appends,at,balance,btc,capture,csvs,current,data]
+  - name: fly-io
+    description: "\"Fly.io deployment patterns: fly.toml configuration, Machine sizing, volumes, health checks, graceful shutdown, structured logging for log drains, and multi-stage Docker builds. Invoke when deploying "
+    tags: [,builds,checks,configuration,deploying,deployment,docker,drains,fly,graceful]
   - name: focus
     description: "Configure the active set of Spellbook primitives for the current project. Reads .spellbook.yaml manifest, pulls skills and agents from GitHub, manages harness-specific setup (Claude Code, Codex, Pi). "
     tags: [active,agents,claude,code,codex,configure,current,github,harness-specific,manages]
@@ -114,6 +117,9 @@ skills:
   - name: harness-engineering
     description: "Design development environments where AI agents thrive. CI/linters/tests as agent feedback loops, documentation as machine-readable artifacts, mechanical enforcement of architectural boundaries, sessi"
     tags: [agent,agents,ai,architectural,artifacts,as,boundaries,ci,design,development]
+  - name: hono
+    description: "\"Hono web framework patterns: app structure, router composition, middleware, request validation, JSX rendering, cookie auth, testing with app.request(), and Node.js server adapter. Invoke when writing"
+    tags: [,adapter,app,auth,composition,cookie,framework,hono,invoke,js]
   - name: lightning
     description: "Complete Lightning Network lifecycle. Audits channels, routing, invoices. Plans capacity, executes rebalancing, verifies payments. Every run does all."
     tags: [audits,capacity,channels,complete,every,executes,invoices,lifecycle,lightning,network]
