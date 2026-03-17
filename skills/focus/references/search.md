@@ -1,52 +1,46 @@
 # Focus Search
 
-Search the Spellbook index for skills matching a query.
+Search the Spellbook index for skills and agents matching a query.
 
 ## Process
 
-### 1. Fetch Index
+### 1. Semantic Search (preferred)
 
-Download `index.yaml` from:
+Use the pre-computed embeddings index:
+
+```bash
+python3 /path/to/spellbook/scripts/search-embeddings.py "webhook handling" --top 10
 ```
-https://raw.githubusercontent.com/phrazzld/spellbook/main/index.yaml
-```
 
-### 2. Search
+This embeds the query with Gemini Embedding 2 and ranks all indexed
+primitives (local + external sources) by cosine similarity.
 
-Match the query against:
+### 2. Fallback: Keyword Search
+
+If `embeddings.json` or the API key is unavailable, fall back to
+keyword matching against `index.yaml`:
 - Skill `name` (exact and substring)
 - Skill `description` (keyword matching)
-- Skill `tags` (exact tag match)
-- Collection names and descriptions
-
-Rank results by match quality:
-1. Exact name match
-2. Tag match
-3. Description keyword match
-4. Collection membership match
+- Agent `name` and `description`
 
 ### 3. Present Results
 
 ```markdown
-## Spellbook Search: "webhook"
+## Spellbook Search: "webhook handling"
 
-### Skills
-| Name | Description | Tags |
-|------|-------------|------|
-| **stripe** | Stripe integration patterns... | payments, stripe, webhooks |
-| **next-patterns** | Next.js patterns... | web, nextjs, api-routes |
-
-### Collections
-| Name | Contains | Description |
-|------|----------|-------------|
-| payments | stripe, bitcoin, lightning | Payment processing |
+| # | Score | Type  | Source                    | Name                          |
+|---|-------|-------|---------------------------|-------------------------------|
+| 1 | 0.77  | skill | phrazzld/spellbook        | stripe                        |
+| 2 | 0.73  | agent | phrazzld/spellbook        | stripe-auditor                |
+| 3 | 0.68  | skill | phrazzld/spellbook        | external-integration-patterns |
+| 4 | 0.64  | skill | anthropics/skills         | mcp-builder                   |
 
 ### Actions
 - `/focus add stripe` — add to manifest
-- `/focus add payments` — add entire collection
+- `/focus add anthropics/skills@mcp-builder` — add external skill
 ```
 
 ### 4. Offer to Add
 
-If the user seems to want to use a result (not just browsing), offer
-to add it to the manifest and sync.
+If the user wants a result, offer to add it to the manifest and sync.
+External skills are added with their fully qualified name.

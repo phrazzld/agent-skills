@@ -9,47 +9,59 @@ Nuke all Spellbook-managed primitives and rebuild from the manifest.
 Parse `.spellbook.yaml` from project root. If missing, error and suggest
 running `/focus init`.
 
-### 2. Resolve Collections
+### 2. Resolve Skill References
 
-Fetch `collections.yaml` from:
-```
-https://raw.githubusercontent.com/phrazzld/spellbook/main/collections.yaml
-```
+Each skill in the manifest is either:
+- **Unqualified** (`debug`) — resolves to `phrazzld/spellbook`
+- **Fully qualified** (`anthropics/skills@frontend-design`) — uses the named source
 
-For each collection in the manifest, expand to individual skill names.
-Merge with directly-listed skills. Deduplicate.
+Parse FQNs:
+```
+owner/repo@skill-name  →  source="owner/repo", name="skill-name"
+skill-name             →  source="phrazzld/spellbook", name="skill-name"
+```
 
 ### 3. Nuke Managed Primitives
 
-**This is the critical safety step.** Only remove directories with
-`.spellbook` marker files.
+**Only remove directories/files with `.spellbook` marker files.**
 
-For each harness directory (skills and agents):
 ```bash
-find "${DIR}" -maxdepth 2 -name ".spellbook" -type f | while read marker; do
+# Skills
+find "${SKILLS_DIR}" -maxdepth 2 -name ".spellbook" -type f | while read marker; do
   managed_dir="$(dirname "$marker")"
   rm -rf "$managed_dir"
 done
+
+# Agents
+find "${AGENTS_DIR}" -maxdepth 1 -name "*.md" | while read agent_file; do
+  # Check if the agent has a companion .spellbook marker
+  marker="${agent_file%.md}.spellbook"
+  [ -f "$marker" ] && rm -f "$agent_file" "$marker"
+done
 ```
 
-### 4. Install Each Skill
+### 4. Install Skills
 
-For each skill in the resolved list:
+For each skill, download from its source:
 
 ```bash
+source="phrazzld/spellbook"  # or "anthropics/skills", etc.
 skill="debug"
 target="${SKILLS_DIR}/${skill}"
-raw="https://raw.githubusercontent.com/phrazzld/spellbook/main"
+raw="https://raw.githubusercontent.com/${source}/main"
+
+# Determine the skill path within the source repo
+# Default: skills/${skill}/SKILL.md
+# Some repos use different layouts — check embeddings.json for hints
+skill_path="skills/${skill}"
 
 mkdir -p "$target"
-curl -sfL "$raw/skills/$skill/SKILL.md" -o "$target/SKILL.md"
+curl -sfL "$raw/$skill_path/SKILL.md" -o "$target/SKILL.md"
 ```
 
-**Downloading subdirectories** (references/, scripts/, assets/):
-
-Use the GitHub API to discover directory contents:
+**Download subdirectories** (references/, scripts/, assets/):
 ```bash
-api="https://api.github.com/repos/phrazzld/spellbook/contents/skills/$skill"
+api="https://api.github.com/repos/${source}/contents/${skill_path}"
 
 for subdir in references scripts assets; do
   files=$(curl -sf "$api/$subdir" 2>/dev/null | \
@@ -62,9 +74,8 @@ for subdir in references scripts assets; do
 done
 ```
 
-**Handle nested reference directories** (e.g., references/harnesses/):
+**Handle nested reference directories:**
 ```bash
-# Check for directories within references/
 dirs=$(curl -sf "$api/references" 2>/dev/null | \
   python3 -c "import sys,json; [print(f['name']) for f in json.load(sys.stdin) if f['type']=='dir']" 2>/dev/null) || true
 for nested_dir in $dirs; do
@@ -80,31 +91,37 @@ done
 
 ### 5. Write Marker
 
-For each installed primitive:
+For each installed primitive, write the source in the marker:
 ```bash
 cat > "$target/.spellbook" << EOF
-source: phrazzld/spellbook
-name: $skill
+source: ${source}
+name: ${skill}
 installed: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 EOF
 ```
 
-### 6. Rate Limiting
+### 6. Install Agents
 
-GitHub API has rate limits (60 req/hour unauthenticated, 5000 with token).
-For large manifests, use `gh api` if available (auto-authenticated) or check
-for `GITHUB_TOKEN` in environment.
+Agents from `phrazzld/spellbook` are single `.md` files:
+```bash
+agent="ousterhout"
+curl -sfL "${raw}/agents/${agent}.md" -o "${AGENTS_DIR}/${agent}.md"
+```
 
-If rate-limited, fall back to cloning the entire repo:
+### 7. Rate Limiting
+
+GitHub API: 60 req/hour unauthenticated, 5000 with token.
+Use `gh api` if available (auto-authenticated) or `GITHUB_TOKEN`.
+
+If rate-limited, fall back to shallow clone:
 ```bash
 tmp=$(mktemp -d)
-git clone --depth 1 https://github.com/phrazzld/spellbook.git "$tmp"
-# Copy from local clone instead of individual API calls
+git clone --depth 1 "https://github.com/${source}.git" "$tmp"
 cp -R "$tmp/skills/$skill/" "$target/"
 rm -rf "$tmp"
 ```
 
-### 7. Post-Install
+### 8. Post-Install
 
 Run harness-specific setup (see `references/harnesses/`).
-Report results.
+Report installed/skipped/errored primitives.

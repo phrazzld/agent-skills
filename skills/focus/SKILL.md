@@ -18,12 +18,12 @@ managed primitives on every run. Leave unmanaged primitives untouched.
 ## Constants
 
 ```
-SPELLBOOK_REPO: phrazzld/spellbook
-SPELLBOOK_RAW:  https://raw.githubusercontent.com/phrazzld/spellbook/main
-INDEX_URL:      ${SPELLBOOK_RAW}/index.yaml
-COLLECTIONS_URL: ${SPELLBOOK_RAW}/collections.yaml
-MANIFEST_FILE:  .spellbook.yaml
-MARKER_FILE:    .spellbook
+SPELLBOOK_REPO:    phrazzld/spellbook
+SPELLBOOK_RAW:     https://raw.githubusercontent.com/phrazzld/spellbook/main
+EMBEDDINGS_URL:    ${SPELLBOOK_RAW}/embeddings.json
+INDEX_URL:         ${SPELLBOOK_RAW}/index.yaml
+MANIFEST_FILE:     .spellbook.yaml
+MARKER_FILE:       .spellbook
 ```
 
 ## Routing
@@ -37,10 +37,21 @@ MARKER_FILE:    .spellbook
 | `/focus remove <name>` | Remove from manifest and delete locally |
 | `/focus search <query>` | Search the Spellbook index |
 | `/focus list` | Show manifest contents and install status |
+| `/focus improve` | Synthesize observations into spellbook improvements |
 
 If invoked with a task description (e.g., `/focus fix payment webhooks`),
 run the smart selection flow: search index for task-relevant primitives,
 suggest manifest changes, then sync.
+
+## Invariant: Always Project-Local
+
+Focus installs ONLY into the current project directory. Never into global
+harness directories (~/.claude/, ~/.codex/, etc.). The only global primitive
+is focus itself (installed by bootstrap.sh).
+
+If the user wants primitives available everywhere, they navigate to their
+global config directory and run focus there. Focus does not decide scope —
+the working directory decides scope.
 
 ## Core Flow
 
@@ -58,7 +69,7 @@ fi
 
 Load harness-specific reference from `references/harnesses/${HARNESS}.md`.
 
-**Harness directory mapping:**
+**Harness directory mapping (all paths relative to project root):**
 
 | Harness | Skills Dir | Agents Dir |
 |---------|-----------|------------|
@@ -71,16 +82,31 @@ Load harness-specific reference from `references/harnesses/${HARNESS}.md`.
 If `.spellbook.yaml` exists at project root, read it.
 
 If not, run the init flow (see `references/init.md`):
-1. Analyze project dependencies (package.json, go.mod, mix.exs, etc.)
-2. Fetch `index.yaml` from GitHub
-3. Match dependencies to skill tags and collections
-4. Generate `.spellbook.yaml` with recommended primitives
-5. Present to user for confirmation before writing
+1. **Deeply analyze the project**: read CLAUDE.md, package.json, go.mod, mix.exs,
+   directory structure, README, recent git history. Understand what this project
+   IS, what tech it uses, what domains it touches.
+2. **Semantic search** against the embeddings index (144+ skills/agents across
+   multiple sources). Use `scripts/search-embeddings.py --project-dir .`
+3. For each candidate, ask: "Would this primitive provide value in THIS repo?"
+   Reject any without a concrete use case.
+4. Generate `.spellbook.yaml` with recommended primitives (skills AND agents)
+5. Present to user with reasoning for each inclusion. Get confirmation before writing.
 
-### 3. Resolve Collections
+**Discernment over coverage.** 8 precisely-relevant primitives beats 25 with noise.
 
-Fetch `collections.yaml` from GitHub. For each collection in the manifest,
-expand to individual skill names. Deduplicate.
+### 3. Resolve Skill References
+
+Each skill is either unqualified or fully qualified:
+
+```
+debug                                    → source: phrazzld/spellbook
+anthropics/skills@frontend-design        → source: anthropics/skills
+vercel-labs/agent-skills@vercel-react-best-practices → source: vercel-labs/agent-skills
+Leonxlnx/taste-skill@design-taste-frontend → source: Leonxlnx/taste-skill
+```
+
+Unqualified names resolve to `phrazzld/spellbook`. External skills use
+`owner/repo@skill-name` format to avoid name collisions.
 
 ### 4. Nuke Managed Primitives
 
@@ -134,7 +160,17 @@ installed: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 EOF
 ```
 
-For agents, same pattern but into the agents directory.
+### 5b. Install Agents
+
+Agents are markdown files (not directories). Install to the agents dir:
+
+```bash
+AGENT_NAME="ousterhout"  # example
+curl -sfL "${SPELLBOOK_RAW}/agents/${AGENT_NAME}.md" -o "${AGENTS_DIR}/${AGENT_NAME}.md"
+```
+
+For Claude Code, agent files are used as-is (markdown + YAML frontmatter).
+For Codex, translate to TOML format during install (see harness references).
 
 ### 6. Harness-Specific Setup
 
@@ -189,30 +225,38 @@ skills:
   - debug
   - autopilot
   - groom
-collections:
-  - payments
-agents: []
+  - anthropics/skills@frontend-design
+  - vercel-labs/agent-skills@vercel-react-best-practices
+agents:
+  - ousterhout
+  - test-strategy-architect
 ```
 
-No source field — always the Spellbook repo. No harness config — focus
-handles translation. Collections resolve via `collections.yaml` in the
-Spellbook repo.
+Unqualified names = `phrazzld/spellbook`. Qualified names use FQN format.
+No harness config — focus handles translation per-harness.
 
 ## Smart Selection
 
 When invoked with a task description:
 
-1. Fetch `index.yaml` from GitHub
-2. Match task keywords against skill descriptions and tags
-3. Check which skills are already in the manifest
-4. Suggest additions (with reasoning)
+1. Embed the task description with Gemini Embedding 2
+2. Cosine similarity against the full embeddings index (all sources)
+3. Check which primitives are already in the manifest
+4. Suggest additions (with reasoning and similarity scores)
 5. Ask user to confirm before modifying manifest
 6. Sync
 
 ## Anti-Patterns
 
-- Never modify global harness directories (~/.claude, ~/.codex, etc.)
+- **Never install to global directories.** ~/.claude/, ~/.codex/ are off-limits.
+  The working directory IS the scope. No exceptions. No "reasonable choice."
 - Never touch directories without `.spellbook` markers
 - Never install primitives not declared in the manifest
 - Never skip the nuke step — stale state causes subtle bugs
 - Never hardcode paths — always derive from harness detection
+- **Never bulk-add a collection without filtering.** Every expanded skill must
+  pass the "useful in THIS repo" test. If `agent-browser` is in the `agent`
+  collection but the project has no web component, don't install it.
+- **Never skip agent syncing.** Agents are first-class primitives. If the
+  manifest declares agents, install them. If init is running, recommend
+  relevant agents alongside skills.
