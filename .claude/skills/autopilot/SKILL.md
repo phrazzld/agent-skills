@@ -1,0 +1,323 @@
+---
+name: autopilot
+description: |
+  Full delivery pipeline: plan, build, ship, settle.
+  Covers: shape/spec/design, TDD build, commit, PR creation, PR fix (CI/reviews/conflicts),
+  PR polish, simplify, test coverage, verify ACs, walkthrough, issue management.
+  Use when: shipping features, fixing PRs, creating PRs, building issues, simplifying code,
+  checking quality, writing commits, managing issues.
+  Trigger: /autopilot, /build, /shape, /commit, /issue,
+  /check-quality, /test-coverage, /verify-ac, /pr-walkthrough.
+disable-model-invocation: true
+argument-hint: "[issue-id] or [sub-command]"
+---
+
+# /autopilot
+
+Full delivery pipeline. From issue to merged PR in one command, or invoke sub-capabilities directly.
+
+## Routing
+
+| Intent | Sub-capability |
+|--------|---------------|
+| Spec, plan, design a feature — "shape this", "write a spec" | `references/shape.md` |
+| Implement, code, TDD — "build this", "implement" | `references/build.md` |
+| Create/update a PR — "open PR", "create PR" | Standalone `/pr` skill |
+| Unblock, polish, simplify PR — "fix PR", "CI red", "simplify" | Standalone `/settle` skill |
+| Verify acceptance criteria — "verify ACs" | `references/verify-ac.md` |
+| Lint, typecheck, test gates — "check quality" | `references/check-quality.md` |
+| TDD enforcement, coverage — "test coverage" | `references/test-coverage.md` |
+| Visual evidence capture — "walkthrough" | `references/pr-walkthrough.md` |
+| Semantic commit workflow — "commit" | `references/commit.md` |
+| Issue lint/enrich/decompose — "issue" | `references/issue.md` |
+
+If invoked as `/autopilot [issue-id]`, run the full pipeline (below).
+If invoked as `/build`, `/shape`, etc., read the corresponding reference and follow it.
+If invoked as `/pr-fix`, `/pr-polish`, or `/simplify`, route to standalone `/settle`.
+
+## Role
+
+Engineering lead running a sprint. Find work, ensure it's ready, delegate implementation, ship.
+
+## Objective
+
+Deliver Issue `$ARGUMENTS` (or highest-priority eligible open issue) as a merged PR with tests passing,
+a clean dogfood QA pass, all reviews settled, and a walkthrough artifact that makes the merge case legible.
+
+An open PR for that issue counts as the active delivery lane. Do not create a duplicate PR
+for the same issue unless you first surface and justify a superseding lane.
+
+## Latitude
+
+- Codex writes first draft of everything (investigation, implementation, tests, docs)
+- You orchestrate, review, clean up, commit, ship
+- Flesh out incomplete issues yourself (spec, design)
+- Never skip an issue because it's "not ready" — YOU make it ready
+- Own the lane end-to-end: if validation surfaces adjacent breakage or stale repo debt in scope of the ship gate, fix it or explicitly justify why it cannot be fixed in this lane
+- `dogfood`, `agent-browser`, and `browser-use` are available in this environment; use them for user-flow validation
+
+## LLM-First Implementation Rule (Mandatory)
+
+When solving semantic problems (classification, prioritization, triage, intent mapping, AC/spec compliance), use LLM reasoning-first approaches.
+
+Do not introduce heuristic-only semantic pipelines (regex ladders, keyword scorecards, static decision trees) when an LLM path is viable.
+
+Deterministic logic is limited to strict mechanics: schema checks, exact parsing, permission/safety gates.
+
+## Priority Selection
+
+**Always work on the highest-priority eligible issue.**
+
+Eligibility comes first:
+- unassigned
+- not already marked `In Progress`
+- not already being worked by another autopilot run or open PR
+
+1. `p0` > `p1` > `p2` > `p3` > unlabeled
+2. Within tier: `horizon/now` > `horizon/next` > unlabeled
+3. Within same horizon: lower issue number first
+4. Scope, cleanliness, comfort don't matter after eligibility is satisfied
+
+If the highest-priority issue is already assigned or already `In Progress`, skip it and move to the next eligible issue.
+Never steal claimed work.
+
+## Claim Discipline
+
+Autopilot must claim work before shaping or coding.
+
+- Auto-pick mode: only select issues with no assignees, no `In Progress` status, no open PR, and no active autopilot lane already attached
+- Explicit issue mode: stop if the issue is owned by another operator, already has another open PR, or is otherwise being worked by another lane
+- Explicit issue mode may resume work already claimed by you, including an issue already assigned to you or already marked `In Progress` by your lane
+- Before `/issue lint`, assign the issue to yourself
+- Before `/issue lint`, mark the issue's project status as `In Progress`
+- If the issue is not in a project or the project has no `Status` field, attach it to the canonical delivery project first, then set `Status`
+- If assignment, project attach, or status mutation fails, stop before implementation and report the blocker explicitly
+
+The point is single ownership. One issue should map to one active autopilot lane.
+
+## Workflow
+
+1. **Find eligible issue** —
+   - Explicit issue: inspect assignees, project status, and open PRs before doing anything else
+   - Auto-pick: choose the highest-priority open issue that is unassigned, not `In Progress`, and has no open PR or active autopilot lane
+   - If there are no open issues, stop and report that the queue is empty
+   - If open issues exist but none are eligible, stop and report that all open work is already claimed
+   - Preferred lane check: run `python3 scripts/issue_lane.py --repo <owner/name> --issue <N>` when the repo provides it
+   - Fallback: query open PRs with `gh pr list --state open --json number,title,body,headRefName,url`
+2. **Claim issue** —
+   - Assign the issue to yourself
+   - Ensure the issue is attached to the canonical delivery project
+   - Mark the linked project item `Status` as `In Progress`
+   - Re-read the issue and confirm the claim stuck before proceeding
+   - If the issue is already claimed by your lane, treat this as resume and continue
+   - If the issue is claimed by another lane, stop instead of competing
+3. **Load context** — Read `project.md` for product vision, domain glossary, quality bar
+4. **Readiness gate** — Run `/issue lint $1`:
+   - Score >= 70: proceed
+   - Score 50-69: run `/issue enrich $1` first, then re-lint
+   - Score < 50: flag to user, attempt enrichment, re-lint
+   - **Never skip an issue because it scored low — YOU make it ready**
+5. **Intent gate** — Ensure issue has `## Product Spec` and `### Intent Contract`.
+   If missing, invoke `/shape --spec-only $1` and re-check before coding.
+6. **Design** — Invoke `/shape --design-only` if no `## Technical Design` section.
+   - **Mandatory for effort/m or larger**: Run `/research thinktank` on the design
+     before proceeding. Multi-model consensus catches blind spots, bad assumptions,
+     and missing alternatives. Feed it the spec + proposed design + codebase context.
+   - If design contains a state machine or concurrent protocol, run `/formal-verify loop`.
+   - If thinktank surfaces a materially better approach, revise the design before building.
+7. **Build (TDD Enforced)** — Invoke `/build` and require RED→GREEN evidence per acceptance criterion:
+   - RED: failing targeted tests before implementation
+   - GREEN: same tests passing after implementation
+   - If test harness is broken, stop and flag blocker (no implementation without explicit user bypass)
+   - Delete compatibility scaffolding in greenfield/pre-user paths unless a real contract requires it
+8. **Visual QA** — If diff touches frontend files (`app/`, `components/`, `*.css`), run `/visual-qa --fix`. Fix P0/P1 before proceeding.
+9. **Agentic QA** — If diff touches prompts, model routing, tool schemas, or agent instructions, run `/llm-infrastructure` and inspect trace/eval coverage before shipping.
+10. **Triad Review** — Mandatory review gate before PR. Spawn three agents in parallel:
+
+    | Agent | Focus | Kill signal |
+    |-------|-------|-------------|
+    | `ousterhout` | Module depth, information hiding, interface simplicity. Flag shallow modules, pass-throughs, leaky abstractions. | Any red flag = must fix |
+    | `carmack` | Shippability, unnecessary abstraction, speculative generality. "Would you ship this today?" | Any "don't ship" = must fix |
+    | `grug` | Complexity demons. Is this simple enough for grug brain? Too many layers? Over-engineered? | Any "complexity bad" = must fix |
+
+    Each agent reads the full diff (`git diff main...HEAD`). Each outputs:
+    - **Ship / Don't Ship** verdict
+    - Top 3 concerns (if any), each with file:line and specific fix
+    - One sentence: what's the single best thing about this code?
+
+    **Gate**: All three must say "Ship" to proceed. Fix concerns and re-run
+    until consensus. If they disagree, the concern raised by the dissenter
+    gets addressed — the most conservative reviewer wins.
+
+    After the triad passes, run `/simplify` if diff >200 LOC net.
+
+11. **Dogfood QA** — Run automated QA against local dev server (see Dogfood QA section below).
+   Iterate until no P0/P1 issues remain. **Do not open a PR until QA passes.**
+11a. **Verify ACs** — Invoke `verify-ac` against the linked issue's `## Acceptance Criteria`.
+   - Honor explicit AC tags (`[test]`, `[command]`, `[behavioral]`) when present; otherwise let `verify-ac` choose the narrowest credible strategy from the diff and repo context
+   - Retry `UNVERIFIED` checks once (2 attempts total)
+   - If any AC remains `UNVERIFIED` after attempt 2: keep remediating the code, tests, or docs and rerun `verify-ac`; do not commit or ship while the gate is failing
+   - Escalate to the user only when further progress is genuinely blocked after reasonable remediation attempts
+   - `PARTIAL` may proceed only if no AC is `UNVERIFIED`, but it must be reported in the final handoff and PR body
+12. **Walkthrough** — Run `/pr-walkthrough` and produce the mandatory walkthrough package for the branch. Every PR needs an artifact, even if the change is internal or architectural.
+13. **Commit** — Create semantic commits for all remaining changes:
+    - Categorize files: commit, gitignore, delete, consolidate
+    - Group into logical commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
+    - Subject: imperative, lowercase, no period, ~50 chars. Body: why not what.
+    - Run quality gates (`lint`, `typecheck`, `test`) before pushing
+    - `git fetch origin && git push origin HEAD` (rebase if behind)
+    - Never force push. Never push to main without confirmation.
+14. **Ship** — Open or update a live PR:
+    - Stage and commit any uncommitted changes with semantic message
+    - Read linked issue from branch name or recent commits
+    - Re-run `python3 scripts/issue_lane.py --repo <owner/name> --issue <N>` immediately before opening the PR when available
+    - Otherwise re-run the in-flight gate immediately before opening the PR
+    - If an open PR already exists for the branch, use `gh pr edit`, not `gh pr create`
+    - If another open PR already exists for the same issue, stop and surface the duplication instead of creating a second lane
+    - Load `references/pr-body-template.md` and follow it
+    - The `Walkthrough` section must link the artifact and name the persistent verification that protects the demonstrated path
+    - PR body must contain all sections:
+      - **Why This Matters**: Problem, value added, why now, issue link. This is top-of-line.
+      - **Trade-offs / Risks**: Costs accepted, remaining concerns, why the trade is worthwhile.
+      - **Intent Reference**: Copy/paste issue intent contract summary + link to source issue section.
+      - **Changes**: Concise list of what was done. Key files/functions.
+      - **Alternatives Considered**: Do nothing, credible alternative(s), and why current approach won.
+      - **Acceptance Criteria**: From linked issue. Checkboxes.
+      - **Manual QA**: Step-by-step verification. Commands, expected output.
+      - **What Changed**: Mermaid flow chart for base branch, Mermaid flow chart for this PR, and a third Mermaid architecture/state/sequence diagram, plus explanation of why the new shape is better.
+      - **Before / After**: Text description mandatory. Screenshots for UI changes. Use `<details>` for heavy evidence.
+      - **Test Coverage**: Specific test files/functions. Note gaps.
+      - **Merge Confidence**: Confidence level, strongest evidence, residual risk.
+    - Keep deep sections under `<details>` where useful, but do not hide the topline significance/trade-off story
+    - Use `--body-file` for `gh pr create`, `gh pr edit`, and PR comments
+    - `gh pr create --assignee phrazzld --body-file <path>`
+    - Add context comment if notable decisions were made
+    - Opening or updating the PR creates the review lane. It does **not** mean the PR is review-clean.
+    - If your final push, `gh pr ready`, or PR edit triggers async reviewers, do not post any "PR Unblocked" or "ready for merge" signal unless `/pr-fix` has passed its live settlement gate on that PR
+15. **CI Gate** — Wait for CI to complete on the PR.
+    - Poll with `gh pr checks <PR> --watch` or `gh run list --branch <branch> --limit 1`
+    - If any checks are red/failing: investigate root cause, fix, commit, push, then wait for CI again
+    - Repeat until all checks pass
+    - Do not proceed to review settlement while CI is red
+16. **Review Settlement** — Read every single PR review and comment. Think critically about each. For every review point, determine one of three dispositions:
+    - **In scope**: Fix it in the branch. Commit, push. Reply to the comment confirming the fix.
+    - **Valid but out of scope**: Create a separate GitHub issue (or add to BACKLOG.md if the repo uses one). Reply to the comment linking the tracking item.
+    - **Invalid**: Reply with clear reasoning for why the feedback doesn't apply.
+    - Every review point gets a written response on the PR — none are silently ignored.
+    - If fixes were pushed, return to step 15 (CI Gate) and re-verify before proceeding.
+17. **Polish** — Once CI is green and every review comment is addressed:
+    - Run `/pr-polish`
+    - Run `/simplify`
+    - If these generate changes, commit and push, then return to step 15 (CI Gate) to re-verify
+18. **Merge** — Once CI is green, all reviews are settled, and polish is complete:
+    - Squash merge via `gh pr merge --squash`
+    - Never merge with failing checks
+    - Never merge with unaddressed review comments
+19. **Retro (Optional)** — Only capture implementation signals when the repo already uses issue-scoped retro notes and the signal is worth keeping.
+    - Use one file per issue under `.groom/retro/<issue>.md`.
+    - Never append to a shared `.groom/retro.md`; skip retro entirely instead of creating merge-hot churn for low-value notes.
+    - If you do append, prefer the repo's issue-scoped retro command/path (for example `/done append --issue ...`) rather than inventing a new shared log format.
+
+## Dogfood QA
+
+Run before every PR. No exceptions.
+
+`/dogfood` is an agent skill, not a shell binary. Invoke it as `/dogfood ...`.
+Do not run `dogfood --help` or declare it unavailable based on shell PATH.
+Use `agent-browser` / `browser-use` for focused manual repro and follow-up verification.
+
+### Setup
+
+```bash
+# Start dev server if not already running
+# Find existing server first
+PORT=$(lsof -i :3000 -sTCP:LISTEN -t 2>/dev/null | head -1)
+if [ -z "$PORT" ]; then
+  bun dev:next &
+  DEV_PID=$!
+  sleep 10  # wait for compilation
+fi
+
+# Confirm it's up
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/
+```
+
+If port 3000 is taken by another project, use `bun dev:next -- --port 3001` and adjust the
+target URL accordingly.
+
+### Run
+
+```
+/dogfood http://localhost:3000
+```
+
+Scope to the diff: if the issue only touches status pages, `/dogfood http://localhost:3000 Focus on the status page and badge changes`. For full-feature work, no scope restriction.
+
+### Issue Severity Gate
+
+After `/dogfood` completes, read the report:
+- **P0 or P1 issues** → fix them, commit, re-run `/dogfood` on the affected area
+- **P2 issues** → fix if quick (<15 min), otherwise document in PR as known and create a follow-up issue
+- **P3 issues / no issues** → proceed to `/pr`
+
+Never open a PR with unfixed P0 or P1 issues from the dogfood report.
+
+### Iteration Cap
+
+If the same P0/P1 issue resurfaces after two fix attempts, stop, document the blocker, and
+flag to the user before proceeding. Don't loop indefinitely.
+
+### Teardown
+
+```bash
+# Kill the dev server if we started it
+[ -n "$DEV_PID" ] && kill $DEV_PID 2>/dev/null || true
+```
+
+If the user's own dev server was already running (no `$DEV_PID`), leave it alone.
+
+## Triad Review Details
+
+The triad (Ousterhout + Carmack + Grug) replaces ad-hoc simplification
+reviews. They run in parallel, each reading the same diff independently.
+
+**Why these three:**
+- **Ousterhout** catches structural rot — shallow modules, information leakage,
+  interfaces that expose implementation. Strategic, not tactical.
+- **Carmack** catches over-engineering — unnecessary abstractions, code that
+  tries to solve hypothetical problems. Pragmatic, ship-focused.
+- **Grug** catches complexity demons — too many layers, clever indirection,
+  things that confuse small brains. Grounded, honest.
+
+Together they form a complementary lens: depth vs directness vs simplicity.
+If all three approve, the code is structurally sound, shippable, and not
+over-engineered.
+
+**Launching the triad:**
+```
+Spawn three Agent calls in parallel, each with:
+- subagent_type matching the agent name (ousterhout, carmack, grug)
+- Prompt: "Review this diff for a PR. [paste diff or path]
+  Verdict: Ship or Don't Ship.
+  Top 3 concerns (file:line + specific fix).
+  One sentence: best thing about this code."
+```
+
+## Stopping Conditions
+
+Stop only if: issue explicitly blocked, build fails after multiple attempts, requires external action.
+
+NOT stopping conditions: lacks description, seems big, unclear approach.
+
+## Output
+
+Report: issue worked, spec status, design status, TDD evidence (RED/GREEN), dogfood QA summary (issues found/fixed), walkthrough artifact summary, commits made, PR URL, review comments settled (count + dispositions), and merge status.
+
+## Review Cadence
+
+Agents accrete bloat when they keep extending stale mental models. Before each
+new sprint or major chunk:
+
+- Re-read the touched modules fully
+- Look for compatibility shims added only to preserve old structure
+- Simplify before adding the next layer
