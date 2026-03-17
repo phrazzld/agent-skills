@@ -1,0 +1,138 @@
+# Spellbook Registry — single source of truth for primitive metadata.
+#
+# Consumed by: bootstrap.sh, /focus, generate-embeddings.py
+# Do NOT duplicate this metadata elsewhere. If you need the global skills
+# list, harness paths, or external sources — read this file.
+
+global:
+  # Process skills: installed by bootstrap.sh, always available, never project-local.
+  # bootstrap.sh has custom installers for focus and research (complex directory
+  # structures). All others use the generic install_simple_skill().
+  skills:
+    custom_install:
+      - focus
+      - research
+    standard:
+      - autopilot
+      - calibrate
+      - context-engineering
+      - debug
+      - groom
+      - harness-engineering
+      - moonshot
+      - pr
+      - reflect
+      - settle
+      - skill
+
+  # Design philosophy agents: installed by bootstrap.sh, always available.
+  agents:
+    - beck
+    - carmack
+    - grug
+    - ousterhout
+
+# External skill sources for embeddings indexing and multi-source resolution.
+# layout: "flat" = skills/*/SKILL.md, "root" = SKILL.md at repo root,
+#          "multi-root" = */SKILL.md (top-level dirs)
+sources:
+  - repo: phrazzld/spellbook
+    default: true
+    layout: flat
+    skills_path: skills
+  - repo: anthropics/skills
+    layout: flat
+    skills_path: skills
+  - repo: openai/skills
+    layout: flat
+    skills_path: skills/.curated
+  - repo: vercel-labs/agent-skills
+    layout: flat
+    skills_path: skills
+  - repo: Leonxlnx/taste-skill
+    layout: multi-root
+  - repo: garrytan/gstack
+    layout: multi-root
+
+# Named skill groups for bulk activation via /focus.
+# Resolved from .spellbook.yaml collection references.
+collections:
+  payments:
+    description: Payment processing, billing, and financial integrations
+    skills: [stripe, bitcoin, lightning]
+  web:
+    description: Frontend development, visual QA, and browser testing
+    skills:
+      - next-patterns
+      - visual-qa
+      - dogfood
+      - ux-polish
+      - ui-skills
+      - webapp-testing
+      - agentic-ui-contract
+      - pencil-renderer
+      - pencil-to-code
+      - visualize
+  design:
+    description: Design systems, aesthetics, and visual craft
+    skills: [design]
+  agent:
+    description: AI/LLM agent infrastructure, skill engineering, and prompt design
+    skills:
+      - agent-browser
+      - agent-tools
+      - codified-context-architecture
+      - context-engineering
+      - formal-verify
+      - harness-engineering
+      - llm-infrastructure
+      - llm-semantic-match
+      - otp-agent-orchestration
+      - ralph-patterns
+      - skill-builder
+      - skill-creator
+  infra:
+    description: DevOps, sysadmin, security, CI/CD, and observability
+    skills:
+      - canary
+      - ci-spend-optimizer
+      - cli-reference
+      - database
+      - observability
+      - org-quality-governance
+      - posthog
+      - security-scan
+      - standup
+      - sysadmin
+      - sysadmin-ops
+  quality:
+    description: Code quality, naming, patterns, and linting
+    skills:
+      - external-integration-patterns
+      - git-mastery
+      - github-cli-hygiene
+      - guardrail
+      - naming-conventions
+  growth:
+    description: SEO, ads, CRO, content, brand, and media
+    skills:
+      - ai-media
+      - app-screenshots
+      - audit-website
+      - brand
+      - business-model-preferences
+      - content
+      - growth
+      - og-hero-image
+      - product-marketing-context
+  scaffold:
+    description: Project scaffolding and migration
+    skills:
+      - bun
+      - github-app-scaffold
+      - mobile-migrate
+      - monorepo-scaffold
+      - slack-app-scaffold
+  finance:
+    description: Personal finance workflows
+    skills: [crypto-gains, finances-ingest, finances-report, finances-snapshot]

@@ -45,9 +45,8 @@ Do NOT look at the catalog yet. Think from the project's needs.
 4. **What are the most common failure modes an agent would hit?**
    (e.g., "Next.js App Router caching gotchas", "Convex transaction limits")
 5. **What knowledge is NOT already covered by the global process skills?**
-   Remember: autopilot, calibrate, context-engineering, debug, focus, groom,
-   harness-engineering, moonshot, pr, reflect, research, settle, skill
-   are already available. Only domain-specific knowledge is missing.
+   The global skill list lives in `registry.yaml` under `global.skills`.
+   Only domain-specific knowledge is missing.
 
 Produce a **wishlist**: a list of ideal domain skill descriptions, independent
 of whether they exist in any catalog.
@@ -67,9 +66,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "Next.js App Router" --top 5 --jso
 ```
 
 **Critical filter:** Exclude all global skills from results. These are
-already available and must never appear in the manifest:
-autopilot, calibrate, context-engineering, debug, focus, groom,
-harness-engineering, moonshot, pr, reflect, research, settle, skill.
+already available and must never appear in the manifest. The canonical
+list is in `registry.yaml` under `global.skills`.
 
 For each search result, map it against the wishlist:
 - Does this skill address a concrete wishlist item?

@@ -22,10 +22,8 @@ skill-name             →  source="phrazzld/spellbook", name="skill-name"
 ```
 
 **Filter globals:** Skip any skill whose resolved name matches a global skill
-(autopilot, calibrate, context-engineering, debug, focus, groom,
-harness-engineering, moonshot, pr, reflect, research, settle, skill).
-These are already installed globally by bootstrap and must not be duplicated
-into project-local directories.
+(listed in `registry.yaml` under `global.skills`). These are already installed
+globally by bootstrap and must not be duplicated into project-local directories.
 
 ### 3. Nuke Managed Primitives
 

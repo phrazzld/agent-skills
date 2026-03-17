@@ -24,40 +24,64 @@ from urllib.error import HTTPError
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = REPO_ROOT / "skills"
 AGENTS_DIR = REPO_ROOT / "agents"
-SOURCES_FILE = REPO_ROOT / "sources.yaml"
+REGISTRY_FILE = REPO_ROOT / "registry.yaml"
 OUTPUT_FILE = REPO_ROOT / "embeddings.json"
 LOCAL_SOURCE = "phrazzld/spellbook"
 MODEL = "gemini-embedding-2-preview"
 DEFAULT_DIMS = 768
 BATCH_SIZE = 20
 
-# External sources to index. Each entry defines how to crawl.
-# layout: "flat" = skills/*/SKILL.md, "root" = single SKILL.md at repo root
-EXTERNAL_SOURCES = [
-    {
-        "source": "anthropics/skills",
-        "layout": "flat",
-        "skills_path": "skills",
-    },
-    {
-        "source": "openai/skills",
-        "layout": "flat",
-        "skills_path": "skills/.curated",  # OpenAI uses dot-prefixed tiers
-    },
-    {
-        "source": "vercel-labs/agent-skills",
-        "layout": "flat",
-        "skills_path": "skills",
-    },
-    {
-        "source": "Leonxlnx/taste-skill",
-        "layout": "multi-root",  # SKILL.md in top-level dirs (not under skills/)
-    },
-    {
-        "source": "garrytan/gstack",
-        "layout": "multi-root",  # QA, ship, review, retro, etc. as top-level dirs
-    },
-]
+
+def load_external_sources() -> list[dict]:
+    """Read external sources from registry.yaml (single source of truth)."""
+    try:
+        import yaml
+
+        registry = yaml.safe_load(REGISTRY_FILE.read_text(encoding="utf-8"))
+    except ImportError:
+        # Fallback: minimal YAML parsing for our simple list format
+        registry = _parse_registry_minimal(REGISTRY_FILE.read_text(encoding="utf-8"))
+
+    sources = []
+    for src in registry.get("sources", []):
+        repo = src.get("repo", "")
+        if repo == LOCAL_SOURCE:
+            continue  # Skip self — local skills are collected separately
+        entry = {"source": repo, "layout": src.get("layout", "flat")}
+        if "skills_path" in src:
+            entry["skills_path"] = src["skills_path"]
+        sources.append(entry)
+    return sources
+
+
+def _parse_registry_minimal(text: str) -> dict:
+    """Parse registry.yaml sources without pyyaml."""
+    sources = []
+    in_sources = False
+    current = {}
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if stripped == "sources:":
+            in_sources = True
+            continue
+        if in_sources:
+            indent = len(line) - len(line.lstrip())
+            if indent == 0 and stripped and not stripped.startswith("#"):
+                break  # Left sources section
+            if stripped.startswith("- repo:"):
+                if current:
+                    sources.append(current)
+                current = {"source": stripped.split(":", 1)[1].strip()}
+            elif stripped.startswith("layout:") and current:
+                current["layout"] = stripped.split(":", 1)[1].strip()
+            elif stripped.startswith("skills_path:") and current:
+                current["skills_path"] = stripped.split(":", 1)[1].strip()
+            elif stripped.startswith("default:"):
+                if current:
+                    current["default"] = stripped.split(":", 1)[1].strip() == "true"
+    if current:
+        sources.append(current)
+    return {"sources": sources}
 
 
 def github_headers() -> dict:
@@ -337,11 +361,12 @@ def main():
     print(f"  {len(local_skills)} skills, {len(local_agents)} agents")
     items = local_skills + local_agents
 
-    # Collect external items
+    # Collect external items (sources from registry.yaml)
     if not local_only:
+        external_sources = load_external_sources()
         print()
-        print("External sources:")
-        for src in EXTERNAL_SOURCES:
+        print(f"External sources ({len(external_sources)} from registry.yaml):")
+        for src in external_sources:
             external = collect_external_source(src)
             items.extend(external)
         print()

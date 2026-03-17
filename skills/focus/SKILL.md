@@ -29,25 +29,10 @@ MARKER_FILE:       .spellbook
 ## Global Skills (Already Available)
 
 These skills are installed globally by `bootstrap.sh` and are always available.
-**Never suggest, fetch, or install these — they're already present:**
+**Never suggest, fetch, or install these — they're already present.**
 
-| Skill | Purpose |
-|-------|---------|
-| autopilot | Full delivery pipeline |
-| calibrate | Mid-session harness postmortem |
-| context-engineering | Context lifecycle for AI agents |
-| debug | Investigate, audit, triage, fix |
-| focus | This skill — primitive management |
-| groom | Backlog grooming and doctrine |
-| harness-engineering | Design agent-friendly environments |
-| moonshot | Highest-leverage innovation |
-| pr | Tidy, commit, open world-class PR |
-| reflect | Session retrospective, codification |
-| research | Multi-source retrieval and validation |
-| settle | Unblock PR: fix, polish, simplify |
-| skill | Create skills from procedural knowledge |
-
-**Global agents:** beck, carmack, grug, ousterhout
+The canonical list lives in `registry.yaml` under `global.skills` (13 skills)
+and `global.agents` (4 agents). Do not hardcode this list — read the registry.
 
 Focus manages **domain skills** — the project-specific knowledge primitives
 that complement the always-available process layer.

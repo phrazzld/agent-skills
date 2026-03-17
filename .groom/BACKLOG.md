@@ -2,48 +2,67 @@
 
 Ideas, deferred work, someday/maybes. Promoted to GitHub Issues when ready.
 
-*Last updated: 2026-03-15*
+*Last updated: 2026-03-17*
 
 ## Deferred from GitHub Issues
 
 ### Compete skill — three-way agent competition
-*Demoted from #8 (2026-03-15). Depends on #50 (risk tiers) and #34 (parallel subagent infra).*
+*Demoted from #8 (2026-03-15). Dependencies (#50 risk tiers, #34 parallel subagent) closed in backlog rebuild.*
 
 Spawn 3 Agent Team workers implementing the same spec independently on separate git worktrees. Evaluation is deterministic where possible (test pass rate, coverage delta, lines changed). Thinktank synthesis as tiebreaker. DMI skill, effort/l.
 
-**Why deferred:** Speculative, high effort, depends on risk tier infrastructure that doesn't exist yet. Re-evaluate after #50 and #34 ship — if parallel subagent infra works well for debug, competition is a natural extension.
+**Why deferred:** Speculative, high effort, depends on infrastructure that doesn't exist yet. Re-evaluate after Foundation milestone ships.
+
+### Pipeline risk tiers + escalation gates
+*Demoted from #50 (2026-03-17). Closed in backlog rebuild — architecture changed.*
+
+Autopilot escalation based on risk classification (routine → complex → critical). Higher risk → more verification, human checkpoints, and parallel approaches.
+
+**Why deferred:** The two-tier architecture changed how skills compose. Risk tier design should wait until registry.yaml (#58) establishes the canonical metadata model.
+
+### Parallel subagent bug fix race
+*Demoted from #34 (2026-03-17). Closed in backlog rebuild.*
+
+Test-first parallel subagent competition for /debug — spawn N agents on worktrees, first passing test suite wins.
+
+**Why deferred:** Interesting but speculative. Prove simpler debug patterns first.
 
 ## Ideas
 
-### Cross-repo harness sync audit
-After core restructuring, repos consuming skills via symlinks may reference old skill names or paths. Need an audit of all repos that depend on spellbook to verify their CLAUDE.md, AGENTS.md, and .claude/skills/ symlinks are current.
+### Observation pipeline (calibrate → improve)
+`references/improve.md` documents `.spellbook/observations.ndjson` as the observation store, appended by `/calibrate`. But `/calibrate` makes no mention of writing to this file. The observation format is documented, the synthesis flow is documented, but the write path doesn't exist. The feedback loop is paper-only.
+
+**Signal:** User runs `/calibrate` and `/focus improve` finds no observations.
+
+### Cross-repo consumer audit
+Repos consuming skills via `/focus` may reference old skill names after the architecture refactor. Need an audit of consuming repos to verify their `.spellbook.yaml` manifests and installed skills are current.
 
 **Signal:** First user report of a broken skill reference in a consuming repo.
 
-### Pack discoverability improvements
-`/forage` matches against `pack-index.md` using keyword search. Semantic matching (LLM-based) could improve discovery accuracy for ambiguous queries. The `llm-semantic-match` pack skill exists but isn't wired into forage.
-
-**Signal:** User invokes `/forage` and doesn't find a skill that exists.
-
-### Overlay testing after restructuring
-Harness overlays (`overlays/<harness>/<skill>/`) may need updating after the core pruning. No automated test verifies overlays apply correctly to the new skill set.
-
-**Signal:** Harness-specific behavior diverges unexpectedly.
-
-### Skill composition documentation
-Skills compose implicitly (e.g., `/calibrate` loads `/forage` and `/research`, `/settle` reads autopilot references). This composition graph isn't documented anywhere. A generated dependency map could help with impact analysis when modifying skills.
+### Skill composition graph
+Skills compose implicitly (e.g., `/groom` invokes `/research thinktank`, `/autopilot` reads settle references). This composition graph isn't documented anywhere. A generated dependency map could help with impact analysis when modifying skills.
 
 **Signal:** Modifying a skill unexpectedly breaks a downstream skill.
 
-### TypeScript skill testing framework
-`core/research/` has TypeScript tests. Other skills are untested. A lightweight test framework for skills could validate frontmatter, description constraints, reference file existence, and routing table coverage.
+### Skill validation script
+A lightweight Python script to validate all SKILL.md files: frontmatter completeness, description length ≤1024 chars, trigger phrases present, reference files exist. Could run as pre-commit hook or CI check.
 
-**Signal:** Shipping a skill with broken routing or missing references.
+**Signal:** Shipping a skill with broken frontmatter or missing references.
+
+### Versioned skill artifacts
+Currently focus pulls HEAD of master. Tagged releases would enable pinning to a known-good state. Consuming repos could declare `skills: [debug@v2.1]` in manifests.
+
+**Signal:** A breaking change to a skill disrupts a consuming project mid-sprint.
+
+### Language/platform domain skills
+Go, Convex, Elixir, Swift/iOS, Python domain skills that capture platform-specific conventions. Add only when 3+ repos share identical patterns.
+
+**Signal:** Same convention duplicated across 3+ project CLAUDE.md files.
 
 ## Parked Themes
 
 ### Agent competition and verification depth
-Risk tiers (#50) → escalation gates → compete skill → formal verification integration. This is the "pipeline safety" theme. Currently at step 1 (risk tiers). Each step should prove value before building the next.
+Compete skill → risk tiers → escalation gates → formal verification. Each step should prove value before building the next. Currently at step 0 (no risk tiers yet).
 
-### Language and platform packs
-Go (#35), Convex (#36) are in GitHub Issues. Future candidates: Elixir (already has patterns in agent pack), Swift/iOS, Python. Add packs only when 3+ repos share identical conventions.
+### Feedback loop infrastructure
+calibrate → observations.ndjson → improve → PRs. The full loop from session observation to spellbook improvement. Currently only the synthesis step (/focus improve) is documented.

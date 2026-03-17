@@ -3,10 +3,7 @@ set -euo pipefail
 
 # Spellbook Bootstrap
 # Installs global process skills and agents for each detected agent harness.
-#
-# Global skills (13): autopilot, calibrate, context-engineering, debug, focus,
-#   groom, harness-engineering, moonshot, pr, reflect, research, settle, skill
-# Global agents (4): beck, carmack, grug, ousterhout
+# Reads registry.yaml for the canonical list of global primitives.
 #
 # These are process/methodology primitives useful in any context.
 # Domain skills (stripe, next-patterns, etc.) are project-local via /focus.
@@ -118,36 +115,88 @@ install_agent() {
 # Markers denote /focus-managed (project-local) primitives. Global skills
 # are never nuked/rebuilt by /focus — they're managed by bootstrap alone.
 
-# Global process skills — always available in every session
-GLOBAL_SKILLS=(
-  autopilot
-  calibrate
-  context-engineering
-  debug
-  groom
-  harness-engineering
-  moonshot
-  pr
-  reflect
-  settle
-  skill
-)
+# Read global primitives from registry.yaml (single source of truth).
+# On first run, registry.yaml is fetched from GitHub alongside the script.
+REGISTRY_URL="$RAW/registry.yaml"
+REGISTRY_YAML=$(curl -sfL "$REGISTRY_URL") || { err "Failed to fetch registry.yaml"; exit 1; }
 
-# Global agents — design philosophy lenses
-GLOBAL_AGENTS=(
-  beck
-  carmack
-  grug
-  ousterhout
-)
+# Parse global primitives from registry.yaml without pyyaml (not in stdlib).
+# Writes to temp file instead of eval for safety.
+PARSED=$(mktemp)
+trap 'rm -f "$PARSED"' EXIT
+
+echo "$REGISTRY_YAML" | python3 -c "
+import re, sys
+
+lines = sys.stdin.read().split('\n')
+
+def extract_items(lines, path):
+    depth = 0
+    target_indent = [None] * len(path)
+    items = []
+    capturing = False
+    for line in lines:
+        if not line.strip() or line.strip().startswith('#'):
+            continue
+        indent = len(line) - len(line.lstrip())
+        stripped = line.strip()
+        if depth < len(path):
+            key = path[depth] + ':'
+            if stripped.startswith(key):
+                target_indent[depth] = indent
+                depth += 1
+                if depth == len(path):
+                    capturing = True
+                    rest = stripped[len(key):].strip()
+                    if rest.startswith('[') and rest.endswith(']'):
+                        items = [v.strip() for v in rest[1:-1].split(',')]
+                        break
+                continue
+        elif capturing:
+            if indent <= target_indent[-1]:
+                break
+            if stripped.startswith('- '):
+                items.append(stripped[2:].strip())
+    return items
+
+custom = extract_items(lines, ['global', 'skills', 'custom_install'])
+standard = extract_items(lines, ['global', 'skills', 'standard'])
+agents = extract_items(lines, ['global', 'agents'])
+
+# Validate items contain only safe characters (lowercase, digits, hyphens)
+safe = re.compile(r'^[a-z0-9-]+$')
+for name in custom + standard + agents:
+    if not safe.match(name):
+        print(f'INVALID: {name}', file=sys.stderr)
+        sys.exit(1)
+
+print('CUSTOM_INSTALL=(' + ' '.join(custom) + ')')
+print('GLOBAL_SKILLS=(' + ' '.join(standard) + ')')
+print('GLOBAL_AGENTS=(' + ' '.join(agents) + ')')
+" > "$PARSED" || { err "Failed to parse registry.yaml"; exit 1; }
+
+source "$PARSED"
+
+# Validate parse produced results
+if [ ${#GLOBAL_SKILLS[@]} -eq 0 ]; then
+  err "No global skills found in registry.yaml — parse failure"; exit 1
+fi
+if [ ${#GLOBAL_AGENTS[@]} -eq 0 ]; then
+  err "No global agents found in registry.yaml — parse failure"; exit 1
+fi
 
 install_globals() {
   local skills_dir="$1"
   local agents_dir="$2"
 
   # Skills with custom installers (complex directory structures)
-  install_focus "$skills_dir"
-  install_research "$skills_dir"
+  for custom in "${CUSTOM_INSTALL[@]}"; do
+    case "$custom" in
+      focus)    install_focus "$skills_dir" ;;
+      research) install_research "$skills_dir" ;;
+      *)        install_simple_skill "$skills_dir" "$custom" ;;
+    esac
+  done
 
   # Skills with standard layout
   for skill in "${GLOBAL_SKILLS[@]}"; do
@@ -215,14 +264,16 @@ if [ "$installed" -eq 0 ]; then
   installed=1
 fi
 
+ALL_SKILLS=("${CUSTOM_INSTALL[@]}" "${GLOBAL_SKILLS[@]}")
+total_skills=${#ALL_SKILLS[@]}
+total_agents=${#GLOBAL_AGENTS[@]}
+
 ok "Done. Installed to $installed harness(es)."
 echo
-info "Global skills (13): autopilot, calibrate, context-engineering, debug,"
-info "  focus, groom, harness-engineering, moonshot, pr, reflect, research,"
-info "  settle, skill"
-info "Global agents (4): beck, carmack, grug, ousterhout"
+info "Global skills ($total_skills): ${ALL_SKILLS[*]}"
+info "Global agents ($total_agents): ${GLOBAL_AGENTS[*]}"
 echo
-info "Domain skills (stripe, next-patterns, etc.) are project-local via /focus."
+info "Domain skills are project-local via /focus."
 echo
 info "Next steps:"
 info "  1. Open any project"

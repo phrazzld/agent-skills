@@ -37,12 +37,8 @@ Read descriptions and match manually.
 ### 3. Filter Globals
 
 Remove results matching any global skill or agent from the output.
-These are already available via bootstrap:
-
-**Skills:** autopilot, calibrate, context-engineering, debug, focus, groom,
-harness-engineering, moonshot, pr, reflect, research, settle, skill
-
-**Agents:** beck, carmack, grug, ousterhout
+These are already available via bootstrap. The canonical list is in
+`registry.yaml` under `global.skills` and `global.agents`.
 
 ### 4. Present Results
 

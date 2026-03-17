@@ -19,14 +19,12 @@ spellbook/
 │   ├── autopilot/           # Full delivery pipeline
 │   └── ...
 ├── agents/                  # Agent definitions, flat (markdown + YAML frontmatter)
+├── registry.yaml            # Single source of truth: globals, sources, collections
 ├── embeddings.json          # Pre-computed Gemini Embedding 2 index (all sources)
-├── index.yaml               # Generated text catalog
-├── collections.yaml         # Named skill groups (human browsing)
-├── bootstrap.sh             # Installs global skills (focus + research)
+├── bootstrap.sh             # Installs global skills (reads registry.yaml)
 ├── .spellbook.yaml          # This repo's own manifest
 └── scripts/
-    ├── generate-index.sh    # Rebuild index.yaml from local skills
-    ├── generate-embeddings.py  # Rebuild embeddings.json (local + external sources)
+    ├── generate-embeddings.py  # Rebuild embeddings.json (sources from registry.yaml)
     └── search-embeddings.py # Query the embeddings index
 ```
 
@@ -66,8 +64,8 @@ without a marker are invisible to Spellbook and never modified.
 indexed primitives across multiple GitHub sources. `/focus init` and `/focus search`
 use cosine similarity against this index for semantic matching.
 
-External sources are defined in `scripts/generate-embeddings.py`. To add a new source,
-add an entry to `EXTERNAL_SOURCES` and re-run the generator.
+External sources are defined in `registry.yaml` under `sources`. To add a new source,
+add an entry there and re-run the embeddings generator.
 
 ## Primitives
 
@@ -102,9 +100,6 @@ tools: Read, Grep, Glob, Bash
 ## Key Commands
 
 ```bash
-# Rebuild the text index
-./scripts/generate-index.sh
-
 # Rebuild the embeddings index (requires GEMINI_API_KEY)
 python3 scripts/generate-embeddings.py
 
@@ -117,9 +112,8 @@ python3 scripts/search-embeddings.py --project-dir /path/to/project
 
 1. Create `skills/{name}/SKILL.md` with frontmatter
 2. Add references/, scripts/, assets/ as needed
-3. Run `./scripts/generate-index.sh`
-4. Run `python3 scripts/generate-embeddings.py`
-5. Commit and push — consumers get it on next `/focus`
+3. Run `python3 scripts/generate-embeddings.py`
+4. Commit and push — consumers get it on next `/focus`
 
 ## Principles
 
