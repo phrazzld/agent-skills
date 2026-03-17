@@ -92,7 +92,7 @@ Codification targets (same cascade as `/reflect`):
 | Type | Source code type definitions |
 | Test | Test suite |
 | CI | CI config |
-| Skill | `core/` or `packs/` SKILL.md |
+| Skill | `.claude/skills/` SKILL.md (if spellbook-managed, also log upstream) |
 | CLAUDE.md | Project or global CLAUDE.md |
 | Memory | `~/.claude/projects/*/memory/*.md` |
 
@@ -127,6 +127,53 @@ The code fix should be trivial now — the hard work was diagnosing and fixing t
 - Vague instructions: "be careful with X" instead of a specific, testable rule
 - Skipping verification: the fix must demonstrably prevent recurrence
 
+## Spellbook Feedback Loop
+
+When the fix target is a Spellbook-managed skill (has `.spellbook` marker),
+the improvement should flow back to the canonical source.
+
+### High Confidence: Direct Push
+
+If the fix is clear and you're certain:
+
+1. Read the `.spellbook` marker to get `source` and `name`
+2. Clone/worktree the spellbook repo (or use local if available)
+3. Edit the canonical skill
+4. Commit with message: `fix(skill-name): [what was wrong]`
+5. Open PR against spellbook
+
+The consuming project gets the fix on next `/focus sync`.
+
+### Lower Confidence: Log Observation
+
+If you're not sure what the right fix is, or it needs more evidence:
+
+```bash
+mkdir -p .spellbook
+```
+
+Append a JSON line to `.spellbook/observations.ndjson`:
+
+```json
+{
+  "timestamp": "2026-03-16T22:00:00Z",
+  "primitive": "phrazzld/spellbook@autopilot",
+  "type": "friction|gap|error|enhancement",
+  "summary": "Autopilot didn't handle draft PRs during build phase",
+  "context": "Was building a large feature, wanted draft PR for early feedback, autopilot forced a ready-for-review PR",
+  "confidence": 0.6
+}
+```
+
+Types:
+- **friction** — skill works but is awkward or slow for this use case
+- **gap** — skill doesn't cover a scenario it should
+- **error** — skill gave wrong instructions
+- **enhancement** — skill could be better with an addition
+
+These accumulate across sessions. Use `/focus improve` to synthesize
+observations into discrete spellbook improvements.
+
 ## Output
 
 ```markdown
@@ -140,6 +187,9 @@ The code fix should be trivial now — the hard work was diagnosing and fixing t
 
 ### Fix Applied
 [What was changed, at which level]
+
+### Upstream
+[If spellbook-managed: PR opened / observation logged / N/A]
 
 ### Verification
 [How we confirmed the fix prevents recurrence]

@@ -119,7 +119,12 @@ The point is single ownership. One issue should map to one active autopilot lane
    - **Never skip an issue because it scored low — YOU make it ready**
 5. **Intent gate** — Ensure issue has `## Product Spec` and `### Intent Contract`.
    If missing, invoke `/shape --spec-only $1` and re-check before coding.
-6. **Design** — Invoke `/shape --design-only` if no `## Technical Design` section. If design contains a state machine or concurrent protocol, consider `/formal-verify loop` before proceeding to build.
+6. **Design** — Invoke `/shape --design-only` if no `## Technical Design` section.
+   - **Mandatory for effort/m or larger**: Run `/research thinktank` on the design
+     before proceeding. Multi-model consensus catches blind spots, bad assumptions,
+     and missing alternatives. Feed it the spec + proposed design + codebase context.
+   - If design contains a state machine or concurrent protocol, run `/formal-verify loop`.
+   - If thinktank surfaces a materially better approach, revise the design before building.
 7. **Build (TDD Enforced)** — Invoke `/build` and require RED→GREEN evidence per acceptance criterion:
    - RED: failing targeted tests before implementation
    - GREEN: same tests passing after implementation
@@ -127,10 +132,25 @@ The point is single ownership. One issue should map to one active autopilot lane
    - Delete compatibility scaffolding in greenfield/pre-user paths unless a real contract requires it
 8. **Visual QA** — If diff touches frontend files (`app/`, `components/`, `*.css`), run `/visual-qa --fix`. Fix P0/P1 before proceeding.
 9. **Agentic QA** — If diff touches prompts, model routing, tool schemas, or agent instructions, run `/llm-infrastructure` and inspect trace/eval coverage before shipping.
-10. **Refine** — `/pr-fix --refactor`, update docs inline, then run simplification pass:
-    - **Mandatory when diff >200 LOC net:** run `/simplify` — no exceptions
-    - For smaller diffs: manual module-depth review + simplification edits using Ousterhout checks: shallow modules, information leakage, pass-throughs, and compatibility shims with no active contract
-    - Optional accelerator: use an `ousterhout` persona/agent if the harness provides one
+10. **Triad Review** — Mandatory review gate before PR. Spawn three agents in parallel:
+
+    | Agent | Focus | Kill signal |
+    |-------|-------|-------------|
+    | `ousterhout` | Module depth, information hiding, interface simplicity. Flag shallow modules, pass-throughs, leaky abstractions. | Any red flag = must fix |
+    | `carmack` | Shippability, unnecessary abstraction, speculative generality. "Would you ship this today?" | Any "don't ship" = must fix |
+    | `grug` | Complexity demons. Is this simple enough for grug brain? Too many layers? Over-engineered? | Any "complexity bad" = must fix |
+
+    Each agent reads the full diff (`git diff main...HEAD`). Each outputs:
+    - **Ship / Don't Ship** verdict
+    - Top 3 concerns (if any), each with file:line and specific fix
+    - One sentence: what's the single best thing about this code?
+
+    **Gate**: All three must say "Ship" to proceed. Fix concerns and re-run
+    until consensus. If they disagree, the concern raised by the dissenter
+    gets addressed — the most conservative reviewer wins.
+
+    After the triad passes, run `/simplify` if diff >200 LOC net.
+
 11. **Dogfood QA** — Run automated QA against local dev server (see Dogfood QA section below).
    Iterate until no P0/P1 issues remain. **Do not open a PR until QA passes.**
 11a. **Verify ACs** — Invoke `verify-ac` against the linked issue's `## Acceptance Criteria`.
@@ -256,23 +276,32 @@ flag to the user before proceeding. Don't loop indefinitely.
 
 If the user's own dev server was already running (no `$DEV_PID`), leave it alone.
 
-## Parallel Refinement (Agent Teams)
+## Triad Review Details
 
-After `/build` completes, parallelize the refinement phase:
+The triad (Ousterhout + Carmack + Grug) replaces ad-hoc simplification
+reviews. They run in parallel, each reading the same diff independently.
 
-| Teammate | Task |
-|----------|------|
-| **Simplifier** | Run code-simplifier agent, commit |
-| **Depth reviewer** | Run manual module-depth review, or `ousterhout` if available, commit |
-| **Doc updater** | Update docs (README, ADRs, API docs), commit |
+**Why these three:**
+- **Ousterhout** catches structural rot — shallow modules, information leakage,
+  interfaces that expose implementation. Strategic, not tactical.
+- **Carmack** catches over-engineering — unnecessary abstractions, code that
+  tries to solve hypothetical problems. Pragmatic, ship-focused.
+- **Grug** catches complexity demons — too many layers, clever indirection,
+  things that confuse small brains. Grounded, honest.
 
-Lead sequences commits after all teammates finish. Then dogfood QA, then `/pr`.
+Together they form a complementary lens: depth vs directness vs simplicity.
+If all three approve, the code is structurally sound, shippable, and not
+over-engineered.
 
-Use when: substantial feature with multiple refinement needs.
-Don't use when: small fix where sequential is fast enough.
-
-If native batch dispatch is available in the harness (e.g. `/batch`), use it.
-Otherwise launch teammates sequentially with normal agent calls.
+**Launching the triad:**
+```
+Spawn three Agent calls in parallel, each with:
+- subagent_type matching the agent name (ousterhout, carmack, grug)
+- Prompt: "Review this diff for a PR. [paste diff or path]
+  Verdict: Ship or Don't Ship.
+  Top 3 concerns (file:line + specific fix).
+  One sentence: best thing about this code."
+```
 
 ## Stopping Conditions
 

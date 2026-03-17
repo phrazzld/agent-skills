@@ -148,7 +148,24 @@ Present: "Here's what I understand. Let me explore the problem space."
 
    **Recommend one.** Present all with clear reasoning.
 
-3. **Discuss** — User pushes back, questions, proposes alternatives.
+3. **Validate** — Before locking a design, run multi-model consensus:
+
+   **Mandatory for effort/m or larger:**
+   Run `/research thinktank` with the recommended design + spec + codebase context.
+   Thinktank surfaces blind spots, missing alternatives, and bad assumptions
+   that a single model misses.
+
+   **Also spawn the Triad for design review:**
+   | Agent | Design review focus |
+   |-------|-------------------|
+   | `ousterhout` | Are the module boundaries deep? Is information hidden? |
+   | `carmack` | Is this the simplest thing that works? Any speculative generality? |
+   | `grug` | Would grug understand this design? Too many layers? |
+
+   If thinktank or the triad surface a materially better approach, revise
+   before presenting to the user.
+
+4. **Discuss** — User pushes back, questions, proposes alternatives.
    No limit on rounds. Design isn't ready until user says it is.
 
 4. **Draft design** — Post on issue:

@@ -85,10 +85,24 @@ Load that file before creating any issues.
 Run `/groom` in six phases:
 
 1. **Ground** — load or update `project.md`, load `.groom/BACKLOG.md`, check repo context freshness, run `sync.sh detect .` to ensure relevant domain packs are loaded, read retro, capture user pain, audit backlog health (enforce 20-30 cap), compute health metrics
-2. **Architecture Critique** — three parallel tracks: reference architecture search, domain skill invocation, multi-model thinktank. See `references/architecture-fitness.md`. For greenfield modules, load `references/toolchain-preferences.md` before evaluating technology options.
-2.5. **Present Options** — synthesize tracks A-C into 2-3 architectural options (incremental to radical), ask user what range of change is acceptable
+2. **Architecture Critique** — four parallel tracks:
+   - **A. Reference search** — `/research web-search` for existing implementations
+   - **B. Domain skills** — invoke relevant domain skills for current-state audit
+   - **C. Thinktank** — `/research thinktank` on the architecture question in deep mode.
+     Feed it: current architecture, pain points, project vision, constraints.
+     This is mandatory, not optional — multi-model consensus catches blind spots.
+   - **D. Triad review** — spawn `ousterhout`, `carmack`, `grug` agents in parallel
+     on the current architecture. Each answers: "What's the single biggest
+     structural problem? What would you change first?"
+
+   For greenfield modules, load `references/toolchain-preferences.md` before
+   evaluating technology options. See `references/architecture-fitness.md`.
+
+2.5. **Present Options** — synthesize tracks A-D into 2-3 architectural options
+   (incremental to radical), including triad and thinktank findings.
+   Ask user what range of change is acceptable.
 3. **Research** — web, cross-repo, and codebase research, scoped to the direction chosen in 2.5. Use `/research web-search` with Exa for reference architecture discovery.
-4. **Exploration** — pitch options, recommend one, discuss, validate with thinktank, then lock direction
+4. **Exploration** — pitch options, recommend one, discuss. Lock direction.
 5. **Synthesis** — reduce GitHub backlog to cap (demote to BACKLOG.md, close, merge), then promote from BACKLOG.md or create for missing gaps. Every surviving issue must score >= 70.
 6. **Artifact** — save a dated grooming plan, update `.groom/BACKLOG.md`, visual summary when useful
 
