@@ -5,7 +5,6 @@ description: |
   frontmatter, progressive disclosure, packaging, absorption lifecycle.
   Use when: "create a skill", "make this a skill", "update skill",
   "capture this as a skill", "skill engineering".
-disable-model-invocation: true
 argument-hint: "[create|update|absorb] [skill-name]"
 ---
 
@@ -63,11 +62,42 @@ If any gate fails, don't create the skill. Suggest the right home:
 
 | Type | Characteristics | Mode |
 |------|----------------|------|
-| **Global** | Meta-process, useful everywhere (focus, research, calibrate, reflect, skill) | DMI |
+| **Global** | Meta-process, useful everywhere (focus, research, calibrate, reflect, skill) | Non-DMI (must be chainable by other skills) |
 | **Distributable** | Domain or workflow skill, useful across projects | Default or DMI |
 | **Project-local** | This-repo-only workflow | DMI typically |
 
-### 3. Create
+### 3. Research and Design (Mandatory for New Skills)
+
+A skill that restates what the model already knows is worthless.
+The value of a skill is encoding knowledge the model DOESN'T have:
+specific processes, hard-won best practices, integration gotchas,
+failure modes, repo-specific conventions, operational patterns.
+
+**Run all three before writing a single line of SKILL.md:**
+
+1. **`/research`** — Find best practices, reference implementations,
+   and real-world patterns for this domain. Specifically hunt for:
+   - What do experienced practitioners know that isn't obvious?
+   - What are the common failure modes and production gotchas?
+   - What decisions seem arbitrary but have strong reasons behind them?
+   - What's the gap between "works in a tutorial" and "works in production"?
+   - What's specific to the current repository's stack/domain combination?
+
+2. **`/context-engineering`** — Design the skill's context architecture:
+   - What goes in SKILL.md body (always loaded) vs references/ (on-demand)?
+   - What's the progressive disclosure strategy?
+   - What context does an agent need at decision time vs research time?
+
+3. **`/harness-engineering`** — Ensure the skill works well in agent workflows:
+   - How will the agent invoke this? What triggers loading?
+   - What other skills does this chain with?
+   - What feedback loops (tests, linters, CI) validate the skill's advice?
+
+**The bar:** After reading the skill, an agent should make decisions a senior
+domain specialist would approve — decisions it could NOT make from training
+data alone. If the skill doesn't clear that bar, it's not specific enough.
+
+### 4. Create
 
 1. **Understand** — what problem does this solve?
 2. **Plan resources** — SKILL.md body vs references/ for progressive disclosure
@@ -91,7 +121,7 @@ mkdir -p .claude/skills/{name}
 # Commit with the project
 ```
 
-### 4. Update
+### 5. Update
 
 For spellbook skills: edit in the spellbook repo, regenerate index + embeddings.
 For project-local skills: edit in place.
@@ -99,7 +129,7 @@ For project-local skills: edit in place.
 For either: if the skill references `skill-builder` or `skill-creator`,
 load those for detailed guidance on structure and packaging.
 
-### 5. Absorption (consolidating skills)
+### 6. Absorption (consolidating skills)
 
 When absorbing a standalone skill into an umbrella:
 1. Extract SKILL.md body → `references/{name}.md`
@@ -108,7 +138,7 @@ When absorbing a standalone skill into an umbrella:
 4. Delete old skill directory
 5. Regenerate index + embeddings
 
-### 6. Agents
+### 7. Agents
 
 The same managed/unmanaged distinction applies to agents:
 
@@ -127,3 +157,5 @@ without a matching `.spellbook` marker are left alone.
 - Skipping quality gates because "it seems useful"
 - Creating a skill that duplicates an existing one (search embeddings first)
 - Shallow skills that are just a checklist (prefer CLAUDE.md or a hook)
+- Skipping the research phase — skills without research are just reformatted training data
+- Writing generic advice the model already knows instead of specific, hard-won knowledge

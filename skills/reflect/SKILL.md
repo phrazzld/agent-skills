@@ -6,7 +6,6 @@ description: |
   tune repos for agents.
   Invoke for: "done", "wrap up", "what did we learn", "retro", "session end",
   "reflect", "distill", "tune repo".
-disable-model-invocation: true
 argument-hint: "[--skip-commit] [--focus area] [append --issue N]"
 ---
 

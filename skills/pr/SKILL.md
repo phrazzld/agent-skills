@@ -6,7 +6,6 @@ description: |
   conventional commits, then opens a high-quality PR with full evidence.
   Use when: ready to ship, "open a PR", "create PR", "commit and PR",
   "ship this", "push and PR", "prep for review", "make a PR".
-disable-model-invocation: true
 argument-hint: "[issue-id] [--draft] [--no-push]"
 ---
 

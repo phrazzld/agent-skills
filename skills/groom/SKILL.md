@@ -8,7 +8,6 @@ description: |
   backlog overhaul, rewriting tickets, reducing issue sprawl, agent-executable issues.
   Trigger: /groom, /backlog, /tidy, "groom the backlog", "clean up issues",
   "overhaul the backlog", "rewrite tickets", "agent-ready issues".
-disable-model-invocation: true
 ---
 
 # /groom

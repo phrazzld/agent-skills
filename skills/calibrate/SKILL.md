@@ -7,7 +7,6 @@ description: |
   Use when: agent did the wrong thing, "calibrate", "why did you do that",
   "fix your instructions", "don't do that again", "harness gap",
   "agent mistake", "wrong decision", "recalibrate".
-disable-model-invocation: true
 argument-hint: "[what went wrong]"
 ---
 

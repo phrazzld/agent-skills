@@ -6,7 +6,6 @@ description: |
   Use when: "what should we build next", "what's the biggest opportunity",
   "step back and think big", "what's missing", "surprise me".
   Trigger: /moonshot, "biggest opportunity", "what would you build".
-disable-model-invocation: true
 ---
 
 # /moonshot

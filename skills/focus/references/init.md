@@ -73,7 +73,7 @@ For each search result, map it against the wishlist:
 - Does this skill address a concrete wishlist item?
 - Is the match precise or vague?
 
-### Phase 4: Diff — Identify the Gaps
+### Phase 4: Diff — Identify the Gaps (Most Valuable Phase)
 
 Compare the wishlist against search results:
 
@@ -81,13 +81,23 @@ Compare the wishlist against search results:
 |--------------|-------------|------------|---------|
 | Stripe webhook patterns | Yes | stripe | Strong |
 | Next.js caching gotchas | Yes | next-patterns | Strong |
-| Custom auth middleware | No | — | — |
-| Convex transaction patterns | No | — | — |
+| Custom auth middleware | No | — | **GAP** |
+| Convex transaction patterns | No | — | **GAP** |
 
 **For items with strong matches:** Add to manifest.
 
-**For items with no match:** These are skill gaps — opportunities to create
-new skills that would benefit this project and others.
+**For items with no match — THESE ARE THE MOST VALUABLE OUTPUT.**
+
+Gaps represent knowledge the model doesn't have in its training data:
+- Specific best practices for this domain/stack combination
+- Integration gotchas and failure modes learned through production experience
+- Process patterns specific to this kind of project
+- Conventions and invariants that aren't documented anywhere public
+
+**Do not treat gaps as a footnote.** Present them as the primary opportunity.
+Every gap is a skill waiting to be created — and gap-born skills are the
+highest-leverage primitives in the library because they encode exactly
+what the model can't already do on its own.
 
 ### Phase 5: Generate Manifest
 
@@ -118,16 +128,28 @@ For each gap, offer:
 
 Only write manifest after explicit confirmation.
 
-### Phase 7: Create Skills for Gaps (Optional)
+### Phase 7: Create Skills for Gaps
 
-If the user approves creating skills for unmatched wishlist items:
+**This is NOT optional.** For every gap identified in Phase 4, actively
+propose creating a new skill. Present a concrete 1-2 sentence description
+of what each gap skill would contain, then ask which ones to create.
 
-1. Use `/skill` to draft the new skill
+When creating gap skills, invoke `/skill` which will run the full research
+and context-engineering pipeline to produce a world-class skill. Don't
+create shallow placeholder skills — the whole point is to encode knowledge
+the model doesn't already have.
+
+For each approved gap skill:
+
+1. Use `/skill create {name}` — this runs research, context-engineering, and
+   harness-engineering to craft a skill that goes beyond training data
 2. Create a branch in a spellbook worktree
 3. Open a PR with the new skill
-4. Add the skill name to the manifest (it'll be available after merge + re-index)
+4. Add the skill name to the manifest (available after merge + re-index)
 
-This is how spellbook grows organically from real project needs.
+This is how spellbook grows — organically from real project needs, with
+each new skill encoding domain knowledge that makes agents genuinely
+more effective than they'd be from base model capabilities alone.
 
 ### Phase 8: Run Sync
 

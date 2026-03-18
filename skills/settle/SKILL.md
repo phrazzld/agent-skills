@@ -9,7 +9,6 @@ description: |
   "get this mergeable", "fix and polish", "unblock PR", "clean up this PR",
   "make this merge-ready", "address reviews", "fix CI".
   Trigger: /settle, /pr-fix, /pr-polish, /simplify.
-disable-model-invocation: true
 argument-hint: "[PR-number]"
 ---
 

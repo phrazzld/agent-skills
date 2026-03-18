@@ -8,7 +8,6 @@ description: |
   checking quality, writing commits, managing issues.
   Trigger: /autopilot, /build, /shape, /commit, /issue,
   /check-quality, /test-coverage, /verify-ac, /pr-walkthrough.
-disable-model-invocation: true
 argument-hint: "[issue-id] or [sub-command]"
 ---
 
@@ -53,6 +52,7 @@ for the same issue unless you first surface and justify a superseding lane.
 - You orchestrate, review, clean up, commit, ship
 - Flesh out incomplete issues yourself (spec, design)
 - Never skip an issue because it's "not ready" — YOU make it ready
+- Treat GitHub issue/project metadata as coordination hints, not the product. High-priority, fleshed-out, repo-meaningful work matters more than perfectly managed project fields.
 - Own the lane end-to-end: if validation surfaces adjacent breakage or stale repo debt in scope of the ship gate, fix it or explicitly justify why it cannot be fixed in this lane
 - `dogfood`, `agent-browser`, and `browser-use` are available in this environment; use them for user-flow validation
 
@@ -70,7 +70,7 @@ Deterministic logic is limited to strict mechanics: schema checks, exact parsing
 
 Eligibility comes first:
 - unassigned
-- not already marked `In Progress`
+- not already marked `In Progress` in repos that actively use project status
 - not already being worked by another autopilot run or open PR
 
 1. `p0` > `p1` > `p2` > `p3` > unlabeled
@@ -78,39 +78,40 @@ Eligibility comes first:
 3. Within same horizon: lower issue number first
 4. Scope, cleanliness, comfort don't matter after eligibility is satisfied
 
-If the highest-priority issue is already assigned or already `In Progress`, skip it and move to the next eligible issue.
+If the highest-priority issue is already assigned, or is already `In Progress` in a repo that actively uses project status, skip it and move to the next eligible issue.
 Never steal claimed work.
 
 ## Claim Discipline
 
 Autopilot must claim work before shaping or coding.
 
-- Auto-pick mode: only select issues with no assignees, no `In Progress` status, no open PR, and no active autopilot lane already attached
+- Auto-pick mode: only select issues with no assignees, no open PR, and no active autopilot lane already attached. Use project `Status` when the repo actually relies on it, but do not treat missing project plumbing as disqualifying by itself.
 - Explicit issue mode: stop if the issue is owned by another operator, already has another open PR, or is otherwise being worked by another lane
 - Explicit issue mode may resume work already claimed by you, including an issue already assigned to you or already marked `In Progress` by your lane
 - Before `/issue lint`, assign the issue to yourself
-- Before `/issue lint`, mark the issue's project status as `In Progress`
-- If the issue is not in a project or the project has no `Status` field, attach it to the canonical delivery project first, then set `Status`
-- If assignment, project attach, or status mutation fails, stop before implementation and report the blocker explicitly
+- Before `/issue lint`, set project `Status` to `In Progress` when the repo has a real delivery project and the mutation is available
+- If the issue is not in a project or the project has no `Status` field, proceed after checking for competing assignees, PRs, and active lanes; report the missing project metadata, but do not block the lane on it
+- If assignment fails, stop before implementation and report the blocker explicitly
+- If project attach or status mutation fails but ownership is otherwise clear, continue and mention the metadata gap in your handoff
 
-The point is single ownership. One issue should map to one active autopilot lane.
+The point is single ownership and meaningful progress. One issue should map to one active autopilot lane, but missing GitHub project wiring should not stop high-value work by itself.
 
 ## Workflow
 
 1. **Find eligible issue** —
-   - Explicit issue: inspect assignees, project status, and open PRs before doing anything else
-   - Auto-pick: choose the highest-priority open issue that is unassigned, not `In Progress`, and has no open PR or active autopilot lane
+   - Explicit issue: inspect assignees, open PRs, and any repo-specific lane signal before doing anything else. Treat project status as advisory unless the repo clearly depends on it.
+   - Auto-pick: choose the highest-priority open issue that is unassigned, has no open PR, and has no active autopilot lane. If project `Status` exists and is actively used, avoid items already marked `In Progress`.
    - If there are no open issues, stop and report that the queue is empty
    - If open issues exist but none are eligible, stop and report that all open work is already claimed
    - Preferred lane check: run `python3 scripts/issue_lane.py --repo <owner/name> --issue <N>` when the repo provides it
    - Fallback: query open PRs with `gh pr list --state open --json number,title,body,headRefName,url`
 2. **Claim issue** —
    - Assign the issue to yourself
-   - Ensure the issue is attached to the canonical delivery project
-   - Mark the linked project item `Status` as `In Progress`
+   - If the repo has a canonical delivery project and accessible status fields, attach the issue and mark `Status` as `In Progress`
    - Re-read the issue and confirm the claim stuck before proceeding
    - If the issue is already claimed by your lane, treat this as resume and continue
    - If the issue is claimed by another lane, stop instead of competing
+   - If project metadata is missing or inaccessible but lane ownership is otherwise clear, continue and note the coordination gap instead of blocking delivery
 3. **Load context** — Read `project.md` for product vision, domain glossary, quality bar
 4. **Readiness gate** — Run `/issue lint $1`:
    - Score >= 70: proceed
