@@ -19,7 +19,7 @@ Full delivery pipeline. From issue to merged PR in one command, or invoke sub-ca
 
 | Intent | Sub-capability |
 |--------|---------------|
-| Spec, plan, design a feature — "shape this", "write a spec" | `references/shape.md` |
+| Spec, plan, design a feature — "shape this", "write a spec" | Standalone `/shape` skill |
 | Implement, code, TDD — "build this", "implement" | `references/build.md` |
 | Create/update a PR — "open PR", "create PR" | Standalone `/pr` skill |
 | Unblock, polish, simplify PR — "fix PR", "CI red", "simplify" | Standalone `/land` skill |
@@ -31,7 +31,8 @@ Full delivery pipeline. From issue to merged PR in one command, or invoke sub-ca
 | Issue lint/enrich/decompose — "issue" | `references/issue.md` |
 
 If invoked as `/autopilot [issue-id]`, run the full pipeline (below).
-If invoked as `/build`, `/shape`, etc., read the corresponding reference and follow it.
+If invoked as `/build`, read `references/build.md` and follow it.
+If invoked as `/shape`, route to standalone `/shape` skill.
 If invoked as `/pr-fix`, `/pr-polish`, or `/simplify`, route to standalone `/land`.
 
 ## Role

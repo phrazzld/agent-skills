@@ -24,6 +24,7 @@ global:
       - primitive
       - refine
       - reflect
+      - shape
 
   # Design philosophy agents: installed by bootstrap.sh, always available.
   agents:

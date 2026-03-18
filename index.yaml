@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-18T15:37:06Z
+# Generated: 2026-03-18T15:58:49Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -192,6 +192,9 @@ skills:
   - name: security-scan
     description: "Whole-codebase vulnerability analysis leveraging 1M context window. Loads entire project source, runs deep security analysis in a single pass. OWASP Top 10, cross-module data flow tracing, dependency "
     tags: [10,1m,a,analysis,context,cross-module,data,deep,dependency,entire]
+  - name: shape
+    description: "Shape a raw idea into something buildable. Product + technical exploration in one interactive session. Spec, design, critique, plan. Use when: \"shape this\", \"write a spec\", \"design this feature\", \"pla"
+    tags: [a,buildable,critique,design,exploration,feature,idea,in,interactive,one]
   - name: skill-builder
     description: "Create new agent skills from procedural knowledge. Invoke PROACTIVELY when: - Discovering a reusable workflow pattern worth preserving - User asks to \"capture this as a skill\" or \"make this reusable\" "
     tags: [-,a,agent,as,asks,capture,create,discovering,invoke,knowledge]
