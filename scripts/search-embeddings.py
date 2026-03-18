@@ -15,7 +15,6 @@ Requires: GEMINI_API_KEY or GOOGLE_API_KEY env var.
 from __future__ import annotations
 
 import json
-import math
 import os
 import subprocess
 import sys
@@ -27,82 +26,18 @@ from embeddings_cache import (
     metadata_matches,
     repo_hashes,
 )
-from gemini_embeddings import embed_texts
+from lib.search_core import (
+    MODEL,
+    cosine_similarity,
+    embed_query,
+    synthesize_project_context,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EMBEDDINGS_FILE, METADATA_FILE = discovery_cache_paths()
 GENERATOR = REPO_ROOT / "scripts" / "generate-embeddings.py"
-MODEL = "gemini-embedding-2-preview"
 DEFAULT_TOP = 15
 DEFAULT_DIMS = 768
-
-
-def cosine_similarity(a: list[float], b: list[float]) -> float:
-    dot = sum(x * y for x, y in zip(a, b))
-    mag_a = math.sqrt(sum(x * x for x in a))
-    mag_b = math.sqrt(sum(x * x for x in b))
-    if mag_a == 0 or mag_b == 0:
-        return 0.0
-    return dot / (mag_a * mag_b)
-
-
-def embed_query(text: str, dims: int) -> list[float]:
-    return embed_texts(
-        model=MODEL,
-        texts=[text],
-        output_dimensionality=dims,
-        task_type="RETRIEVAL_QUERY",
-        user_agent="spellbook-search",
-    )[0]
-
-
-def synthesize_project_context(project_dir: Path) -> str:
-    """Read project signals and synthesize a description for embedding."""
-    parts = []
-
-    for name in ["CLAUDE.md", "README.md"]:
-        f = project_dir / name
-        if f.exists():
-            text = f.read_text(encoding="utf-8")[:2000]
-            parts.append(text)
-            break
-
-    pkg = project_dir / "package.json"
-    if pkg.exists():
-        try:
-            data = json.loads(pkg.read_text(encoding="utf-8"))
-            deps = list(data.get("dependencies", {}).keys())
-            dev_deps = list(data.get("devDependencies", {}).keys())
-            if deps:
-                parts.append(f"Dependencies: {', '.join(deps[:30])}")
-            if dev_deps:
-                parts.append(f"Dev dependencies: {', '.join(dev_deps[:20])}")
-        except json.JSONDecodeError:
-            pass
-
-    for manifest, label in [
-        ("go.mod", "Go module"),
-        ("mix.exs", "Elixir project"),
-        ("Cargo.toml", "Rust project"),
-        ("requirements.txt", "Python deps"),
-        ("pyproject.toml", "Python project"),
-    ]:
-        f = project_dir / manifest
-        if f.exists():
-            parts.append(f"{label}: {f.read_text(encoding='utf-8')[:1000]}")
-
-    dirs = [
-        d.name
-        for d in sorted(project_dir.iterdir())
-        if d.is_dir() and not d.name.startswith(".")
-    ][:20]
-    if dirs:
-        parts.append(f"Directories: {', '.join(dirs)}")
-
-    if not parts:
-        return "General software project"
-
-    return "\n".join(parts)
 
 
 def ensure_embeddings(dims: int) -> dict:

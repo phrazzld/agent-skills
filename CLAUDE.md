@@ -23,8 +23,10 @@ spellbook/
 ├── bootstrap.sh             # Installs global skills (reads registry.yaml)
 ├── .spellbook.yaml          # This repo's own manifest
 └── scripts/
+    ├── lib/
+    │   └── search_core.py      # Shared search primitives (cosine_similarity, embed_query, etc.)
     ├── generate-embeddings.py  # Build local embeddings cache (sources from registry.yaml)
-    └── search-embeddings.py # Query and auto-refresh the local cache
+    └── search-embeddings.py    # Query and auto-refresh the local cache
 ```
 
 ## How It Works

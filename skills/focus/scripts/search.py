@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import os
 import re
 import subprocess
@@ -28,12 +27,19 @@ from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
+from search_core import (
+    MODEL,
+    cosine_similarity,
+    embed_query,
+    embed_texts,
+    synthesize_project_context,
+)
+
 REPO = "phrazzld/spellbook"
 BRANCH = "master"
 RAW = f"https://raw.githubusercontent.com/{REPO}/{BRANCH}"
 CACHE_TTL = 86400  # 24 hours
 FORMAT_VERSION = 1
-MODEL = "gemini-embedding-2-preview"
 DEFAULT_TOP = 15
 DEFAULT_DIMS = 768
 BATCH_SIZE = 20
@@ -144,55 +150,6 @@ def github_raw(source: str, path: str) -> str | None:
         except Exception:
             continue
     return None
-
-
-def api_key() -> str:
-    key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not key:
-        print("Error: GEMINI_API_KEY or GOOGLE_API_KEY required", file=sys.stderr)
-        sys.exit(1)
-    return key
-
-
-def embed_texts(texts: list[str], dims: int, task_type: str) -> list[list[float]]:
-    url = (
-        "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{MODEL}:batchEmbedContents?key={api_key()}"
-    )
-    payload = {
-        "requests": [
-            {
-                "model": f"models/{MODEL}",
-                "content": {"parts": [{"text": text}]},
-                "taskType": task_type,
-                "outputDimensionality": dims,
-            }
-            for text in texts
-        ]
-    }
-    req = Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "User-Agent": "spellbook-focus-search",
-        },
-        method="POST",
-    )
-    try:
-        with urlopen(req, timeout=60) as resp:
-            body = json.loads(resp.read())
-    except HTTPError as e:
-        detail = e.read().decode("utf-8", errors="replace")
-        print(f"Gemini embeddings request failed: {e.code} {detail}", file=sys.stderr)
-        sys.exit(1)
-
-    embeddings = body.get("embeddings")
-    if not isinstance(embeddings, list):
-        print(f"Unexpected embeddings response: {body}", file=sys.stderr)
-        sys.exit(1)
-
-    return [embedding["values"] for embedding in embeddings]
 
 
 def parse_frontmatter(text: str) -> dict:
@@ -427,10 +384,6 @@ def collect_external_source(src: dict) -> list[dict]:
     return items
 
 
-def embed_batch(texts: list[str], dims: int) -> list[list[float]]:
-    return embed_texts(texts, dims, "RETRIEVAL_DOCUMENT")
-
-
 def build_embeddings(index_text: str, registry_text: str, dims: int) -> tuple[dict, dict]:
     index_items = collect_index_items(index_text)
     registry = parse_registry_text(registry_text)
@@ -458,7 +411,7 @@ def build_embeddings(index_text: str, registry_text: str, dims: int) -> tuple[di
     for i in range(0, len(items), BATCH_SIZE):
         batch = items[i : i + BATCH_SIZE]
         texts = [item["search_document"] for item in batch]
-        all_embeddings.extend(embed_batch(texts, dims))
+        all_embeddings.extend(embed_texts(texts, dims, "RETRIEVAL_DOCUMENT"))
         if i + BATCH_SIZE < len(items):
             time.sleep(0.5)
 
@@ -525,63 +478,6 @@ def ensure_embeddings(dims: int) -> dict:
     EMBEDDINGS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
     METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return data
-
-
-def cosine_similarity(a: list[float], b: list[float]) -> float:
-    dot = sum(x * y for x, y in zip(a, b))
-    mag_a = math.sqrt(sum(x * x for x in a))
-    mag_b = math.sqrt(sum(x * x for x in b))
-    if mag_a == 0 or mag_b == 0:
-        return 0.0
-    return dot / (mag_a * mag_b)
-
-
-def embed_query(text: str, dims: int) -> list[float]:
-    return embed_texts([text], dims, "RETRIEVAL_QUERY")[0]
-
-
-def synthesize_project_context(project_dir: Path) -> str:
-    parts = []
-
-    for name in ["CLAUDE.md", "README.md"]:
-        f = project_dir / name
-        if f.exists():
-            parts.append(f.read_text(encoding="utf-8")[:2000])
-            break
-
-    pkg = project_dir / "package.json"
-    if pkg.exists():
-        try:
-            data = json.loads(pkg.read_text(encoding="utf-8"))
-            deps = list(data.get("dependencies", {}).keys())
-            dev = list(data.get("devDependencies", {}).keys())
-            if deps:
-                parts.append(f"Dependencies: {', '.join(deps[:30])}")
-            if dev:
-                parts.append(f"Dev dependencies: {', '.join(dev[:20])}")
-        except json.JSONDecodeError:
-            pass
-
-    for manifest, label in [
-        ("go.mod", "Go module"),
-        ("mix.exs", "Elixir project"),
-        ("Cargo.toml", "Rust project"),
-        ("requirements.txt", "Python deps"),
-        ("pyproject.toml", "Python project"),
-    ]:
-        f = project_dir / manifest
-        if f.exists():
-            parts.append(f"{label}: {f.read_text(encoding='utf-8')[:1000]}")
-
-    dirs = [
-        d.name
-        for d in sorted(project_dir.iterdir())
-        if d.is_dir() and not d.name.startswith(".")
-    ][:20]
-    if dirs:
-        parts.append(f"Directories: {', '.join(dirs)}")
-
-    return "\n".join(parts) if parts else "General software project"
 
 
 def main():
