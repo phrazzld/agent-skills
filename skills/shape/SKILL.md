@@ -11,27 +11,17 @@ argument-hint: "[idea|issue] [--spec-only] [--design-only] [--critique persona] 
 
 # /shape
 
-Take a raw idea and shape it into something buildable.
-
 ## Routing
 
-| Intent | Sub-capability |
-|--------|---------------|
-| Full shaping: product + technical + synthesis | Core workflow below |
-| Shape Up methodology (R/S notation, fit checks) | `references/shaping-methodology.md` |
-| Breadboarding (affordance mapping, vertical slicing) | `references/breadboarding.md` |
-| Adversarial critique by expert persona | `references/critique-personas.md` |
-| Implementation plan generation | `references/writing-plans.md` |
-
-## Modes
-
-| Mode | When |
-|------|------|
-| **Full** (default) | Interactive product + technical exploration |
-| `--spec-only` | Product exploration only (WHAT and WHY) |
-| `--design-only` | Technical exploration only (HOW). Needs existing spec. |
-| `--critique <persona>` | Adversarial expert review. See `references/critique-personas.md`. |
-| `--plan` | Implementation plan from existing spec+design. See `references/writing-plans.md`. |
+| Mode | When | Reference |
+|------|------|-----------|
+| **Full** (default) | Interactive product + technical exploration | Core workflow below |
+| `--spec-only` | Product exploration only (WHAT and WHY) | — |
+| `--design-only` | Technical exploration only (HOW). Needs existing spec. | — |
+| `--critique <persona>` | Adversarial expert review | `references/critique-personas.md` |
+| `--plan` | Implementation plan from existing spec+design | `references/writing-plans.md` |
+| Shape Up methodology | R/S notation, fit checks, spikes, slicing | `references/shaping-methodology.md` |
+| Breadboarding | Affordance mapping, vertical slicing | `references/breadboarding.md` |
 
 ## Workflow
 
@@ -43,12 +33,13 @@ Accept: raw idea (string), issue ID, or observation.
 2. If issue exists → `gh issue view $1 --comments`
 3. Read codebase context — adjacent features, existing patterns, constraints
 
+**All web research MUST use `/research`** (routes through Exa for code context).
+
 ### Phase 2: Product Exploration
 
 **GATE: Do NOT write any code or take implementation actions until product direction is locked.**
 
 1. **Investigate** — Problem space, user impact, prior art.
-   All web research MUST use `/research` (routes through Exa for code context).
 
 2. **Brainstorm** — 2-3 product approaches with tradeoffs. For each:
    - Concrete interaction flow (what the user experiences)
@@ -85,7 +76,6 @@ Accept: raw idea (string), issue ID, or observation.
 ### Phase 3: Technical Exploration
 
 1. **Investigate** — Read locked spec, codebase, research patterns.
-   All web research MUST use `/research`.
 
 2. **Explore** — 3-5 technical approaches. For each:
    - Architecture sketch, files to modify/create
