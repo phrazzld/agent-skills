@@ -21,7 +21,7 @@ Read everything available to understand what this project IS:
 | Directory structure | `ls` top-level dirs |
 | Recent activity | `git log --oneline -20` |
 | External services | `.env.example`, config files, API references |
-| Existing skills | `.claude/skills/`, `.codex/skills/` |
+| Existing skills | `.claude/skills/`, `.agents/skills/` |
 
 Synthesize a 1-2 paragraph description of the project covering:
 what it does, what tech it uses, what domains it touches, what

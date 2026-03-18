@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-18T21:01:21Z
+# Generated: 2026-03-18T21:35:58Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -123,6 +123,9 @@ skills:
   - name: land
     description: "Unblock, polish, and simplify a PR until it's genuinely merge-ready. Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs), simplify (complexity reduction). Runs all three in sequ"
     tags: [a,architecture,ci,complexity,conflicts,docs,fix,genuinely,in,it]
+  - name: launchd-patterns
+    description: "\"macOS launchd scheduling and service management. LaunchAgent/Daemon patterns, launchctl CLI, plist authoring, cron migration, debugging. The production gotchas Apple docs don't cover.\""
+    tags: [apple,authoring,cli,cover,cron,daemon,debugging,docs,don,gotchas]
   - name: lightning
     description: "Complete Lightning Network lifecycle. Audits channels, routing, invoices. Plans capacity, executes rebalancing, verifies payments. Every run does all."
     tags: [audits,capacity,channels,complete,every,executes,invoices,lifecycle,lightning,network]
@@ -132,6 +135,9 @@ skills:
   - name: llm-semantic-match
     description: "Use LLM sub-calls to resolve user intent to one item from a finite set. Replace all fuzzy/substring string matching in agent tools with this pattern."
     tags: [a,agent,finite,fuzzy,in,intent,item,llm,matching,one]
+  - name: macos-network-diagnostics
+    description: "\"macOS network debugging: DNS resolution paths, firewall layers, Tailscale fleet management, mDNS/Bonjour, SSH tunneling. Diagnostic sequences that go beyond man pages.\""
+    tags: [beyond,bonjour,debugging,diagnostic,dns,firewall,fleet,go,layers,macos]
   - name: mobile-migrate
     description: "\"Add an Expo + EAS React Native mobile app to an existing web project, sharing logic, design tokens, auth, and backend integrations. Use when migrating a web codebase into a web+mobile monorepo.\""
     tags: [a,add,an,app,auth,backend,codebase,design,eas,existing]

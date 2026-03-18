@@ -66,26 +66,28 @@ the working directory decides scope.
 
 ## Core Flow
 
-### 1. Detect Harness
+### 1. Resolve Harness Targets
 
-Determine which agent harness is running:
+All supported harnesses are always targeted. Focus installs to every
+harness directory, creating them if they don't exist. No detection,
+no if/elif — always both.
 
-```bash
-if [ -n "${CLAUDE_CODE:-}" ] || [ -d ".claude" ]; then HARNESS="claude-code"
-elif [ -n "${CODEX:-}" ] || [ -d ".codex" ]; then HARNESS="codex"
-elif [ -d ".agents" ]; then HARNESS="agents"
-fi
+```
+HARNESS_TARGETS:
+  claude-code:
+    skills: .claude/skills/
+    agents: .claude/agents/
+    agent_format: markdown
+    reference: references/harnesses/claude-code.md
+  codex:
+    skills: .agents/skills/
+    agents: .codex/agents/
+    agent_format: toml
+    reference: references/harnesses/codex.md
 ```
 
-Load harness-specific reference from `references/harnesses/${HARNESS}.md`.
-
-**Harness directory mapping (all paths relative to project root):**
-
-| Harness | Skills Dir | Agents Dir |
-|---------|-----------|------------|
-| Claude Code | `.claude/skills/` | `.claude/agents/` |
-| Codex | `.agents/skills/` | `.codex/agents/` |
-| Generic | `.agents/skills/` | `.agents/agents/` |
+Load **all** harness references. Every sync produces primitives usable
+by every supported harness.
 
 ### 2. Read or Create Manifest
 
@@ -130,51 +132,62 @@ Unqualified names resolve to `phrazzld/spellbook`. External skills use
 
 ### 4. Nuke Managed Primitives
 
-Scan the local harness skills and agents directories. Find ALL directories
-containing a `.spellbook` marker file. Delete them entirely.
+For **each harness target**, scan its skills and agents directories for
+`.spellbook` markers and delete managed primitives:
 
 ```bash
-find "${SKILLS_DIR}" -name ".spellbook" -maxdepth 2 | while read marker; do
-  rm -rf "$(dirname "$marker")"
-done
-find "${AGENTS_DIR}" -name ".spellbook" -maxdepth 2 2>/dev/null | while read marker; do
-  rm -rf "$(dirname "$marker")"
+for target in HARNESS_TARGETS; do
+  find "${target.skills}" -maxdepth 2 -name ".spellbook" | while read marker; do
+    rm -rf "$(dirname "$marker")"
+  done
+  find "${target.agents}" -maxdepth 1 -name "*.spellbook" 2>/dev/null | while read marker; do
+    rm -f "${marker}" "${marker%.spellbook}.md" "${marker%.spellbook}.toml"
+  done
 done
 ```
 
-**Critical**: Only directories with a `.spellbook` marker are touched.
+**Critical**: Only directories/files with a `.spellbook` marker are touched.
 Everything else is invisible to focus and will not be modified or deleted.
 
 ### 5. Install Primitives
 
-For each resolved skill, download from its source. See `references/sync.md`.
+Two-phase install — download once, distribute to all targets. See `references/sync.md`.
+
+1. **Download phase**: Fetch each skill from GitHub once (into a temp staging area).
+2. **Distribute phase**: Copy staged content to each harness target's skills dir.
+   Skill content (SKILL.md, references/, scripts/, assets/) is format-identical
+   across harnesses — no translation needed.
 
 ### 5b. Install Agents
 
-Agents are markdown files (not directories). Install to the agents dir.
-For Claude Code, agent files are used as-is (markdown + YAML frontmatter).
-For Codex, translate to TOML format during install (see harness references).
+Download each agent source file once, then install per-target:
+- **markdown targets** (Claude Code): copy the `.md` as-is
+- **toml targets** (Codex): translate markdown+YAML frontmatter to TOML format
+  (see `references/harnesses/codex.md` for translation rules)
 
 ### 6. Harness-Specific Setup
 
-After installing primitives, run harness-specific configuration.
+After installing primitives, run harness-specific configuration for **each target**.
 See `references/harnesses/claude-code.md` and `references/harnesses/codex.md`.
+
+- **DMI handling**: For Claude Code, preserve `disable-model-invocation: true`
+  in frontmatter. For Codex, emit `agents/openai.yaml` with
+  `allow_implicit_invocation: false` in the skill directory.
 
 ### 7. Report
 
 ```markdown
 ## Focus Complete
 
-**Harness**: Claude Code
 **Manifest**: .spellbook.yaml (5 domain skills, 2 agents)
 **Global layer**: 13 skills + 4 agents (via bootstrap, not shown)
 
 ### Installed (domain)
-| Type | Name | Status |
-|------|------|--------|
-| skill | stripe | installed |
-| skill | next-patterns | installed |
-| agent | stripe-auditor | installed |
+| Type | Name | Claude Code | Codex |
+|------|------|-------------|-------|
+| skill | stripe | .claude/skills/stripe/ | .agents/skills/stripe/ |
+| skill | next-patterns | .claude/skills/next-patterns/ | .agents/skills/next-patterns/ |
+| agent | stripe-auditor | .claude/agents/stripe-auditor.md | .codex/agents/stripe-auditor.toml |
 
 ### Unchanged (not managed by Spellbook)
 - my-custom-deploy-skill/
@@ -223,7 +236,7 @@ When invoked with a task description:
 - Never touch directories without `.spellbook` markers
 - Never install primitives not declared in the manifest
 - Never skip the nuke step — stale state causes subtle bugs
-- Never hardcode paths — always derive from harness detection
+- Never hardcode paths — always derive from the harness targets table
 - **Never bulk-add a collection without filtering.** Every expanded skill must
   pass the "useful in THIS repo" test.
 - **Never skip agent syncing.** Agents are first-class primitives.
