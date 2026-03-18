@@ -111,19 +111,6 @@ Date formatting differs. Day boundaries shift.
 **Fix shape:** Always use explicit timezones in tests. Use ISO strings.
 Set `TZ=UTC` in test environment.
 
-### Floating Point
-
-**What it looks like:** `expect(0.1 + 0.2).toBe(0.3)` fails. Currency calculations
-off by pennies.
-
-**Gotchas:**
-- Different JS engines can have different floating point behavior at edges
-- Serialization roundtrips (JSON.stringify → parse) can lose precision
-- Aggregations accumulate error (sum of 1000 items drifts)
-
-**Fix shape:** `toBeCloseTo` for floats. Integer cents for money.
-`Decimal.js` or similar for financial math.
-
 ### Random Seed
 
 **What it looks like:** Tests using `Math.random()`, UUIDs, or faker data

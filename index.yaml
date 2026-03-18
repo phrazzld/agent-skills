@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-18T15:10:09Z
+# Generated: 2026-03-18T15:30:55Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -316,6 +316,8 @@ agents:
     description: "Specialized in identifying high-value features, product opportunities, and competitive gaps that drive user adoption and retention"
   - name: react-pitfalls
     description: "Reviews React/Next.js code for common runtime pitfalls and anti-patterns not caught by linters"
+  - name: readability-reviewer
+    description: "Reviews code for structural consumability — how easy it is to read, skim, and grep. Focuses on control flow, data flow, naming, and cognitive load. Not style or formatting — structure."
   - name: security-sentinel
     description: "Specialized in security vulnerability detection, authentication/authorization analysis, and defensive coding practices"
   - name: skill-builder
