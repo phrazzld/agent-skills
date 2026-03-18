@@ -48,6 +48,29 @@ From conversation context:
 | **Missing artifacts** | What would have prevented friction? | Module API reference |
 | **Architecture insights** | Design decisions right/wrong? | SQLite for persistence |
 | **Bloat signals** | What layers should be deleted? | Compatibility shim with no real users |
+| **Gaps** | What was MISSING from the agent's toolkit? | See gap types below |
+
+#### Gap Types
+
+When a session reveals something MISSING (not broken, not friction — absent):
+
+| Gap Type | Signal | Remediation Target |
+|----------|--------|--------------------|
+| `missing_skill` | Had to improvise a workflow that should be reusable | Skill (create or enhance) |
+| `missing_tool` | Needed a capability no available tool provided | Hook or MCP integration |
+| `repeated_failure` | Same class of error across multiple sessions | Guardrail or lint rule |
+| `wrong_info` | Acted on stale/incorrect CLAUDE.md or reference | Update source doc |
+| `permission_friction` | Correct action blocked by permission model | Hook or settings adjustment |
+
+Omit the Gaps bucket when the session was clean — no gaps means no gaps.
+
+If gaps are found, output them as structured entries in `.spellbook/observations.ndjson`:
+
+```jsonl
+{"type":"gap","subtype":"missing_skill","description":"...","remediation":"Skill","session":"...","date":"YYYY-MM-DD"}
+```
+
+Use the codification hierarchy (Phase 3) to determine the right remediation target.
 
 ### 3. Codification Pass
 
