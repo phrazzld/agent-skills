@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-18T13:39:30Z
+# Generated: 2026-03-18T14:23:11Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -172,8 +172,8 @@ skills:
     description: "Tidy, commit, and open a world-class pull request. Organizes working directory, ensures correct branch, creates semantic conventional commits, then opens a high-quality PR with full evidence. Use when"
     tags: [a,branch,commit,commits,conventional,correct,creates,directory,ensures,evidence]
   - name: primitive
-    description: "Engineer agent primitives: skills, agents, hooks, CLAUDE.md rules. Create, update, absorb, brainstorm, audit, and clean up primitives across the harness. Routes to the right primitive type for the job"
-    tags: [absorb,across,agent,agents,audit,brainstorm,claude,clean,create,engineer]
+    description: "Create or update agent skills. Quality gates, classification, structure, frontmatter, progressive disclosure, packaging, absorption lifecycle. Use when: \"create a skill\", \"make this a skill\", \"update "
+    tags: [a,absorption,agent,classification,create,disclosure,frontmatter,gates,lifecycle,make]
   - name: product-marketing-context
     description: "Shared product-marketing context for growth-pack skills. Read this before writing copy, planning launches, doing CRO, pricing, SEO, social content, or campaign strategy. Builds a minimal context bundl"
     tags: [a,before,builds,bundl,campaign,content,context,copy,cro,doing]
@@ -201,6 +201,9 @@ skills:
   - name: slack-app-scaffold
     description: "\"Scaffold Slack apps from existing functionality using Bolt for JavaScript and the Slack CLI. Use when turning a service, script, or workflow into a Slack app with events, commands, modals, or automat"
     tags: [a,app,apps,automat,bolt,cli,commands,events,existing,functionality]
+  - name: sprites
+    description: "\"Sprites stateful sandbox VM patterns, production gotchas, and operational knowledge. Checkpoint/restore semantics, exec binary protocol, credential hygiene, network policies, SDK patterns, fleet mana"
+    tags: [binary,checkpoint,credential,exec,fleet,gotchas,hygiene,knowledge,mana,network]
   - name: standup
     description: "Generate a daily standup report from the last 24 hours of GitHub activity across all repos and orgs. Pulls PRs authored/reviewed, issues engaged, commits pushed, and open PRs needing attention. Synthe"
     tags: [24,a,across,activity,attention,authored,commits,daily,engaged,generate]
