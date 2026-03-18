@@ -49,6 +49,7 @@ If you'd be embarrassed to hand a colleague a 700-line runbook, don't give it to
 | Designing memory, retrieval, token budgets, caching | `references/context-lifecycle.md` |
 | Debugging degraded agent performance, context quality | `references/context-anti-patterns.md` |
 | Choosing specificity level, autonomy boundaries | `references/altitude-calibration.md` |
+| In-code annotations for agents (@deprecated, @agent-pitfall, @migration) | `references/agent-annotations.md` |
 
 ## Output Contract
 
