@@ -10,17 +10,17 @@ Run the search script bundled with the focus skill:
 
 ```bash
 # Free-text query
-python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "webhook handling" --top 10
+python3 ${SKILL_DIR}/scripts/search.py "webhook handling" --top 10
 
 # Project analysis
-python3 ${CLAUDE_SKILL_DIR}/scripts/search.py --project-dir . --top 15
+python3 ${SKILL_DIR}/scripts/search.py --project-dir . --top 15
 
 # JSON output for programmatic use
-python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "query" --json
+python3 ${SKILL_DIR}/scripts/search.py "query" --json
 
 # Filter by type
-python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "query" --type skill
-python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "query" --type agent
+python3 ${SKILL_DIR}/scripts/search.py "query" --type skill
+python3 ${SKILL_DIR}/scripts/search.py "query" --type agent
 ```
 
 The script fetches `index.yaml` and `registry.yaml` from GitHub, builds a

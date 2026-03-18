@@ -56,13 +56,13 @@ of whether they exist in any catalog.
 Now search the Spellbook index for skills matching the wishlist:
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/search.py --project-dir . --top 20 --json
+python3 ${SKILL_DIR}/scripts/search.py --project-dir . --top 20 --json
 ```
 
 Also run targeted searches for each wishlist item:
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "stripe webhook patterns" --top 5 --json
-python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "Next.js App Router" --top 5 --json
+python3 ${SKILL_DIR}/scripts/search.py "stripe webhook patterns" --top 5 --json
+python3 ${SKILL_DIR}/scripts/search.py "Next.js App Router" --top 5 --json
 ```
 
 **Critical filter:** Exclude all global skills from results. These are

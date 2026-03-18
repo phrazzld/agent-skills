@@ -18,6 +18,7 @@ managed primitives on every run. Leave unmanaged primitives untouched.
 ## Constants
 
 ```
+SKILL_DIR:         <base directory of this skill, as provided by the harness>
 SPELLBOOK_REPO:    phrazzld/spellbook
 SPELLBOOK_RAW:     https://raw.githubusercontent.com/phrazzld/spellbook/master
 INDEX_URL:         ${SPELLBOOK_RAW}/index.yaml
@@ -25,6 +26,10 @@ REGISTRY_URL:      ${SPELLBOOK_RAW}/registry.yaml
 MANIFEST_FILE:     .spellbook.yaml
 MARKER_FILE:       .spellbook
 ```
+
+**Resolving `SKILL_DIR`:** The harness provides the skill's installed path at
+load time. Use that path as `SKILL_DIR` — no env var needed. If the harness
+does not provide a skill path, stop and surface the error; do not guess.
 
 ## Global Skills (Already Available)
 
@@ -221,7 +226,7 @@ agents:
 
 When invoked with a task description:
 
-1. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "<task description>" --top 15 --json`
+1. Run `python3 ${SKILL_DIR}/scripts/search.py "<task description>" --top 15 --json`
 2. **Filter out global skills** — never suggest what's already available
 3. Check which remaining primitives are already in the manifest
 4. Suggest additions (with reasoning and similarity scores)
