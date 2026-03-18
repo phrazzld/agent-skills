@@ -97,6 +97,40 @@ failure modes, repo-specific conventions, operational patterns.
 domain specialist would approve — decisions it could NOT make from training
 data alone. If the skill doesn't clear that bar, it's not specific enough.
 
+#### Command Surface Design
+
+Default to concentrated, opinionated skills. Use arguments only when they
+select between a few stable sub-capabilities inside one coherent domain.
+
+Use arguments when ALL are true:
+
+- The modes belong to one clear mental model (`focus init`, `focus sync`)
+- The skill has one obvious no-arg happy path
+- The modes share most artifacts, references, and scripts
+- The selector list is short and stable, not an expanding menu
+
+Split into separate skills when ANY are true:
+
+- Modes have different trigger language
+- Modes need different context packs or references
+- Modes have different success criteria or outputs
+- The core flow starts depending on flags, not intent words
+
+Treat `argument-hint` as an intent router, not CLI help text. Prefer noun or
+verb selectors. Reserve flags for mechanics and rare overrides.
+
+Good:
+
+```yaml
+argument-hint: "[init|sync|add|remove] [name]"
+```
+
+Bad:
+
+```yaml
+argument-hint: "[mode] [name] --draft --no-push --strategy smart --skip-checks"
+```
+
 ### 4. Create
 
 1. **Understand** — what problem does this solve?
@@ -160,3 +194,4 @@ without a matching `.spellbook` marker are left alone.
 - Shallow skills that are just a checklist (prefer CLAUDE.md or a hook)
 - Skipping the research phase — skills without research are just reformatted training data
 - Writing generic advice the model already knows instead of specific, hard-won knowledge
+- Building mini-CLIs into `argument-hint` instead of keeping one happy path and a few stable selectors
