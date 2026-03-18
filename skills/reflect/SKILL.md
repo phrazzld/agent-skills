@@ -64,12 +64,14 @@ When a session reveals something MISSING (not broken, not friction — absent):
 
 Omit the Gaps bucket when the session was clean — no gaps means no gaps.
 
-If gaps are found, output them as structured entries in `.spellbook/observations.ndjson`:
+If gaps are found, output them as structured entries in `.spellbook/observations.ndjson`
+using the canonical schema (see `/calibrate`) with gap-specific extensions:
 
 ```jsonl
-{"type":"gap","subtype":"missing_skill","description":"...","remediation":"Skill","session":"...","date":"YYYY-MM-DD"}
+{"timestamp":"2026-03-18T12:00:00Z","primitive":"phrazzld/spellbook@reflect","type":"gap","summary":"No skill for X workflow","context":"Had to improvise...","confidence":0.7,"subtype":"missing_skill","remediation":"Skill"}
 ```
 
+Gap-specific fields (`subtype`, `remediation`) extend the canonical fields — never replace them.
 Use the codification hierarchy (Phase 3) to determine the right remediation target.
 
 ### 3. Codification Pass
