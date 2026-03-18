@@ -58,7 +58,7 @@ An umbrella skill consolidates related skills into one budget entry with referen
 2. Copy each absorbed skill's body (minus frontmatter) → `references/{name}.md`
 3. Move `scripts/`, `assets/`, existing `references/` into umbrella (merge, prefix if collisions)
 4. Delete old skill directory
-5. Run `./scripts/generate-index.sh` and `python3 scripts/generate-embeddings.py`
+5. Run `./scripts/generate-index.sh` (and optionally prewarm the local embeddings cache with `python3 scripts/generate-embeddings.py`)
 
 ### Canonical Examples
 

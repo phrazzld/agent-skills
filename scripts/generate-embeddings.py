@@ -2,10 +2,12 @@
 """Generate embeddings index for Spellbook skill/agent discovery.
 
 Reads local skills/agents AND fetches from external GitHub sources.
-Embeds with Gemini Embedding 2, writes embeddings.json.
+Embeds with Gemini Embedding 2 and writes a local cache outside the repo by
+default.
 
 Usage:
     python3 scripts/generate-embeddings.py [--dimensions 768] [--dry-run]
+    python3 scripts/generate-embeddings.py --output /tmp/embeddings.json
 
 Requires: GEMINI_API_KEY or GOOGLE_API_KEY env var.
 Optional: GITHUB_TOKEN for higher rate limits on external sources.
@@ -22,11 +24,17 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
+from embeddings_cache import (
+    FORMAT_VERSION,
+    discovery_cache_paths,
+    repo_hashes,
+)
+from gemini_embeddings import embed_texts
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = REPO_ROOT / "skills"
 AGENTS_DIR = REPO_ROOT / "agents"
 REGISTRY_FILE = REPO_ROOT / "registry.yaml"
-OUTPUT_FILE = REPO_ROOT / "embeddings.json"
 LOCAL_SOURCE = "phrazzld/spellbook"
 MODEL = "gemini-embedding-2-preview"
 DEFAULT_DIMS = 768
@@ -58,7 +66,7 @@ def load_external_sources() -> list[dict]:
 def _local_skills_hash() -> str:
     """SHA-256 of all local SKILL.md content, sorted by path.
 
-    Used by pre-commit hook to detect when embeddings.json is stale.
+    Recorded in cache metadata for debugging freshness issues.
     """
     h = hashlib.sha256()
     for skill_md in sorted(SKILLS_DIR.glob("*/SKILL.md")):
@@ -346,26 +354,39 @@ def collect_external_source(src: dict) -> list[dict]:
     return items
 
 
-def embed_batch(client, texts: list[str], dims: int) -> list[list[float]]:
-    result = client.models.embed_content(
+def embed_batch(texts: list[str], dims: int) -> list[list[float]]:
+    return embed_texts(
         model=MODEL,
-        contents=texts,
-        config={"output_dimensionality": dims, "task_type": "RETRIEVAL_DOCUMENT"},
+        texts=texts,
+        output_dimensionality=dims,
+        task_type="RETRIEVAL_DOCUMENT",
+        user_agent="spellbook-generate-embeddings",
     )
-    return [e.values for e in result.embeddings]
 
 
 def main():
     dims = DEFAULT_DIMS
     dry_run = "--dry-run" in sys.argv
     local_only = "--local-only" in sys.argv
+    output_file = None
+    metadata_file = None
     for i, arg in enumerate(sys.argv):
         if arg == "--dimensions" and i + 1 < len(sys.argv):
             dims = int(sys.argv[i + 1])
+        elif arg == "--output" and i + 1 < len(sys.argv):
+            output_file = Path(sys.argv[i + 1]).expanduser()
+        elif arg == "--metadata-path" and i + 1 < len(sys.argv):
+            metadata_file = Path(sys.argv[i + 1]).expanduser()
+
+    if output_file is None:
+        output_file, metadata_file = discovery_cache_paths()
+    elif metadata_file is None:
+        metadata_file = output_file.with_name(f"{output_file.stem}-meta.json")
 
     print("Spellbook Embeddings Generator")
     print(f"  Model: {MODEL}")
     print(f"  Dimensions: {dims}")
+    print(f"  Output: {output_file}")
     print()
 
     # Collect local items
@@ -410,21 +431,12 @@ def main():
             print(f"  [{item['type']:5s}] {item['fqn']}")
         sys.exit(0)
 
-    # Embed
-    from google import genai
-
-    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        print("Error: GEMINI_API_KEY or GOOGLE_API_KEY required", file=sys.stderr)
-        sys.exit(1)
-    client = genai.Client(api_key=api_key)
-
     print(f"\nEmbedding {len(items)} items in batches of {BATCH_SIZE}...")
     all_embeddings = []
     for i in range(0, len(items), BATCH_SIZE):
         batch = items[i : i + BATCH_SIZE]
         texts = [item["search_document"] for item in batch]
-        vectors = embed_batch(client, texts, dims)
+        vectors = embed_batch(texts, dims)
         all_embeddings.extend(vectors)
         done = min(i + BATCH_SIZE, len(items))
         print(f"  {done}/{len(items)} embedded")
@@ -440,6 +452,7 @@ def main():
     local_hash = _local_skills_hash()
 
     output = {
+        "format_version": FORMAT_VERSION,
         "model": MODEL,
         "dimensions": dims,
         "sources": list(sources.keys()),
@@ -449,9 +462,23 @@ def main():
         "items": items,
     }
 
-    OUTPUT_FILE.write_text(json.dumps(output, indent=2), encoding="utf-8")
-    size_kb = OUTPUT_FILE.stat().st_size / 1024
-    print(f"\nWrote {OUTPUT_FILE.name}: {len(items)} items, {size_kb:.0f} KB")
+    metadata = {
+        "format_version": FORMAT_VERSION,
+        "model": MODEL,
+        "dimensions": dims,
+        **repo_hashes(REPO_ROOT),
+        "local_content_hash": local_hash,
+        "generated": output["generated"],
+        "count": len(items),
+    }
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    metadata_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(json.dumps(output, indent=2), encoding="utf-8")
+    metadata_file.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    size_kb = output_file.stat().st_size / 1024
+    print(f"\nWrote {output_file}: {len(items)} items, {size_kb:.0f} KB")
+    print(f"Wrote metadata: {metadata_file}")
 
 
 if __name__ == "__main__":

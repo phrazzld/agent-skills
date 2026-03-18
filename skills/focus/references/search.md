@@ -23,8 +23,16 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "query" --type skill
 python3 ${CLAUDE_SKILL_DIR}/scripts/search.py "query" --type agent
 ```
 
-The script auto-fetches and caches `embeddings.json` from GitHub.
-Requires `GEMINI_API_KEY` or `GOOGLE_API_KEY` for query embedding.
+The script fetches `index.yaml` and `registry.yaml` from GitHub, builds a
+local embeddings cache on first use, and reuses that cache until the catalog
+changes or the cache ages out.
+
+Cache location:
+- `$CODEX_HOME/cache/spellbook/discovery/` when `CODEX_HOME` is set
+- otherwise `~/.cache/spellbook/discovery/`
+
+Requires `GEMINI_API_KEY` or `GOOGLE_API_KEY` for both corpus and query
+embedding. First run is slower because it builds the cache locally.
 
 ### 2. Fallback
 

@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-18T14:23:11Z
+# Generated: 2026-03-18T15:10:09Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -236,6 +236,103 @@ skills:
     tags: [applications,behavior,brow,browser,capturing,debugging,frontend,functionality,local,logs]
 
 agents:
-  []
+  - name: aesthetician
+    description: "Specialized in visual excellence, design craft, trend-awareness, and distinctive aesthetics (NOT accessibility)"
+  - name: agent-updater
+    description: "Codify review feedback patterns into automated agent enforcement rules"
+  - name: algorithm-archaeologist
+    description: "Analyzes recent code changes to understand algorithmic decisions, alternatives, and CS learning opportunities"
+  - name: api-design-specialist
+    description: "REST/GraphQL API design, HTTP semantics, error responses, and versioning"
+  - name: architecture-guardian
+    description: "Specialized in module boundaries, coupling analysis, and enforcing Modularity + Explicitness tenets"
+  - name: beck
+    description: "TDD + simple design - \"Red. Green. Refactor\""
+  - name: bitcoin-auditor
+    description: "Deep Bitcoin integration analysis. Spawned by bitcoin skill for thorough examination of node configuration, wallet security, UTXO management, and network separation."
+  - name: carmack
+    description: "Direct implementation + shippability - \"Focus is deciding what NOT to do\""
+  - name: complexity-archaeologist
+    description: "Specialized in detecting Ousterhout red flags and complexity patterns that violate simplicity principles"
+  - name: config-auditor
+    description: "External service configuration review - env vars, webhooks, API keys, deployment config"
+  - name: copy-reviewer
+    description: "Adversarial copy review. 6 lenses, 0-100 each. Composite >= 90 to pass."
+  - name: cs-concept-connector
+    description: "Connects code implementations to fundamental CS theory and principles, bridging practice to theoretical understanding"
+  - name: data-integrity-guardian
+    description: "Database safety, migration review, transaction boundaries, and referential integrity"
+  - name: dependency-health-monitor
+    description: "Dependency management, security vulnerabilities, and version health"
+  - name: design-systems-architect
+    description: "Specialized in design systems, component architecture, visual consistency, and frontend UI patterns"
+  - name: documentation-quality-reviewer
+    description: "Documentation clarity, completeness, maintainability, and naming quality"
+  - name: electron-architect
+    description: "Reviews Electron IPC boundaries, process separation, preload safety, window lifecycle, and tray app patterns. Flags security violations, sync/async boundary leaks, and architectural drift."
+  - name: error-handling-specialist
+    description: "Error handling, graceful degradation, error messages, and logging strategies"
+  - name: fowler
+    description: "Refactoring + code smells - \"Code for humans, not computers\""
+  - name: go-concurrency-reviewer
+    description: "Specialized in Go concurrency patterns, race condition detection, and goroutine safety"
+  - name: grug
+    description: "Complexity demon hunter - \"complexity very, very bad\""
+  - name: helper
+    description: "General-purpose helper for all development tasks"
+  - name: hindsight-reviewer
+    description: "Retrospective architectural review - \"Would you do it the same way from scratch?\""
+  - name: infrastructure-guardian
+    description: "Project infrastructure for quality gates, testing, CI/CD, and deployment"
+  - name: interview-coach
+    description: "Creates mock interview scenarios and communication practice for FAANG technical interviews"
+  - name: interview-pattern-scout
+    description: "Identifies classic interview patterns in codebase and finds critical gaps for FAANG preparation"
+  - name: jobs
+    description: "Craft + simplicity + excellence - \"Simple can be harder than complex\""
+  - name: learning-codifier
+    description: "Transform learnings from recent work into permanent, executable knowledge"
+  - name: leetcode-problem-generator
+    description: "Creates custom LeetCode-style practice problems targeting interview pattern gaps using code context"
+  - name: lightning-auditor
+    description: "Deep Lightning Network analysis. Spawned by lightning skill for thorough examination of channels, liquidity, routing, and node security."
+  - name: maintainability-maven
+    description: "Specialized in code maintainability, documentation quality, naming conventions, and comprehension barriers"
+  - name: observability-advocate
+    description: "Logging, monitoring, and alerting coverage analysis - ensure bugs scream loudly"
+  - name: ousterhout
+    description: "Deep modules + information hiding - \"Deep modules manage complexity\""
+  - name: pattern-extractor
+    description: "Extract reusable code patterns into clean abstractions and comprehensive tests"
+  - name: performance-pathfinder
+    description: "Specialized in performance bottleneck detection, algorithmic efficiency analysis, and optimization opportunities"
+  - name: performance-professor
+    description: "Identifies performance bottlenecks and optimization opportunities that teach fundamental CS concepts"
+  - name: pioneer
+    description: "Specialized in innovation, R&D opportunities, LLM/AI frontiers, and Gordian knot solutions"
+  - name: posthog-auditor
+    description: "Deep PostHog integration analysis. Spawned by posthog skill for thorough examination of SDK configuration, event tracking, privacy compliance, feature flags, and data quality."
+  - name: product-visionary
+    description: "Specialized in identifying high-value features, product opportunities, and competitive gaps that drive user adoption and retention"
+  - name: react-pitfalls
+    description: "Reviews React/Next.js code for common runtime pitfalls and anti-patterns not caught by linters"
+  - name: security-sentinel
+    description: "Specialized in security vulnerability detection, authentication/authorization analysis, and defensive coding practices"
+  - name: skill-builder
+    description: "Transform multi-step workflows into executable, reusable Claude Code skills"
+  - name: state-management-analyst
+    description: "Frontend state management patterns, data flow, and state synchronization"
+  - name: stripe-auditor
+    description: "Deep Stripe integration analysis. Spawned by stripe-audit for thorough examination of configuration, webhooks, subscription logic, security, and business model compliance."
+  - name: supabase-auditor
+    description: "Reviews Supabase integration: auth flows, RLS policies, query patterns, caching coherence, idempotent submission, and offline degradation. Flags security issues, cache staleness, and date handling bug"
+  - name: test-strategy-architect
+    description: "Test coverage, testing pyramid, TDD patterns, and test quality review"
+  - name: torvalds
+    description: "Pragmatic engineering - \"Talk is cheap. Show me the code\""
+  - name: user-experience-advocate
+    description: "Specialized in user-facing quality, product value, error messages, accessibility, and friction points"
+  - name: visionary
+    description: "Specialized in accelerating the user's articulated vision - 100% aligned with their stated goals"
 
 # Collections are defined in collections.yaml

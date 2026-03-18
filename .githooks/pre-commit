@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Auto-regenerate derived artifacts when SKILL.md files change.
-# Both index.yaml and embeddings.json stay in sync automatically.
-# No human memory required.
+# Auto-regenerate committed derived artifacts when SKILL.md files change.
+# index.yaml stays in sync automatically. Embeddings are local cache only.
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -18,44 +17,4 @@ echo "[pre-commit] Skill content changed — regenerating index.yaml"
 bash "$REPO_ROOT/scripts/generate-index.sh" > /dev/null
 git add "$REPO_ROOT/index.yaml"
 
-# --- embeddings.json: regenerate if possible, warn if not ---
-EMBEDDINGS="$REPO_ROOT/embeddings.json"
-
-# Check staleness via content hash
-CURRENT_HASH=$(python3 -c "
-import hashlib
-from pathlib import Path
-h = hashlib.sha256()
-for p in sorted(Path('$REPO_ROOT/skills').glob('*/SKILL.md')):
-    h.update(p.read_bytes())
-agents = Path('$REPO_ROOT/agents')
-if agents.exists():
-    for p in sorted(agents.glob('*.md')):
-        h.update(p.read_bytes())
-print(h.hexdigest())
-" 2>/dev/null || echo "")
-
-STORED_HASH=""
-if [ -f "$EMBEDDINGS" ]; then
-  STORED_HASH=$(python3 -c "
-import json
-with open('$EMBEDDINGS') as f:
-    print(json.load(f).get('local_content_hash', ''))
-" 2>/dev/null || echo "")
-fi
-
-if [ "$CURRENT_HASH" = "$STORED_HASH" ]; then
-  exit 0  # embeddings already match
-fi
-
-# Try to regenerate automatically
-if python3 "$REPO_ROOT/scripts/generate-embeddings.py" > /dev/null 2>&1; then
-  echo "[pre-commit] Regenerated embeddings.json"
-  git add "$REPO_ROOT/embeddings.json"
-else
-  echo ""
-  echo "[pre-commit] Could not regenerate embeddings.json (missing GEMINI_API_KEY?)"
-  echo "  Commit proceeds, but /focus search will use stale vectors."
-  echo "  Fix: export GEMINI_API_KEY=... && python3 scripts/generate-embeddings.py"
-  echo ""
-fi
+exit 0

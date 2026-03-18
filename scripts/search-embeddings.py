@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Search Spellbook skills and agents by semantic similarity.
 
-Embeds a query with Gemini Embedding 2, compares against pre-computed
-embeddings.json, returns top matches ranked by cosine similarity.
+Embeds a query with Gemini Embedding 2, compares against a locally cached
+embeddings corpus, and returns top matches ranked by cosine similarity.
 
 Usage:
     python3 scripts/search-embeddings.py "payment webhook integration"
@@ -12,14 +12,26 @@ Usage:
 Requires: GEMINI_API_KEY or GOOGLE_API_KEY env var.
 """
 
+from __future__ import annotations
+
 import json
 import math
 import os
+import subprocess
 import sys
 from pathlib import Path
 
+from embeddings_cache import (
+    discovery_cache_paths,
+    is_stale,
+    metadata_matches,
+    repo_hashes,
+)
+from gemini_embeddings import embed_texts
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
-EMBEDDINGS_FILE = REPO_ROOT / "embeddings.json"
+EMBEDDINGS_FILE, METADATA_FILE = discovery_cache_paths()
+GENERATOR = REPO_ROOT / "scripts" / "generate-embeddings.py"
 MODEL = "gemini-embedding-2-preview"
 DEFAULT_TOP = 15
 DEFAULT_DIMS = 768
@@ -34,23 +46,20 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
     return dot / (mag_a * mag_b)
 
 
-def embed_query(client, text: str, dims: int) -> list[float]:
-    result = client.models.embed_content(
+def embed_query(text: str, dims: int) -> list[float]:
+    return embed_texts(
         model=MODEL,
-        contents=text,
-        config={
-            "output_dimensionality": dims,
-            "task_type": "RETRIEVAL_QUERY",
-        },
-    )
-    return result.embeddings[0].values
+        texts=[text],
+        output_dimensionality=dims,
+        task_type="RETRIEVAL_QUERY",
+        user_agent="spellbook-search",
+    )[0]
 
 
 def synthesize_project_context(project_dir: Path) -> str:
     """Read project signals and synthesize a description for embedding."""
     parts = []
 
-    # CLAUDE.md or README
     for name in ["CLAUDE.md", "README.md"]:
         f = project_dir / name
         if f.exists():
@@ -58,7 +67,6 @@ def synthesize_project_context(project_dir: Path) -> str:
             parts.append(text)
             break
 
-    # package.json dependencies
     pkg = project_dir / "package.json"
     if pkg.exists():
         try:
@@ -72,25 +80,17 @@ def synthesize_project_context(project_dir: Path) -> str:
         except json.JSONDecodeError:
             pass
 
-    # go.mod
-    gomod = project_dir / "go.mod"
-    if gomod.exists():
-        text = gomod.read_text(encoding="utf-8")[:1000]
-        parts.append(f"Go module: {text}")
+    for manifest, label in [
+        ("go.mod", "Go module"),
+        ("mix.exs", "Elixir project"),
+        ("Cargo.toml", "Rust project"),
+        ("requirements.txt", "Python deps"),
+        ("pyproject.toml", "Python project"),
+    ]:
+        f = project_dir / manifest
+        if f.exists():
+            parts.append(f"{label}: {f.read_text(encoding='utf-8')[:1000]}")
 
-    # mix.exs
-    mixfile = project_dir / "mix.exs"
-    if mixfile.exists():
-        text = mixfile.read_text(encoding="utf-8")[:1000]
-        parts.append(f"Elixir project: {text}")
-
-    # Cargo.toml
-    cargo = project_dir / "Cargo.toml"
-    if cargo.exists():
-        text = cargo.read_text(encoding="utf-8")[:1000]
-        parts.append(f"Rust project: {text}")
-
-    # Directory structure
     dirs = [
         d.name
         for d in sorted(project_dir.iterdir())
@@ -105,11 +105,49 @@ def synthesize_project_context(project_dir: Path) -> str:
     return "\n".join(parts)
 
 
+def ensure_embeddings(dims: int) -> dict:
+    current_hashes = repo_hashes(REPO_ROOT)
+
+    if EMBEDDINGS_FILE.exists() and METADATA_FILE.exists():
+        metadata = json.loads(METADATA_FILE.read_text(encoding="utf-8"))
+        if metadata_matches(
+            metadata,
+            model=MODEL,
+            dimensions=dims,
+            index_sha256=current_hashes["index_sha256"],
+            registry_sha256=current_hashes["registry_sha256"],
+        ) and not is_stale(EMBEDDINGS_FILE):
+            return json.loads(EMBEDDINGS_FILE.read_text(encoding="utf-8"))
+
+    print("Embeddings cache missing or stale. Regenerating locally...", file=sys.stderr)
+    cmd = [
+        sys.executable,
+        str(GENERATOR),
+        "--dimensions",
+        str(dims),
+        "--output",
+        str(EMBEDDINGS_FILE),
+        "--metadata-path",
+        str(METADATA_FILE),
+    ]
+    result = subprocess.run(cmd, cwd=REPO_ROOT)
+    if result.returncode == 0 and EMBEDDINGS_FILE.exists():
+        return json.loads(EMBEDDINGS_FILE.read_text(encoding="utf-8"))
+
+    if EMBEDDINGS_FILE.exists():
+        print("Generation failed, using stale local cache.", file=sys.stderr)
+        return json.loads(EMBEDDINGS_FILE.read_text(encoding="utf-8"))
+
+    print("Error: unable to build local embeddings cache.", file=sys.stderr)
+    sys.exit(1)
+
+
 def main():
     top_n = DEFAULT_TOP
     type_filter = None
     query = None
     project_dir = None
+    output_json = "--json" in sys.argv
 
     args = sys.argv[1:]
     i = 0
@@ -123,6 +161,8 @@ def main():
         elif args[i] == "--project-dir" and i + 1 < len(args):
             project_dir = Path(args[i + 1])
             i += 2
+        elif args[i] == "--json":
+            i += 1
         elif not args[i].startswith("-"):
             query = args[i]
             i += 1
@@ -133,43 +173,43 @@ def main():
         print("Usage: search-embeddings.py <query> | --project-dir <path>", file=sys.stderr)
         sys.exit(1)
 
-    # Load embeddings
-    if not EMBEDDINGS_FILE.exists():
-        print(f"Error: {EMBEDDINGS_FILE} not found. Run generate-embeddings.py first.", file=sys.stderr)
-        sys.exit(1)
-
-    data = json.loads(EMBEDDINGS_FILE.read_text(encoding="utf-8"))
+    data = ensure_embeddings(DEFAULT_DIMS)
     items = data["items"]
     dims = data["dimensions"]
 
     if type_filter:
         items = [item for item in items if item["type"] == type_filter]
 
-    # Build query text
     if project_dir:
         query_text = synthesize_project_context(project_dir)
-        print(f"Project context ({len(query_text)} chars):", file=sys.stderr)
-        print(f"  {query_text[:200]}...", file=sys.stderr)
+        if not output_json:
+            print(f"Project context ({len(query_text)} chars):", file=sys.stderr)
+            print(f"  {query_text[:200]}...", file=sys.stderr)
     else:
         query_text = query
 
-    # Embed query
-    from google import genai
-    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        print("Error: GEMINI_API_KEY or GOOGLE_API_KEY required", file=sys.stderr)
-        sys.exit(1)
-    client = genai.Client(api_key=api_key)
-    query_vec = embed_query(client, query_text, dims)
+    query_vec = embed_query(query_text, dims)
 
-    # Rank by similarity
     scored = []
     for item in items:
         sim = cosine_similarity(query_vec, item["embedding"])
         scored.append((sim, item))
     scored.sort(key=lambda x: x[0], reverse=True)
 
-    # Output
+    if output_json:
+        results = []
+        for score, item in scored[:top_n]:
+            results.append({
+                "score": round(score, 4),
+                "type": item["type"],
+                "name": item["name"],
+                "source": item["source"],
+                "fqn": item["fqn"],
+                "description": item["description"][:200],
+            })
+        print(json.dumps(results, indent=2))
+        return
+
     print(f"\nTop {top_n} matches for: {query_text[:80]}{'...' if len(query_text) > 80 else ''}\n")
     for rank, (score, item) in enumerate(scored[:top_n], 1):
         marker = "*" if score > 0.7 else " " if score > 0.5 else "."

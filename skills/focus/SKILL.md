@@ -20,8 +20,8 @@ managed primitives on every run. Leave unmanaged primitives untouched.
 ```
 SPELLBOOK_REPO:    phrazzld/spellbook
 SPELLBOOK_RAW:     https://raw.githubusercontent.com/phrazzld/spellbook/master
-EMBEDDINGS_URL:    ${SPELLBOOK_RAW}/embeddings.json
 INDEX_URL:         ${SPELLBOOK_RAW}/index.yaml
+REGISTRY_URL:      ${SPELLBOOK_RAW}/registry.yaml
 MANIFEST_FILE:     .spellbook.yaml
 MARKER_FILE:       .spellbook
 ```
