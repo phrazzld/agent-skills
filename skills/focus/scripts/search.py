@@ -1,61 +1,530 @@
 #!/usr/bin/env python3
-"""Spellbook semantic search. Self-contained — fetches and caches embeddings.json from GitHub.
+"""Spellbook semantic search.
+
+Self-contained: fetches the current Spellbook catalog from GitHub, generates a
+local embeddings cache on first use, and reuses that cache until the catalog
+changes or the cache ages out.
 
 Usage:
     python3 search.py "payment webhook integration"
     python3 search.py --project-dir /path/to/project
     python3 search.py "query" --top 10 --type skill
 
-Requires: GEMINI_API_KEY or GOOGLE_API_KEY for query embedding.
-Embeddings index is pre-computed and fetched from GitHub (no key needed for corpus).
+Requires: GEMINI_API_KEY or GOOGLE_API_KEY for both query and corpus
+embedding generation.
 """
 
+from __future__ import annotations
+
+import hashlib
 import json
 import math
 import os
+import re
+import subprocess
 import sys
 import time
 from pathlib import Path
-from urllib.request import Request, urlopen
 from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
 REPO = "phrazzld/spellbook"
 BRANCH = "master"
 RAW = f"https://raw.githubusercontent.com/{REPO}/{BRANCH}"
-CACHE_DIR = Path.home() / ".cache" / "spellbook"
-CACHE_FILE = CACHE_DIR / "embeddings.json"
 CACHE_TTL = 86400  # 24 hours
+FORMAT_VERSION = 1
 MODEL = "gemini-embedding-2-preview"
 DEFAULT_TOP = 15
+DEFAULT_DIMS = 768
+BATCH_SIZE = 20
 
 
-def fetch_embeddings() -> dict:
-    """Fetch embeddings.json from GitHub, with local caching."""
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+def spellbook_cache_root() -> Path:
+    override = os.environ.get("SPELLBOOK_CACHE_DIR")
+    if override:
+        return Path(override).expanduser()
 
-    # Use cache if fresh
-    if CACHE_FILE.exists():
-        age = time.time() - CACHE_FILE.stat().st_mtime
-        if age < CACHE_TTL:
-            return json.loads(CACHE_FILE.read_text(encoding="utf-8"))
-        print("  Cache stale, refreshing...", file=sys.stderr)
+    codex_home = os.environ.get("CODEX_HOME")
+    if codex_home:
+        return Path(codex_home).expanduser() / "cache" / "spellbook"
 
-    # Fetch from GitHub
-    url = f"{RAW}/embeddings.json"
-    print(f"  Fetching embeddings index from GitHub...", file=sys.stderr)
+    xdg_cache = os.environ.get("XDG_CACHE_HOME")
+    if xdg_cache:
+        return Path(xdg_cache).expanduser() / "spellbook"
+
+    return Path.home() / ".cache" / "spellbook"
+
+
+def cache_paths() -> tuple[Path, Path]:
+    cache_dir = spellbook_cache_root() / "discovery"
+    return cache_dir / "embeddings.json", cache_dir / "embeddings-meta.json"
+
+
+EMBEDDINGS_FILE, METADATA_FILE = cache_paths()
+
+
+def cache_ttl_seconds() -> int:
+    raw = os.environ.get("SPELLBOOK_EMBEDDINGS_TTL_SECONDS")
+    if not raw:
+        return CACHE_TTL
     try:
-        req = Request(url, headers={"User-Agent": "spellbook-focus"})
-        with urlopen(req, timeout=30) as resp:
-            data = resp.read()
-        CACHE_FILE.write_bytes(data)
-        print(f"  Cached: {len(data) // 1024} KB", file=sys.stderr)
-        return json.loads(data)
-    except (HTTPError, Exception) as e:
-        if CACHE_FILE.exists():
-            print(f"  Fetch failed ({e}), using stale cache", file=sys.stderr)
-            return json.loads(CACHE_FILE.read_text(encoding="utf-8"))
-        print(f"  Error: {e}", file=sys.stderr)
+        return int(raw)
+    except ValueError:
+        return CACHE_TTL
+
+
+def sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def is_stale(path: Path) -> bool:
+    if not path.exists():
+        return True
+    return time.time() - path.stat().st_mtime > cache_ttl_seconds()
+
+
+def metadata_matches(metadata: dict, *, dims: int, index_sha256: str, registry_sha256: str) -> bool:
+    return (
+        metadata.get("format_version") == FORMAT_VERSION
+        and metadata.get("model") == MODEL
+        and metadata.get("dimensions") == dims
+        and metadata.get("index_sha256") == index_sha256
+        and metadata.get("registry_sha256") == registry_sha256
+    )
+
+
+def github_headers() -> dict:
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    token = os.environ.get("GITHUB_TOKEN")
+    if not token:
+        try:
+            result = subprocess.run(
+                ["gh", "auth", "token"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if result.returncode == 0:
+                token = result.stdout.strip()
+        except FileNotFoundError:
+            pass
+    if token:
+        headers["Authorization"] = f"token {token}"
+    return headers
+
+
+def fetch_text(url: str, label: str) -> str:
+    req = Request(url, headers={"User-Agent": "spellbook-focus"})
+    with urlopen(req, timeout=30) as resp:
+        return resp.read().decode("utf-8")
+
+
+def github_get(url: str) -> dict | list | None:
+    req = Request(url, headers=github_headers())
+    try:
+        with urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read())
+    except HTTPError as e:
+        if e.code == 404:
+            return None
+        print(f"  GitHub API error {e.code}: {url}", file=sys.stderr)
+        return None
+    except Exception as e:
+        print(f"  Fetch error: {e}", file=sys.stderr)
+        return None
+
+
+def github_raw(source: str, path: str) -> str | None:
+    for branch in ("main", "master"):
+        url = f"https://raw.githubusercontent.com/{source}/{branch}/{path}"
+        req = Request(url, headers=github_headers())
+        try:
+            with urlopen(req, timeout=15) as resp:
+                return resp.read().decode("utf-8")
+        except Exception:
+            continue
+    return None
+
+
+def api_key() -> str:
+    key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    if not key:
+        print("Error: GEMINI_API_KEY or GOOGLE_API_KEY required", file=sys.stderr)
         sys.exit(1)
+    return key
+
+
+def embed_texts(texts: list[str], dims: int, task_type: str) -> list[list[float]]:
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{MODEL}:batchEmbedContents?key={api_key()}"
+    )
+    payload = {
+        "requests": [
+            {
+                "model": f"models/{MODEL}",
+                "content": {"parts": [{"text": text}]},
+                "taskType": task_type,
+                "outputDimensionality": dims,
+            }
+            for text in texts
+        ]
+    }
+    req = Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "spellbook-focus-search",
+        },
+        method="POST",
+    )
+    try:
+        with urlopen(req, timeout=60) as resp:
+            body = json.loads(resp.read())
+    except HTTPError as e:
+        detail = e.read().decode("utf-8", errors="replace")
+        print(f"Gemini embeddings request failed: {e.code} {detail}", file=sys.stderr)
+        sys.exit(1)
+
+    embeddings = body.get("embeddings")
+    if not isinstance(embeddings, list):
+        print(f"Unexpected embeddings response: {body}", file=sys.stderr)
+        sys.exit(1)
+
+    return [embedding["values"] for embedding in embeddings]
+
+
+def parse_frontmatter(text: str) -> dict:
+    match = re.match(r"^---\s*\n(.*?)\n---", text, re.DOTALL)
+    if not match:
+        return {}
+
+    fm = {}
+    for line in match.group(1).split("\n"):
+        if ":" in line and not line.startswith(" ") and not line.startswith("\t"):
+            key, _, val = line.partition(":")
+            val = val.strip().strip('"').strip("'")
+            if val:
+                fm[key.strip()] = val
+
+    if "description" not in fm or fm["description"] == "|":
+        desc_match = re.search(
+            r"description:\s*\|?\s*\n((?:[ \t]+.+\n)+)",
+            match.group(1),
+        )
+        if desc_match:
+            lines = desc_match.group(1).split("\n")
+            fm["description"] = " ".join(l.strip() for l in lines if l.strip())
+    return fm
+
+
+def parse_index_text(text: str) -> dict:
+    try:
+        import yaml  # type: ignore
+
+        return yaml.safe_load(text) or {}
+    except ImportError:
+        pass
+
+    data = {"skills": [], "agents": []}
+    section = None
+    current = None
+
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip()
+        stripped = line.strip()
+
+        if stripped in {"skills:", "agents:"}:
+            if current and section:
+                data[section].append(current)
+                current = None
+            section = stripped[:-1]
+            continue
+
+        if not section or not stripped or stripped.startswith("#"):
+            continue
+
+        if line.startswith("  - name: "):
+            if current:
+                data[section].append(current)
+            current = {"name": line.split(": ", 1)[1].strip()}
+            continue
+
+        if current and line.startswith("    description: "):
+            value = line.split(": ", 1)[1].strip()
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1].replace('\\"', '"')
+            current["description"] = value
+
+    if current and section:
+        data[section].append(current)
+
+    return data
+
+
+def parse_registry_text(text: str) -> dict:
+    try:
+        import yaml  # type: ignore
+
+        return yaml.safe_load(text) or {}
+    except ImportError:
+        pass
+
+    sources = []
+    in_sources = False
+    current = {}
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if stripped == "sources:":
+            in_sources = True
+            continue
+        if in_sources:
+            indent = len(line) - len(line.lstrip())
+            if indent == 0 and stripped and not stripped.startswith("#"):
+                break
+            if stripped.startswith("- repo:"):
+                if current:
+                    sources.append(current)
+                current = {"repo": stripped.split(":", 1)[1].strip()}
+            elif stripped.startswith("layout:") and current:
+                current["layout"] = stripped.split(":", 1)[1].strip()
+            elif stripped.startswith("skills_path:") and current:
+                current["skills_path"] = stripped.split(":", 1)[1].strip()
+    if current:
+        sources.append(current)
+    return {"sources": sources}
+
+
+def synthesize_search_document(name: str, description: str, kind: str, source: str) -> str:
+    parts = [f"Name: {name}.", f"Source: {source}."]
+    parts.append("Type: agent skill." if kind == "skill" else "Type: agent persona.")
+    if description:
+        parts.append(f"Description: {description}")
+    return " ".join(parts)
+
+
+def collect_index_items(index_text: str) -> list[dict]:
+    index = parse_index_text(index_text)
+    items = []
+
+    for kind in ("skills", "agents"):
+        item_type = "skill" if kind == "skills" else "agent"
+        for entry in index.get(kind, []):
+            name = entry.get("name")
+            description = entry.get("description", "")
+            if not name or not description:
+                continue
+            items.append({
+                "type": item_type,
+                "name": name,
+                "source": REPO,
+                "fqn": f"{REPO}@{name}",
+                "description": description,
+                "search_document": synthesize_search_document(
+                    name,
+                    description,
+                    item_type,
+                    REPO,
+                ),
+            })
+    return items
+
+
+def collect_external_source(src: dict) -> list[dict]:
+    source = src["repo"]
+    if source == REPO:
+        return []
+
+    layout = src.get("layout", "flat")
+    items = []
+
+    print(f"  Fetching {source}...", file=sys.stderr)
+
+    if layout == "root":
+        text = github_raw(source, "SKILL.md")
+        if not text:
+            return items
+        fm = parse_frontmatter(text)
+        name = fm.get("name", source.split("/")[-1])
+        description = fm.get("description", "")
+        if description:
+            items.append({
+                "type": "skill",
+                "name": name,
+                "source": source,
+                "fqn": f"{source}@{name}",
+                "description": description,
+                "search_document": synthesize_search_document(
+                    name,
+                    description,
+                    "skill",
+                    source,
+                ),
+            })
+        return items
+
+    if layout == "multi-root":
+        entries = github_get(f"https://api.github.com/repos/{source}/contents/")
+        if not entries or not isinstance(entries, list):
+            return items
+        for dirname in sorted(
+            d["name"]
+            for d in entries
+            if d.get("type") == "dir" and not d["name"].startswith(".")
+        ):
+            text = github_raw(source, f"{dirname}/SKILL.md")
+            if not text:
+                continue
+            fm = parse_frontmatter(text)
+            name = fm.get("name", dirname)
+            description = fm.get("description", "")
+            if not description:
+                continue
+            items.append({
+                "type": "skill",
+                "name": name,
+                "source": source,
+                "fqn": f"{source}@{name}",
+                "description": description,
+                "search_document": synthesize_search_document(
+                    name,
+                    description,
+                    "skill",
+                    source,
+                ),
+            })
+        return items
+
+    skills_path = src.get("skills_path", "skills")
+    dirs = github_get(f"https://api.github.com/repos/{source}/contents/{skills_path}")
+    if not dirs or not isinstance(dirs, list):
+        return items
+
+    for skill_name in sorted(d["name"] for d in dirs if d.get("type") == "dir"):
+        text = github_raw(source, f"{skills_path}/{skill_name}/SKILL.md")
+        if not text:
+            continue
+        fm = parse_frontmatter(text)
+        name = fm.get("name", skill_name)
+        description = fm.get("description", "")
+        if not description:
+            continue
+        items.append({
+            "type": "skill",
+            "name": name,
+            "source": source,
+            "fqn": f"{source}@{name}",
+            "description": description,
+            "search_document": synthesize_search_document(
+                name,
+                description,
+                "skill",
+                source,
+            ),
+        })
+
+    return items
+
+
+def embed_batch(texts: list[str], dims: int) -> list[list[float]]:
+    return embed_texts(texts, dims, "RETRIEVAL_DOCUMENT")
+
+
+def build_embeddings(index_text: str, registry_text: str, dims: int) -> tuple[dict, dict]:
+    index_items = collect_index_items(index_text)
+    registry = parse_registry_text(registry_text)
+    items = list(index_items)
+
+    sources = []
+    for src in registry.get("sources", []):
+        repo = src.get("repo")
+        if not repo:
+            continue
+        sources.append(repo)
+        items.extend(collect_external_source(src))
+
+    deduped = []
+    seen = set()
+    for item in items:
+        if item["fqn"] in seen:
+            continue
+        seen.add(item["fqn"])
+        deduped.append(item)
+    items = deduped
+
+    print(f"  Embedding {len(items)} items locally...", file=sys.stderr)
+    all_embeddings = []
+    for i in range(0, len(items), BATCH_SIZE):
+        batch = items[i : i + BATCH_SIZE]
+        texts = [item["search_document"] for item in batch]
+        all_embeddings.extend(embed_batch(texts, dims))
+        if i + BATCH_SIZE < len(items):
+            time.sleep(0.5)
+
+    for item, embedding in zip(items, all_embeddings):
+        item["embedding"] = embedding
+
+    generated = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    data = {
+        "format_version": FORMAT_VERSION,
+        "model": MODEL,
+        "dimensions": dims,
+        "sources": sources,
+        "generated": generated,
+        "count": len(items),
+        "items": items,
+    }
+    metadata = {
+        "format_version": FORMAT_VERSION,
+        "model": MODEL,
+        "dimensions": dims,
+        "index_sha256": sha256_text(index_text),
+        "registry_sha256": sha256_text(registry_text),
+        "generated": generated,
+        "count": len(items),
+    }
+    return data, metadata
+
+
+def ensure_embeddings(dims: int) -> dict:
+    EMBEDDINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        index_text = fetch_text(f"{RAW}/index.yaml", "index.yaml")
+        registry_text = fetch_text(f"{RAW}/registry.yaml", "registry.yaml")
+    except Exception as e:
+        if EMBEDDINGS_FILE.exists():
+            print(f"  Catalog fetch failed ({e}), using stale cache", file=sys.stderr)
+            return json.loads(EMBEDDINGS_FILE.read_text(encoding="utf-8"))
+        print(f"  Error fetching Spellbook catalog: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    index_sha256 = sha256_text(index_text)
+    registry_sha256 = sha256_text(registry_text)
+
+    if EMBEDDINGS_FILE.exists() and METADATA_FILE.exists():
+        metadata = json.loads(METADATA_FILE.read_text(encoding="utf-8"))
+        if metadata_matches(
+            metadata,
+            dims=dims,
+            index_sha256=index_sha256,
+            registry_sha256=registry_sha256,
+        ) and not is_stale(EMBEDDINGS_FILE):
+            return json.loads(EMBEDDINGS_FILE.read_text(encoding="utf-8"))
+
+    print("  Local embeddings cache missing or stale. Rebuilding...", file=sys.stderr)
+    try:
+        data, metadata = build_embeddings(index_text, registry_text, dims)
+    except Exception as e:
+        if EMBEDDINGS_FILE.exists():
+            print(f"  Rebuild failed ({e}), using stale cache", file=sys.stderr)
+            return json.loads(EMBEDDINGS_FILE.read_text(encoding="utf-8"))
+        raise
+
+    EMBEDDINGS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    return data
 
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:
@@ -68,24 +537,10 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
 
 
 def embed_query(text: str, dims: int) -> list[float]:
-    """Embed a query using Gemini Embedding 2."""
-    from google import genai
-
-    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        print("Error: GEMINI_API_KEY or GOOGLE_API_KEY required", file=sys.stderr)
-        sys.exit(1)
-    client = genai.Client(api_key=api_key)
-    result = client.models.embed_content(
-        model=MODEL,
-        contents=text,
-        config={"output_dimensionality": dims, "task_type": "RETRIEVAL_QUERY"},
-    )
-    return result.embeddings[0].values
+    return embed_texts([text], dims, "RETRIEVAL_QUERY")[0]
 
 
 def synthesize_project_context(project_dir: Path) -> str:
-    """Read project signals and synthesize a description for embedding."""
     parts = []
 
     for name in ["CLAUDE.md", "README.md"]:
@@ -163,15 +618,13 @@ def main():
         print("  --json         Output as JSON", file=sys.stderr)
         sys.exit(1)
 
-    # Load embeddings (fetches from GitHub if needed)
-    data = fetch_embeddings()
+    data = ensure_embeddings(DEFAULT_DIMS)
     items = data["items"]
     dims = data["dimensions"]
 
     if type_filter:
         items = [item for item in items if item["type"] == type_filter]
 
-    # Build query text
     if project_dir:
         query_text = synthesize_project_context(project_dir)
         if not output_json:
@@ -179,17 +632,14 @@ def main():
     else:
         query_text = query
 
-    # Embed query
     query_vec = embed_query(query_text, dims)
 
-    # Rank by similarity
     scored = []
     for item in items:
         sim = cosine_similarity(query_vec, item["embedding"])
         scored.append((sim, item))
     scored.sort(key=lambda x: x[0], reverse=True)
 
-    # Output
     if output_json:
         results = []
         for score, item in scored[:top_n]:

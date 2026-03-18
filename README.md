@@ -43,7 +43,9 @@ Spellbook indexes skills from multiple GitHub repos using Gemini Embedding 2 for
 
 Unqualified names (`debug`) resolve to `phrazzld/spellbook`. External skills use fully qualified names (`owner/repo@skill-name`) to avoid collisions.
 
-See `embeddings.json` for the pre-computed index and `scripts/generate-embeddings.py` for the generator.
+Spellbook keeps the text catalog in `index.yaml`. Embeddings are generated and
+cached locally on first search under `$CODEX_HOME/cache/spellbook/` when
+available, otherwise `~/.cache/spellbook/`.
 
 ## Repo Structure
 
@@ -51,7 +53,6 @@ See `embeddings.json` for the pre-computed index and `scripts/generate-embedding
 spellbook/
 ├── skills/              # All skills, flat
 ├── agents/              # Agent definitions, flat
-├── embeddings.json      # Pre-computed semantic search index
 ├── index.yaml           # Generated text catalog
 ├── collections.yaml     # Named skill groups (human browsing)
 ├── bootstrap.sh         # One-command global install
@@ -65,8 +66,9 @@ spellbook/
 
 1. Create `skills/{name}/SKILL.md` with frontmatter
 2. Add `references/`, `scripts/`, `assets/` as needed
-3. Run `./scripts/generate-index.sh && python3 scripts/generate-embeddings.py`
-4. Commit and push — consumers get it on next `/focus`
+3. Run `./scripts/generate-index.sh`
+4. Optional: run `python3 scripts/generate-embeddings.py` to prewarm your local cache
+5. Commit and push — consumers get the updated catalog on next `/focus`
 
 ## Principles
 

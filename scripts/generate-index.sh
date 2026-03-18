@@ -44,10 +44,17 @@ echo "" >> "$INDEX"
 # Agents
 echo "agents:" >> "$INDEX"
 agent_count=0
-for agent_dir in "$REPO_ROOT"/agents/*/; do
-  [ -d "$agent_dir" ] || continue
-  name=$(basename "$agent_dir")
+for agent_file in "$REPO_ROOT"/agents/*.md; do
+  [ -f "$agent_file" ] || continue
+  name=$(basename "$agent_file" .md)
+
+  desc=$(awk '/^---$/{n++; next} n==1 && /^description:/{found=1; sub(/^description: *\|? */, ""); if ($0 != "" && $0 != "|") print; next} found && /^  /{sub(/^  /,""); printf "%s ", $0; next} found && !/^  /{found=0}' "$agent_file" | head -1 | sed 's/ *$//' | cut -c1-200)
+  if [ -z "$desc" ]; then
+    desc=$(awk '/^---$/{n++; next} n==1 && /^description:/{sub(/^description: *"?/,""); sub(/"? *$/,""); print; exit}' "$agent_file")
+  fi
+
   echo "  - name: $name" >> "$INDEX"
+  [ -n "$desc" ] && echo "    description: \"$(echo "$desc" | sed 's/"/\\"/g')\"" >> "$INDEX"
   agent_count=$((agent_count + 1))
 done
 [ "$agent_count" -eq 0 ] && echo "  []" >> "$INDEX"

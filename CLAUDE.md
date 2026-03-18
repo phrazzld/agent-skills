@@ -20,12 +20,11 @@ spellbook/
 │   └── ...
 ├── agents/                  # Agent definitions, flat (markdown + YAML frontmatter)
 ├── registry.yaml            # Single source of truth: globals, sources, collections
-├── embeddings.json          # Pre-computed Gemini Embedding 2 index (all sources)
 ├── bootstrap.sh             # Installs global skills (reads registry.yaml)
 ├── .spellbook.yaml          # This repo's own manifest
 └── scripts/
-    ├── generate-embeddings.py  # Rebuild embeddings.json (sources from registry.yaml)
-    └── search-embeddings.py # Query the embeddings index
+    ├── generate-embeddings.py  # Build local embeddings cache (sources from registry.yaml)
+    └── search-embeddings.py # Query and auto-refresh the local cache
 ```
 
 ## How It Works
@@ -60,9 +59,10 @@ without a marker are invisible to Spellbook and never modified.
 
 ### Multi-Source Discovery
 
-`embeddings.json` contains pre-computed vectors (Gemini Embedding 2, 768-dim) for all
-indexed primitives across multiple GitHub sources. `/focus init` and `/focus search`
-use cosine similarity against this index for semantic matching.
+`index.yaml` is the committed text catalog for local Spellbook primitives.
+Embeddings are generated and cached locally (Gemini Embedding 2, 768-dim) from
+`index.yaml` plus external sources listed in `registry.yaml`. `/focus init` and
+`/focus search` use cosine similarity against that local cache for semantic matching.
 
 External sources are defined in `registry.yaml` under `sources`. To add a new source,
 add an entry there and re-run the embeddings generator.
@@ -100,10 +100,10 @@ tools: Read, Grep, Glob, Bash
 ## Key Commands
 
 ```bash
-# Rebuild the embeddings index (requires GEMINI_API_KEY)
+# Prewarm the local embeddings cache (requires GEMINI_API_KEY)
 python3 scripts/generate-embeddings.py
 
-# Search the index
+# Search and auto-refresh the local cache
 python3 scripts/search-embeddings.py "your query"
 python3 scripts/search-embeddings.py --project-dir /path/to/project
 ```
@@ -112,7 +112,7 @@ python3 scripts/search-embeddings.py --project-dir /path/to/project
 
 1. Create `skills/{name}/SKILL.md` with frontmatter
 2. Add references/, scripts/, assets/ as needed
-3. Commit and push — pre-commit hook auto-regenerates index.yaml and embeddings.json
+3. Commit and push — consumers regenerate embeddings locally on first search
 
 ## Principles
 

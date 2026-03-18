@@ -56,7 +56,7 @@ raw="https://raw.githubusercontent.com/${source}/main"
 
 # Determine the skill path within the source repo
 # Default: skills/${skill}/SKILL.md
-# Some repos use different layouts — check embeddings.json for hints
+# Some repos use different layouts — check registry.yaml and index metadata for hints
 skill_path="skills/${skill}"
 
 mkdir -p "$target"

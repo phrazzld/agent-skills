@@ -109,7 +109,7 @@ data alone. If the skill doesn't clear that bar, it's not specific enough.
 mkdir -p skills/{name}/references
 # Write skills/{name}/SKILL.md
 # Run ./scripts/generate-index.sh
-# Run python3 scripts/generate-embeddings.py
+# Optional: run python3 scripts/generate-embeddings.py to prewarm your local cache
 # Commit and push
 ```
 
@@ -123,7 +123,8 @@ mkdir -p .claude/skills/{name}
 
 ### 5. Update
 
-For spellbook skills: edit in the spellbook repo, regenerate index + embeddings.
+For spellbook skills: edit in the spellbook repo and regenerate `index.yaml`.
+Embeddings regenerate locally on first search, or you can prewarm them manually.
 For project-local skills: edit in place.
 
 For either: if the skill references `skill-builder` or `skill-creator`,
@@ -136,7 +137,7 @@ When absorbing a standalone skill into an umbrella:
 2. Merge any existing `references/` with parent prefix
 3. Add routing entry to parent's SKILL.md
 4. Delete old skill directory
-5. Regenerate index + embeddings
+5. Regenerate `index.yaml` (and optionally prewarm your local embeddings cache)
 
 ### 7. Agents
 
