@@ -53,7 +53,38 @@ multi-source triangulation.
    See `references/xai-search.md` for request format. Skip ONLY for purely technical/code queries.
 4. **Codebase** — Grep/Glob for what the project already does (skip only if query is unrelated to codebase)
 
-**Then synthesize**: consensus, conflicts, citations, recommendations across ALL sources.
+**Then produce a sourced report** using the mandatory structure below.
+
+### Report Format (mandatory for all default fanout runs)
+
+Every research report MUST have one labeled section per source that ran,
+followed by a synthesis. Omit a section only if that source was explicitly
+skipped — and state why it was skipped in the Synthesis section.
+
+```
+## Exa (neural search)
+[Findings with inline URLs. What did Exa specifically surface?]
+
+## xAI / Grok ([web_search | x_search | both])
+[Findings with citations from response.citations. What did Grok surface?
+For X Search: quotes or paraphrases from X posts, authors, dates.]
+
+## Thinktank (multi-model synthesis)
+[What did the thinktank consensus say? Note any model disagreements.]
+
+## Codebase
+[What relevant patterns, implementations, or prior art exist locally?
+"None found" is a valid answer — write it explicitly.]
+
+## Synthesis
+[Consensus across sources. Conflicts or contradictions between them.
+Recommendations grounded in the evidence above. Every claim cites a source.]
+```
+
+**Discipline rule**: if a section is missing, you either skipped that tool
+(state why) or you failed to run it (go back and run it). A report that
+collapses all sources into one unlabeled blob has failed the fanout goal.
+Readers must be able to see what each tool contributed independently.
 
 **Narrow to a single source ONLY when:**
 - The user explicitly names one (e.g., "/research web-search [query]")
