@@ -8,6 +8,11 @@ Don't start by searching the catalog. Start by understanding the project
 deeply, then reason from first principles about what domain knowledge
 would make an agent most effective here. Search comes after thinking.
 
+Before asking the user to confirm the manifest, persist a structured init
+report to `.spellbook/init-report.json`. The report is the cold-memory
+artifact for why the selection happened, what was rejected, and which gaps
+still need follow-up.
+
 ## Process
 
 ### Phase 1: Deep Project Analysis
@@ -99,7 +104,76 @@ Every gap is a skill waiting to be created — and gap-born skills are the
 highest-leverage primitives in the library because they encode exactly
 what the model can't already do on its own.
 
-### Phase 5: Generate Manifest
+### Phase 5: Write Init Report
+
+Before manifest confirmation, write `.spellbook/init-report.json` with:
+
+- `repo_summary` — compact analysis of the repo, stack, domains, services,
+  and the signals you read
+- `wishlist` — first-principles capability wishlist, with why each item matters
+- `candidate_matrix` — one row per wishlist item or considered primitive,
+  including status, rationale, and evidence
+- `selected_primitives` — the primitives that should land in `.spellbook.yaml`
+- `gaps` — unmet wishlist items and recommended follow-up
+- `confidence` — explicit confidence level, strongest evidence, and open questions
+
+Use the helper to validate and write the artifact in one step:
+
+```bash
+python3 ${SKILL_DIR}/scripts/init_report.py write \
+  --output .spellbook/init-report.json \
+  --input /tmp/focus-init-report.json
+```
+
+The input payload must satisfy this compact shape:
+
+```json
+{
+  "repo_summary": {
+    "project": "short description",
+    "stack": ["python", "markdown"],
+    "domains": ["agent tooling"],
+    "services": ["GitHub"],
+    "signals": ["README.md", "CLAUDE.md", "git log --oneline -20"]
+  },
+  "wishlist": [
+    {
+      "name": "repo tuning",
+      "why": "Agents need cold-memory structure and routing guidance."
+    }
+  ],
+  "candidate_matrix": [
+    {
+      "wishlist_item": "repo tuning",
+      "primitive": "phrazzld/spellbook@codified-context-architecture",
+      "status": "selected",
+      "rationale": "Directly addresses repo-level context architecture.",
+      "evidence": ["docs/context/** exists", "project vision emphasizes agent workflows"]
+    }
+  ],
+  "selected_primitives": [
+    {
+      "name": "codified-context-architecture",
+      "kind": "skill",
+      "reason": "Matches repo tuning needs."
+    }
+  ],
+  "gaps": [
+    {
+      "name": "factory-specific routing policy",
+      "why": "No current primitive encodes these conventions.",
+      "next_action": "propose new spellbook skill"
+    }
+  ],
+  "confidence": {
+    "level": "medium",
+    "summary": "Selection is grounded in repo docs and file layout.",
+    "open_questions": ["Should deployment-specific guidance become project-local?"]
+  }
+}
+```
+
+### Phase 6: Generate Manifest
 
 ```yaml
 # .spellbook.yaml
@@ -113,7 +187,7 @@ agents:
   - stripe-auditor
 ```
 
-### Phase 6: Present for Confirmation
+### Phase 7: Present for Confirmation
 
 Show the user:
 
@@ -121,6 +195,7 @@ Show the user:
 2. **Wishlist** (what domain knowledge would be ideal)
 3. **Matched skills** with reasoning
 4. **Skill gaps** — wishlist items with no match
+5. **Init report path** — `.spellbook/init-report.json` written and ready to inspect
 
 For each gap, offer:
 > "No existing skill covers [X]. Want me to draft a new skill for this
@@ -128,7 +203,7 @@ For each gap, offer:
 
 Only write manifest after explicit confirmation.
 
-### Phase 7: Create Skills for Gaps
+### Phase 8: Create Skills for Gaps
 
 **This is NOT optional.** For every gap identified in Phase 4, actively
 propose creating a new skill. Present a concrete 1-2 sentence description
@@ -164,7 +239,7 @@ This is how spellbook grows — organically from real project needs, with
 each new skill encoding domain knowledge that makes agents genuinely
 more effective than they'd be from base model capabilities alone.
 
-### Phase 8: Run Sync
+### Phase 9: Run Sync
 
 After writing the manifest, immediately run the sync flow to install
 the declared domain primitives.

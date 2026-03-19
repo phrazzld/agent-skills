@@ -25,6 +25,7 @@ INDEX_URL:         ${SPELLBOOK_RAW}/index.yaml
 REGISTRY_URL:      ${SPELLBOOK_RAW}/registry.yaml
 MANIFEST_FILE:     .spellbook.yaml
 MARKER_FILE:       .spellbook
+INIT_REPORT_FILE:  .spellbook/init-report.json
 ```
 
 **Resolving `SKILL_DIR`:** The harness provides the skill's installed path at
@@ -115,7 +116,11 @@ and follow it exactly. The init flow is 8 phases — do not shortcut it.
    failure modes. Actively push to create new skills for every gap. This is
    how spellbook grows — and these gap-born skills are the highest-leverage
    ones because they encode what the model can't already do.
-5. **Present the full picture:** analysis, wishlist, matches, AND gaps.
+5. **Persist the init report before confirmation.** Write
+   `${INIT_REPORT_FILE}` with the structured analysis, candidate matrix,
+   selected primitives, gaps, and confidence before asking the user to
+   confirm the manifest.
+6. **Present the full picture:** analysis, wishlist, matches, AND gaps.
    Lead with gaps as opportunities, not afterthoughts. Get explicit
    confirmation before writing the manifest.
 

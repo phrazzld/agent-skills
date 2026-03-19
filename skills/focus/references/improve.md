@@ -24,6 +24,14 @@ per observation, appended by `/calibrate` or manually.
 
 Read `.spellbook/observations.ndjson` from the current project.
 
+If `.spellbook/init-report.json` exists, read it before clustering anything
+else. Treat it as the baseline record of:
+
+- what `/focus init` saw in the repo
+- which primitives were selected or rejected
+- which gaps were already known
+- what confidence and open questions existed at selection time
+
 If running from the spellbook repo itself, also scan for observation files
 in known project directories (check git config for recent repos, or ask
 the user which projects to include).
@@ -41,8 +49,11 @@ For each cluster, analyze the observations and produce:
 
 - **What's wrong**: Common thread across observations
 - **Proposed fix**: Specific edit to the canonical skill/agent
-- **Evidence**: The observations that support this
+- **Evidence**: The observations and init-report entries that support this
 - **Confidence**: How certain we are this is the right fix
+
+If the init report already listed a gap or weak match for the same area,
+reuse that language instead of reconstructing the rationale from scratch.
 
 ### 4. Choose Action
 
