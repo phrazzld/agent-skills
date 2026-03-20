@@ -22,6 +22,15 @@ Prefer options that:
 - reduce prerequisite knowledge required to use the module
 - make future changes cheaper, not just this patch smaller
 
+## Code Pattern Checks
+
+After module-level design, check code-level patterns per [code-patterns.md](./code-patterns.md):
+
+- reduces state space (fewer arguments, narrower types, discriminated unions)
+- uses asserts at boundaries instead of defensive defaults
+- keeps functions skimmable without over-extraction
+- makes optionals truly optional
+
 ## Single-PR Filter
 
 A candidate is eligible only if it:

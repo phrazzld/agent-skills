@@ -63,6 +63,8 @@ Look for:
 - wrong log levels
 - semantic mismatches between names, comments, and behavior
 
+Apply [code-review-checklist.md](./pr-fix-code-review-checklist.md) sections 2-3 to the diff.
+
 Fix what you find. Re-run the relevant verification before moving on.
 If the branch already has walkthrough or reviewer evidence, check whether self-review changes invalidated it. If so, plan to refresh the artifact before signaling success.
 

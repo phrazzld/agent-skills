@@ -42,6 +42,7 @@ Two-pass refinement:
 Launch `code-simplifier:code-simplifier` agent.
 
 Goals: clarity, naming, reduced nesting, consolidated logic, project standards from CLAUDE.md.
+Also apply [code-patterns.md](./code-patterns.md): state minimization, argument discipline, asserts over defaults, exhaustive type handling.
 
 Commit: `refactor: simplify implementation`
 

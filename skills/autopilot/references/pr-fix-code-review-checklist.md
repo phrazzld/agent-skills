@@ -55,6 +55,11 @@ Before reviewing, adopt the right lens:
 - [ ] Are functions/modules focused on single responsibility?
 - [ ] Is complexity managed (no deep nesting, long functions)?
 - [ ] Are magic numbers/strings extracted to constants?
+- [ ] Are possible states minimized (discriminated unions over boolean flags)?
+- [ ] Are arguments required, not falsely optional? Is argument count low?
+- [ ] Is the code skimmable without being over-extracted into tiny functions?
+
+See also: [Code Patterns](./code-patterns.md)
 
 **Examples:**
 
@@ -94,6 +99,8 @@ if (!user.hasPermission) return
 - Functions over 50 lines
 - Nesting deeper than 3 levels
 - Unclear variable purposes
+- Optional parameters that are always passed
+- Boolean flags that create implicit state machines
 
 ---
 
@@ -106,6 +113,10 @@ if (!user.hasPermission) return
 - [ ] Are async operations handled correctly (race conditions, timeouts)?
 - [ ] Are types used correctly (no unsafe casts, `any` abuse)?
 - [ ] Does the logic match the requirements?
+- [ ] Are multi-type objects handled exhaustively with failure on unknown type?
+- [ ] Are asserts used at data-loading boundaries instead of defensive try/catch?
+
+See also: [Code Patterns](./code-patterns.md)
 
 **Edge cases to check:**
 - Empty arrays/strings
