@@ -26,6 +26,7 @@ REGISTRY_URL:      ${SPELLBOOK_RAW}/registry.yaml
 MANIFEST_FILE:     .spellbook.yaml
 MARKER_FILE:       .spellbook
 INIT_REPORT_FILE:  .spellbook/init-report.json
+OBSERVATION_LOG_FILE: .spellbook/observations.ndjson
 ```
 
 **Resolving `SKILL_DIR`:** The harness provides the skill's installed path at
@@ -37,7 +38,7 @@ does not provide a skill path, stop and surface the error; do not guess.
 These skills are installed globally by `bootstrap.sh` and are always available.
 **Never suggest, fetch, or install these — they're already present.**
 
-The canonical list lives in `registry.yaml` under `global.skills` (13 skills)
+The canonical list lives in `registry.yaml` under `global.skills` (14 skills)
 and `global.agents` (4 agents). Do not hardcode this list — read the registry.
 
 Focus manages **domain skills** — the project-specific knowledge primitives
@@ -128,6 +129,9 @@ and follow it exactly. The init flow is 8 phases — do not shortcut it.
 8. **Present the full picture:** analysis, wishlist, matches, AND gaps.
    Lead with gaps as opportunities, not afterthoughts. Get explicit
    confirmation before writing the manifest.
+9. **Log compact selection telemetry.** Append `selected`, `excluded`,
+   and `gap` events to `${OBSERVATION_LOG_FILE}` with
+   `scripts/observation_log.py`. Keep events machine-readable and brief.
 
 ### 3. Resolve Skill References
 
@@ -195,7 +199,8 @@ See `references/harnesses/claude-code.md` and `references/harnesses/codex.md`.
 ## Focus Complete
 
 **Manifest**: .spellbook.yaml (5 domain skills, 2 agents)
-**Global layer**: 13 skills + 4 agents (via bootstrap, not shown)
+**Selection Log**: .spellbook/observations.ndjson
+**Global layer**: 14 skills + 4 agents (via bootstrap, not shown)
 
 ### Installed (domain)
 | Type | Name | Claude Code | Codex |
@@ -210,6 +215,9 @@ See `references/harnesses/claude-code.md` and `references/harnesses/codex.md`.
 ### Errors
 (none)
 ```
+
+The init report is the rich cold-memory snapshot. The observations log is the
+append-only event stream for later `/focus improve` synthesis.
 
 ## Managed vs Unmanaged
 
