@@ -43,7 +43,6 @@ def valid_report() -> dict:
             {
                 "name": "codified-context-architecture",
                 "kind": "skill",
-                "reason": "Best match for repo tuning.",
                 "selected_because": "Highest coverage for repo-tuning need with minimal overlap.",
             }
         ],
@@ -153,9 +152,16 @@ class InitReportScriptTest(unittest.TestCase):
                 f"error should name {dimension}",
             )
 
-    def test_candidate_score_rejects_non_positive(self) -> None:
+    def test_candidate_score_allows_zero(self) -> None:
+        report = valid_report()
+        report["candidate_matrix"][0]["score"]["overlap"] = 0
+
+        result = self.run_script("write", "--output", "/tmp/ignored.json", input_text=json.dumps(report))
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_candidate_score_rejects_negative(self) -> None:
         broken = valid_report()
-        broken["candidate_matrix"][0]["score"]["semantic"] = 0
+        broken["candidate_matrix"][0]["score"]["semantic"] = -0.5
 
         result = self.run_script("write", "--output", "/tmp/ignored.json", input_text=json.dumps(broken))
         self.assertNotEqual(result.returncode, 0)
@@ -175,6 +181,21 @@ class InitReportScriptTest(unittest.TestCase):
 
         result = self.run_script("write", "--output", "/tmp/ignored.json", input_text=json.dumps(report))
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_gap_candidate_requires_evidence(self) -> None:
+        report = valid_report()
+        report["candidate_matrix"] = [
+            {
+                "wishlist_item": "selection telemetry",
+                "status": "gap",
+                "rationale": "No existing primitive covers this need.",
+            }
+        ]
+        report["selected_primitives"] = []
+
+        result = self.run_script("write", "--output", "/tmp/ignored.json", input_text=json.dumps(report))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("report.candidate_matrix[0].evidence is required", result.stderr)
 
     def test_selected_primitives_requires_selected_because(self) -> None:
         broken = valid_report()

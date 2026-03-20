@@ -36,10 +36,10 @@ def _expect_non_empty_string(value: object, path: str) -> list[str]:
     return [f"{path} must be a non-empty string"]
 
 
-def _expect_positive_number(value: object, path: str) -> list[str]:
-    if isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0:
+def _expect_non_negative_number(value: object, path: str) -> list[str]:
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and value >= 0:
         return []
-    return [f"{path} must be a positive number"]
+    return [f"{path} must be a non-negative number"]
 
 
 def _expect_string_list(
@@ -180,7 +180,7 @@ def validate_report(report: object) -> list[str]:
                                 errors.append(f"{score_path}.{dim} is required")
                             else:
                                 errors.extend(
-                                    _expect_positive_number(
+                                    _expect_non_negative_number(
                                         item["score"][dim], f"{score_path}.{dim}"
                                     )
                                 )
@@ -201,7 +201,7 @@ def validate_report(report: object) -> list[str]:
             _validate_object(
                 item,
                 f"report.selected_primitives[{index}]",
-                ("name", "kind", "reason", "selected_because"),
+                ("name", "kind", "selected_because"),
             )
         )
 

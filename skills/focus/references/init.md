@@ -93,8 +93,8 @@ dimensions:
 | Dimension | What it measures | How to assess |
 |-----------|-----------------|---------------|
 | `semantic` | Embedding similarity to the wishlist need | Direct from search.py score (0.0–1.0) |
-| `coverage` | How much of an **uncovered** need this fills | Read the candidate's full description. Does it address a domain, failure mode, or integration not yet covered by already-selected candidates? (0.01–1.0) |
-| `overlap` | Degree of duplication with already-selected candidates | Compare this candidate's description against every already-selected candidate. Same domain? Same failure modes? Same integration? (0.01–1.0, higher = more overlap) |
+| `coverage` | How much of an **uncovered** need this fills | Read the candidate's full description. Does it address a domain, failure mode, or integration not yet covered by already-selected candidates? (0.0–1.0) |
+| `overlap` | Degree of duplication with already-selected candidates | Compare this candidate's description against every already-selected candidate. Same domain? Same failure modes? Same integration? (0.0–1.0, higher = more overlap) |
 
 Score `coverage` and `overlap` by reading each candidate's full description
 against the wishlist item and the set of already-selected primitives. This is
@@ -166,7 +166,8 @@ The input payload must satisfy this compact shape:
 
 - `repo_summary.project` must be a non-empty string.
 - `repo_summary.stack`, `domains`, `services`, and `signals` must be arrays of non-empty strings.
-- `candidate_matrix[*].primitive` is required for rows that represent a concrete candidate (`selected`, `rejected`, etc.); gap rows may omit it.
+- `candidate_matrix[*].primitive` and `score` (with `semantic`, `coverage`, `overlap`) are required for concrete candidates (`selected`, `rejected`, etc.); gap rows may omit both.
+- `selected_primitives[*].selected_because` is required — explains why this candidate beat alternatives.
 
 ```json
 {
@@ -213,7 +214,6 @@ The input payload must satisfy this compact shape:
     {
       "name": "codified-context-architecture",
       "kind": "skill",
-      "reason": "Matches repo tuning needs.",
       "selected_because": "Highest coverage for repo-tuning need (0.9) with minimal overlap (0.05). Preferred over harness-engineering which covers the same ground but is already global."
     }
   ],
