@@ -36,6 +36,12 @@ def _expect_non_empty_string(value: object, path: str) -> list[str]:
     return [f"{path} must be a non-empty string"]
 
 
+def _expect_positive_number(value: object, path: str) -> list[str]:
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0:
+        return []
+    return [f"{path} must be a positive number"]
+
+
 def _expect_string_list(
     value: object,
     path: str,
@@ -163,6 +169,22 @@ def validate_report(report: object) -> list[str]:
                         )
                     )
 
+                score_path = f"report.candidate_matrix[{index}].score"
+                if "score" not in item:
+                    errors.append(f"{score_path} is required")
+                else:
+                    errors.extend(_expect_dict(item["score"], score_path))
+                    if isinstance(item["score"], dict):
+                        for dim in ("semantic", "coverage", "overlap"):
+                            if dim not in item["score"]:
+                                errors.append(f"{score_path}.{dim} is required")
+                            else:
+                                errors.extend(
+                                    _expect_positive_number(
+                                        item["score"][dim], f"{score_path}.{dim}"
+                                    )
+                                )
+
             if "evidence" not in item:
                 errors.append(f"report.candidate_matrix[{index}].evidence is required")
             else:
@@ -179,7 +201,7 @@ def validate_report(report: object) -> list[str]:
             _validate_object(
                 item,
                 f"report.selected_primitives[{index}]",
-                ("name", "kind", "reason"),
+                ("name", "kind", "reason", "selected_because"),
             )
         )
 
