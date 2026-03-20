@@ -78,31 +78,68 @@ For each search result, map it against the wishlist:
 - Does this skill address a concrete wishlist item?
 - Is the match precise or vague?
 
-### Phase 4: Diff — Identify the Gaps (Most Valuable Phase)
+### Phase 4: Candidate Matrix — Score, Rank, Select (Most Valuable Phase)
 
-Compare the wishlist against search results:
+Semantic search is discovery, not selection. Phase 3 finds plausible candidates;
+Phase 4 decides which ones to install. The job is **subset design**: choose the
+smallest set that covers the repo's domains, tasks, failure modes, and
+integrations without redundant overlap.
 
-| Wishlist Item | Match Found? | Skill Name | Quality |
-|--------------|-------------|------------|---------|
-| Stripe webhook patterns | Yes | stripe | Strong |
-| Next.js caching gotchas | Yes | next-patterns | Strong |
-| Custom auth middleware | No | — | **GAP** |
-| Convex transaction patterns | No | — | **GAP** |
+#### 4a. Build the candidate matrix
 
-**For items with strong matches:** Add to manifest.
+For every search result with score > 0.4, build a row with three score
+dimensions:
 
-**For items with no match — THESE ARE THE MOST VALUABLE OUTPUT.**
+| Dimension | What it measures | How to assess |
+|-----------|-----------------|---------------|
+| `semantic` | Embedding similarity to the wishlist need | Direct from search.py score (0.0–1.0) |
+| `coverage` | How much of an **uncovered** need this fills | Read the candidate's full description. Does it address a domain, failure mode, or integration not yet covered by already-selected candidates? (0.01–1.0) |
+| `overlap` | Degree of duplication with already-selected candidates | Compare this candidate's description against every already-selected candidate. Same domain? Same failure modes? Same integration? (0.01–1.0, higher = more overlap) |
 
-Gaps represent knowledge the model doesn't have in its training data:
-- Specific best practices for this domain/stack combination
-- Integration gotchas and failure modes learned through production experience
+Score `coverage` and `overlap` by reading each candidate's full description
+against the wishlist item and the set of already-selected primitives. This is
+a reasoning task, not a formula — use your judgment to assign interpretable
+numbers.
+
+**Scoring order matters.** Process candidates in descending semantic score.
+When scoring `coverage` and `overlap` for candidate N, consider candidates
+1..N-1 that are already tentatively selected. This makes overlap detection
+accumulative — later candidates pay a higher overlap tax if earlier ones
+already cover the same ground.
+
+#### 4b. Select and reject with explicit reasoning
+
+For each candidate row, assign a status:
+
+| Status | When |
+|--------|------|
+| `selected` | High coverage, low overlap, addresses a concrete wishlist need |
+| `rejected` | Overlaps heavily with a selected candidate, or too vague to justify |
+| `gap` | Wishlist item with no candidate scoring above the match threshold |
+
+**Every rejection needs an explicit rationale.** "Ranked lower" is not a
+rationale. Explain WHAT it overlaps with, or WHY the match is too vague.
+A human reading the init report should understand why each candidate was
+included or excluded without needing to re-derive the reasoning.
+
+When multiple candidates match the same wishlist item, explain why the
+selected one is preferred and why the others were excluded. This is the
+near-duplicate resolution behavior that makes selection legible.
+
+#### 4c. Identify gaps
+
+Wishlist items with no candidate scoring above the match threshold are gaps.
+
+**Gaps are the most valuable output — not a footnote.** They represent
+knowledge the model doesn't have in its training data:
+- Domain-specific best practices for this stack combination
+- Integration gotchas and failure modes from production experience
 - Process patterns specific to this kind of project
-- Conventions and invariants that aren't documented anywhere public
+- Conventions and invariants not documented anywhere public
 
-**Do not treat gaps as a footnote.** Present them as the primary opportunity.
-Every gap is a skill waiting to be created — and gap-born skills are the
-highest-leverage primitives in the library because they encode exactly
-what the model can't already do on its own.
+Every gap is a skill waiting to be created — gap-born skills are the
+highest-leverage primitives because they encode exactly what the model
+can't already do on its own.
 
 ### Phase 5: Write Init Report
 
@@ -112,7 +149,7 @@ Before manifest confirmation, write `.spellbook/init-report.json` with:
   and the signals you read
 - `wishlist` — first-principles capability wishlist, with why each item matters
 - `candidate_matrix` — one row per wishlist item or considered primitive,
-  including status, rationale, and evidence
+  including score (semantic, coverage, overlap), status, rationale, and evidence
 - `selected_primitives` — the primitives that should land in `.spellbook.yaml`
 - `gaps` — unmet wishlist items and recommended follow-up
 - `confidence` — explicit confidence level, strongest evidence, and open questions
@@ -151,15 +188,33 @@ The input payload must satisfy this compact shape:
       "wishlist_item": "repo tuning",
       "primitive": "phrazzld/spellbook@codified-context-architecture",
       "status": "selected",
+      "score": {
+        "semantic": 0.82,
+        "coverage": 0.9,
+        "overlap": 0.05
+      },
       "rationale": "Directly addresses repo-level context architecture.",
       "evidence": ["docs/context/** exists", "project vision emphasizes agent workflows"]
+    },
+    {
+      "wishlist_item": "repo tuning",
+      "primitive": "phrazzld/spellbook@harness-engineering",
+      "status": "rejected",
+      "score": {
+        "semantic": 0.71,
+        "coverage": 0.3,
+        "overlap": 0.75
+      },
+      "rationale": "Overlaps with codified-context-architecture on repo structure; harness-engineering is a global skill and already available.",
+      "evidence": ["description overlap on agent-repo interaction", "listed in registry.yaml global.skills"]
     }
   ],
   "selected_primitives": [
     {
       "name": "codified-context-architecture",
       "kind": "skill",
-      "reason": "Matches repo tuning needs."
+      "reason": "Matches repo tuning needs.",
+      "selected_because": "Highest coverage for repo-tuning need (0.9) with minimal overlap (0.05). Preferred over harness-engineering which covers the same ground but is already global."
     }
   ],
   "gaps": [

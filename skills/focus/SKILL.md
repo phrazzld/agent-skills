@@ -110,17 +110,22 @@ and follow it exactly. The init flow is 8 phases — do not shortcut it.
    make an agent most effective here? Think from the project's needs, not
    from what the catalog has.
 3. **Search AFTER thinking.** Match wishlist items against the catalog.
-4. **Identify gaps — the most valuable output.** Wishlist items with no
-   catalog match are skill gaps. These represent knowledge NOT in the model's
-   training data: process, domain-specific best practices, integration gotchas,
-   failure modes. Actively push to create new skills for every gap. This is
-   how spellbook grows — and these gap-born skills are the highest-leverage
-   ones because they encode what the model can't already do.
-5. **Persist the init report before confirmation.** Write
-   `${INIT_REPORT_FILE}` with the structured analysis, candidate matrix,
-   selected primitives, gaps, and confidence before asking the user to
-   confirm the manifest.
-6. **Present the full picture:** analysis, wishlist, matches, AND gaps.
+   Search is discovery, not selection — it finds plausible candidates.
+4. **Score candidates on three dimensions.** For each search result, assess
+   `semantic` (embedding similarity), `coverage` (how much uncovered need it
+   fills), and `overlap` (duplication with already-selected candidates).
+   Process in descending semantic score so overlap is accumulative.
+5. **Select with explicit reasoning.** Every selected primitive carries a
+   `selected_because` explaining why it won. Every rejected candidate carries
+   a rationale explaining what it overlaps with or why the match is too vague.
+   Near-duplicates get explicit preference reasoning.
+6. **Identify gaps — the most valuable output.** Wishlist items with no
+   strong candidate are skill gaps. Actively push to create new skills for
+   every gap — gap-born skills encode what the model can't already do.
+7. **Persist the init report before confirmation.** Write
+   `${INIT_REPORT_FILE}` with the structured analysis, candidate matrix
+   (including scores), selected primitives, gaps, and confidence.
+8. **Present the full picture:** analysis, wishlist, matches, AND gaps.
    Lead with gaps as opportunities, not afterthoughts. Get explicit
    confirmation before writing the manifest.
 

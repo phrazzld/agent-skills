@@ -545,7 +545,7 @@ def main():
                 "name": item["name"],
                 "source": item["source"],
                 "fqn": item["fqn"],
-                "description": item["description"][:200],
+                "description": item["description"],
             })
         print(json.dumps(results, indent=2))
     else:

@@ -2,6 +2,12 @@
 
 Search the Spellbook index for skills and agents matching a query.
 
+**Search is discovery, not selection.** Semantic similarity finds plausible
+candidates but cannot resolve coverage gaps, overlap between candidates, or
+near-duplicate preference. During `/focus init`, search feeds Phase 4's
+candidate matrix where coverage and overlap reasoning produces the final
+selection. See `init.md` Phase 4 for the scoring dimensions.
+
 ## Process
 
 ### 1. Semantic Search
