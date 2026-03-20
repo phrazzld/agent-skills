@@ -232,6 +232,62 @@ The input payload must satisfy this compact shape:
 }
 ```
 
+### Phase 5b: Log Selection Telemetry
+
+Before confirmation, append a compact event trail to
+`.spellbook/observations.ndjson`. This is the delta log that later
+`/focus improve` runs cluster; it complements the richer init report instead
+of replacing it.
+
+Use the helper so the schema stays consistent:
+
+```bash
+python3 ${SKILL_DIR}/scripts/observation_log.py append \
+  --output .spellbook/observations.ndjson \
+  --input /tmp/focus-init-observations.json
+```
+
+Required fields by event type:
+
+- `selected` and `excluded`: `primitive`, `wishlist_item`, `run_kind`
+- `gap`: `wishlist_item`, `run_kind`, `gap_scope`
+- common envelope: `type`, `summary`, `context`, `confidence`
+
+Example payload:
+
+```json
+[
+  {
+    "type": "selected",
+    "summary": "Selected codified-context-architecture for repo tuning.",
+    "context": "High semantic match and low overlap with the other candidates.",
+    "confidence": 0.82,
+    "primitive": "phrazzld/spellbook@codified-context-architecture",
+    "wishlist_item": "repo tuning",
+    "run_kind": "init"
+  },
+  {
+    "type": "excluded",
+    "summary": "Excluded harness-engineering from the initial subset.",
+    "context": "The global install already covers the same operational ground.",
+    "confidence": 0.73,
+    "primitive": "phrazzld/spellbook@harness-engineering",
+    "wishlist_item": "repo tuning",
+    "run_kind": "init",
+    "related_primitive": "phrazzld/spellbook@codified-context-architecture"
+  },
+  {
+    "type": "gap",
+    "summary": "No skill matched factory-specific routing policy.",
+    "context": "Catalog search found no strong candidate for the repo-specific conventions.",
+    "confidence": 0.71,
+    "wishlist_item": "factory-specific routing policy",
+    "run_kind": "init",
+    "gap_scope": "spellbook"
+  }
+]
+```
+
 ### Phase 6: Generate Manifest
 
 ```yaml
@@ -255,6 +311,7 @@ Show the user:
 3. **Matched skills** with reasoning
 4. **Skill gaps** — wishlist items with no match
 5. **Init report path** — `.spellbook/init-report.json` written and ready to inspect
+6. **Observation log path** — `.spellbook/observations.ndjson` appended with `selected`, `excluded`, and `gap` events
 
 For each gap, offer:
 > "No existing skill covers [X]. Want me to draft a new skill for this

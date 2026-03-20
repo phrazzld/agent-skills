@@ -162,3 +162,52 @@ rm -rf "$tmp"
 
 Run harness-specific setup for each target (see `references/harnesses/`).
 Report installed/skipped/errored primitives with per-harness status.
+
+### 9. Log Sync Outcomes
+
+Append compact sync events to `.spellbook/observations.ndjson` after the
+distribution pass succeeds. Use the same helper and shared envelope as init.
+
+```bash
+python3 ${SKILL_DIR}/scripts/observation_log.py append \
+  --output .spellbook/observations.ndjson \
+  --input /tmp/focus-sync-observations.json
+```
+
+Use:
+
+- `installed` when a primitive or agent was added to a harness target set
+- `updated` when an existing managed primitive was replaced with newer content
+- `removed` when a managed primitive disappeared because the manifest no longer declares it
+
+Each sync event requires:
+
+- `type`
+- `summary`
+- `context`
+- `confidence`
+- `primitive`
+- `run_kind` set to `sync`
+
+Example payload:
+
+```json
+[
+  {
+    "type": "installed",
+    "summary": "Installed debug into all harness targets.",
+    "context": "The manifest declared it and distribution completed cleanly.",
+    "confidence": 0.9,
+    "primitive": "phrazzld/spellbook@debug",
+    "run_kind": "sync"
+  },
+  {
+    "type": "removed",
+    "summary": "Removed stripe-auditor from the managed set.",
+    "context": "The manifest no longer declared the agent and cleanup removed the managed copy.",
+    "confidence": 0.88,
+    "primitive": "phrazzld/spellbook@stripe-auditor",
+    "run_kind": "sync"
+  }
+]
+```
