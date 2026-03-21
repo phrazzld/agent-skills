@@ -24,6 +24,7 @@ global:
       - craft-primitive
       - refine
       - reflect
+      - rethink
       - shape
 
   # Design philosophy agents: installed by bootstrap.sh, always available.

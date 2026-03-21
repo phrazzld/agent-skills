@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-20T15:49:29Z
+# Generated: 2026-03-21T03:05:41Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -195,6 +195,9 @@ skills:
   - name: research
     description: "Web research, multi-AI delegation, and multi-perspective validation. /research [query], /research delegate [task], /research thinktank [topic]. Triggers: \"search for\", \"look up\", \"research\", \"delegate"
     tags: [delegate,delegation,look,multi-ai,multi-perspective,query,research,search,task,thinktank]
+  - name: rethink
+    description: "Architectural exploration: understand current system deeply, research alternatives, synthesize options with tradeoffs, recommend a simpler path. Use when: \"rethink this\", \"is there a better way\", \"sim"
+    tags: [a,alternatives,architectural,better,current,deeply,exploration,is,options,path]
   - name: security-scan
     description: "Whole-codebase vulnerability analysis leveraging 1M context window. Loads entire project source, runs deep security analysis in a single pass. OWASP Top 10, cross-module data flow tracing, dependency "
     tags: [10,1m,a,analysis,context,cross-module,data,deep,dependency,entire]
