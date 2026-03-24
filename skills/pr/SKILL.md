@@ -190,25 +190,41 @@ creates the review lane. Review settlement is a separate concern (`/pr-fix`).
 
 ## Demo Artifacts
 
-If the change is user-visible:
-- **Motion/interaction/state change** → video (screencast or terminal recording)
-- **Static visual change** → screenshots (before/after)
-- **Internal/API change** → text before/after is sufficient
+Every PR with user-visible changes MUST include visual evidence. No exceptions.
+
+| Change type | Required evidence |
+|-------------|------------------|
+| UI feature/fix | GIF walkthrough + route screenshots |
+| Visual change | Before/after screenshots |
+| API/backend | Terminal output as code block |
+| Refactor with parity | GIF showing the app still works |
+| Config/infra | Terminal proof |
+
+**Upload method:** Draft GitHub release assets → embed URLs in PR comment.
+See `autopilot/references/pr-evidence-upload.md` for the full recipe.
+
+```bash
+# Capture → convert → upload → embed
+agent-browser --session qa record start /tmp/pr-evidence/demo.webm
+# ... interact ...
+agent-browser --session qa record stop
+ffmpeg -y -i demo.webm -vf "fps=8,scale=800:-1:flags=lanczos,..." demo.gif
+gh release create qa-evidence-pr-{N} --draft demo.gif *.png
+# embed download URLs in gh pr comment
+```
 
 ## Artifact Hygiene
 
 PR evidence is review support, not product content.
 
-- Prefer GitHub-uploaded attachments for screenshots and videos shown in the PR
-  body or comments.
-- Prefer CI artifacts or step summaries for generated logs, walkthrough
-  bundles, coverage proof, and other machine-produced verification output.
-- Do not commit PR-only evidence into the repo unless the repo explicitly wants
-  versioned artifacts or the harness cannot publish attachments/artifacts.
-- If a checked-in fallback is unavoidable, keep it branch-scoped, explain why
-  in the PR, and do not normalize it as the default workflow.
-
-For private repos, use GitHub-uploaded attachments, not raw URLs.
+- Upload screenshots/GIFs/videos to draft GitHub releases, embed download URLs
+  in PR comments. This is the standard workflow — not a fallback.
+- Prefer CI artifacts or step summaries for generated logs, coverage proof, and
+  other machine-produced verification output.
+- Never commit binary PR evidence into the repo.
+- Never use `raw.githubusercontent.com` URLs (breaks for private repos).
+- Convert `.webm` to `.gif` before upload — GitHub renders GIFs inline.
+- Link the full release at the bottom of every evidence comment.
 
 ## Flags
 

@@ -217,6 +217,25 @@ After quality gates pass, run visual QA:
 
 Scratch screenshots should stay in `/tmp` or another ignored location. Do not commit visual QA media unless the user explicitly asks for durable repo-hosted evidence, and if you must commit it, use a PR- or branch-unique path.
 
+## Publishing Evidence to PR
+
+When run in a PR context, upload screenshots to a draft GitHub release and
+post a visual QA comment on the PR. This is the standard workflow — evidence
+that stays in `/tmp` is invisible to reviewers.
+
+```bash
+gh release create qa-vqa-pr-{NUMBER} --draft \
+  --title "Visual QA: PR #{NUMBER}" --notes "..." \
+  /tmp/vqa-*.png
+
+gh pr comment {NUMBER} --body "## Visual QA — {routes}
+![route](release-download-url/vqa-route.png)
+..."
+```
+
+See `autopilot/references/pr-evidence-upload.md` for the full upload recipe.
+
 ## Output
 
-Findings list with severities, screenshot paths, and fix status.
+Findings list with severities, screenshot paths, fix status, and (when in PR
+context) a PR comment with embedded evidence.

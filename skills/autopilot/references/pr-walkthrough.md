@@ -61,22 +61,40 @@ Run the app on the branch. Capture real execution.
 
 Upload artifacts and update the PR body with a `## Reviewer Evidence` section.
 
-**For GitHub PRs:**
-- Use `gh pr comment` with uploaded images when possible
-- Use `gh pr edit --body` to add the evidence section
-- For video/GIF: upload via browser automation to GitHub, or commit to a
-  PR-scoped path only as a last resort
+**Upload method:** Use draft GitHub release assets. See `pr-evidence-upload.md`
+for the complete recipe. In short:
+
+```bash
+# Upload evidence to a draft release
+gh release create qa-evidence-pr-{NUMBER} --draft \
+  --title "QA Evidence: PR #{NUMBER}" --notes "..." \
+  /tmp/pr-evidence/*.png /tmp/pr-evidence/*.gif
+
+# Get download URLs, embed in PR comment
+RELEASE_BASE="https://github.com/{OWNER}/{REPO}/releases/download/{TAG}"
+gh pr comment {NUMBER} --body "![demo](${RELEASE_BASE}/walkthrough.gif)"
+```
+
+- Convert `.webm` → `.gif` with ffmpeg before upload (GitHub renders GIFs inline, not video)
+- Always link the full release at the bottom of the comment
+- Never commit binary evidence into the repo
 
 **PR body format:**
 ```
 ## Reviewer Evidence
 
-[screenshot or GIF embedded here]
+[GIF walkthrough or screenshot embedded via release asset URL]
+
+| Route | Status | Screenshot |
+|-------|--------|-----------|
+| /feature | :white_check_mark: | ![feature](release-url/feature.png) |
 
 - **Claim:** [one sentence]
 - **Proof:** [what the artifact shows]
 - **Tests:** `[command]` — [result summary]
 - **Gap:** [what's not automated, if any]
+
+[All evidence](release-url)
 ```
 
 ### 5. Verify links work

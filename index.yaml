@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-21T03:05:41Z
+# Generated: 2026-03-24T20:39:33Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -18,11 +18,32 @@ skills:
   - name: app-screenshots
     description: "Generate App Store and Play Store screenshots with device frames. Use when: preparing for app store submission, updating marketing assets, localizing screenshots, or automating screenshot generation i"
     tags: [app,assets,automating,device,frames,generate,generation,i,localizing,marketing]
+  - name: assess-depth
+    description: "Assess module quality using Ousterhout's strategic design principles. Detects shallow modules, pass-through methods, information leakage, temporal decomposition, and wide interfaces. Use in code revie"
+    tags: [assess,code,decomposition,design,detects,in,information,interfaces,leakage,methods]
+  - name: assess-docs
+    description: "Assess documentation freshness and accuracy. Detects stale code examples, outdated API signatures, dead references, missing feature docs. Use per-PR or in /groom for docs health audit."
+    tags: [accuracy,api,assess,audit,code,dead,detects,docs,documentation,examples]
+  - name: assess-drift
+    description: "Detect architectural drift: boundary violations, dependency direction reversals, new global state, layer bypass, interface bloat, naming red flags. Use per-PR (weak tier) or full audit (strong tier)."
+    tags: [architectural,audit,bloat,boundary,bypass,dependency,detect,direction,drift,flags]
+  - name: assess-intent
+    description: "Validate that a PR fulfills its linked issue's intent contract. Checks each acceptance criterion, detects scope drift and missing deliverables. Use in code review (per-PR)."
+    tags: [a,acceptance,checks,code,contract,criterion,deliverables,detects,drift,fulfills]
+  - name: assess-review
+    description: "Triad code review: three perspectives (Ousterhout, Grug, Beck) assess a diff in parallel, then synthesize a consensus verdict. Strong agent tier. Use at the end of /autopilot or /settle runs before me"
+    tags: [a,agent,assess,at,autopilot,beck,before,code,consensus,diff]
+  - name: assess-simplify
+    description: "Verify simplification: did complexity actually decrease, or just move? Compares before/after semantically. Strong agent tier -- requires genuine reasoning about complexity redistribution. Use in /sett"
+    tags: [--,about,actually,after,agent,before,compares,complexity,decrease,did]
+  - name: assess-tests
+    description: "Assess test quality: behavioral vs implementation coupling, mock depth, AAA structure, one-behavior-per-test, edge case coverage. Use in code review (per-PR) or backlog grooming (test suite health aud"
+    tags: [aaa,assess,aud,backlog,behavioral,case,code,coupling,coverage,depth]
   - name: audit-website
     description: "Audit websites for SEO, performance, security, technical, content, and 15 other issue cateories with 230+ rules using the squirrelscan CLI. Returns LLM-optimized reports with health scores, broken lin"
     tags: [15,230,audit,broken,cateories,cli,content,health,issue,lin]
   - name: autopilot
-    description: "Full delivery pipeline: plan, build, ship, land. Covers: shape/spec/design, TDD build, commit, PR creation, /land (CI/reviews/polish/simplify), test coverage, verify ACs, walkthrough, issue management"
+    description: "Full delivery pipeline: plan, build, ship, settle (was land). Covers: shape/spec/design, TDD build, commit, PR creation, /settle (CI/reviews/polish/simplify), test coverage, verify ACs, walkthrough, i"
     tags: [acs,build,ci,commit,coverage,covers,creation,delivery,design,full]
   - name: bitcoin
     description: "Complete Bitcoin payment lifecycle. Audits current state, fixes all issues, and verifies payment flows work end-to-end. Every run does all of this."
@@ -111,6 +132,9 @@ skills:
   - name: github-cli-hygiene
     description: "Safe, well-formatted GitHub CLI writes for PRs/issues/reviews using body files and post-write validation."
     tags: [body,cli,files,github,issues,post-write,prs,reviews,safe,using]
+  - name: groom
+    description: "Interactive backlog refinement, backlog doctrine, and automated cleanup. Explore, brainstorm, research, synthesize into prioritized GitHub issues. Backlog strategy, ordering, pruning, agent-ready issu"
+    tags: [agent-ready,automated,backlog,brainstorm,cleanup,doctrine,explore,github,interactive,issu]
   - name: growth
     description: "Growth and marketing orchestrator: SEO, ads, CRO, analytics, pricing, launches, referrals, competitor analysis, and pSEO generation. Covers the full growth stack from baseline SEO to scaled paid acqui"
     tags: [acqui,ads,analysis,analytics,baseline,competitor,covers,cro,full,generation]
@@ -120,12 +144,12 @@ skills:
   - name: harness-engineering
     description: "Design development environments where AI agents thrive. CI/linters/tests as agent feedback loops, documentation as machine-readable artifacts, mechanical enforcement of architectural boundaries, sessi"
     tags: [agent,agents,ai,architectural,artifacts,as,boundaries,ci,design,development]
+  - name: health-check
+    description: "Compare working tree against last health snapshot. Run relevant assess-* checks on current changes and report delta. Use mid-session, before PR creation, or during /reflect."
+    tags: [against,assess-,before,changes,checks,compare,creation,current,delta,during]
   - name: hono
     description: "\"Hono web framework patterns, production gotchas, and runtime-specific quirks. Body double-read trap, middleware ordering, TypeScript type inference limits, Context Storage, streaming pitfalls, router"
     tags: [body,context,double-read,framework,gotchas,hono,inference,limits,middleware,ordering]
-  - name: land
-    description: "Unblock, polish, and simplify a PR until it's genuinely merge-ready. Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs), simplify (complexity reduction). Runs all three in sequ"
-    tags: [a,architecture,ci,complexity,conflicts,docs,fix,genuinely,in,it]
   - name: launchd-patterns
     description: "\"macOS launchd scheduling and service management. LaunchAgent/Daemon patterns, launchctl CLI, plist authoring, cron migration, debugging. The production gotchas Apple docs don't cover.\""
     tags: [apple,authoring,cli,cover,cron,daemon,debugging,docs,don,gotchas]
@@ -186,9 +210,6 @@ skills:
   - name: ralph-patterns
     description: "Patterns for Ralph loop tasks. Auto-loaded to provide guidance on completion signals, progress tracking, and iteration patterns. Ralph = autonomous issue-to-merged-PR loop."
     tags: [auto-loaded,autonomous,completion,guidance,issue-to-merged-pr,iteration,loop,on,patterns,progress]
-  - name: refine
-    description: "Interactive backlog refinement, backlog doctrine, and automated cleanup. Explore, brainstorm, research, synthesize into prioritized GitHub issues. Backlog strategy, ordering, pruning, agent-ready issu"
-    tags: [agent-ready,automated,backlog,brainstorm,cleanup,doctrine,explore,github,interactive,issu]
   - name: reflect
     description: "Session retrospective, codification, and implementation feedback capture. Distill learnings to AGENTS.md/hooks/rules, propose lean improvements, tune repos for agents. Invoke for: \"done\", \"wrap up\", \""
     tags: [agents,capture,codification,distill,done,feedback,hooks,implementation,improvements,invoke]
@@ -198,9 +219,18 @@ skills:
   - name: rethink
     description: "Architectural exploration: understand current system deeply, research alternatives, synthesize options with tradeoffs, recommend a simpler path. Use when: \"rethink this\", \"is there a better way\", \"sim"
     tags: [a,alternatives,architectural,better,current,deeply,exploration,is,options,path]
+  - name: review-settle
+    description: "Verify all automated reviews (CI checks, bot reviewers) have completed before declaring a PR settled. Polls check suites and comments until stable. Use in /settle Phase 1 before addressing findings."
+    tags: [1,a,addressing,automated,before,bot,check,checks,ci,comments]
+  - name: scaffold
+    description: "Initialize a new project with the full quality stack: strict typing, coverage ratchet, CI gates (deterministic + agent-first), pre-commit hooks, env validation, mutation testing, and observability. Su"
+    tags: [a,agent-first,ci,coverage,deterministic,env,full,gates,hooks,initialize]
   - name: security-scan
     description: "Whole-codebase vulnerability analysis leveraging 1M context window. Loads entire project source, runs deep security analysis in a single pass. OWASP Top 10, cross-module data flow tracing, dependency "
     tags: [10,1m,a,analysis,context,cross-module,data,deep,dependency,entire]
+  - name: settle
+    description: "Unblock, polish, and simplify a PR until it's genuinely merge-ready. Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs), simplify (complexity reduction). Runs all three in sequ"
+    tags: [a,architecture,ci,complexity,conflicts,docs,fix,genuinely,in,it]
   - name: shape
     description: "Shape a raw idea into something buildable. Product + technical exploration in one interactive session. Spec, design, critique, plan. Use when: \"shape this\", \"write a spec\", \"design this feature\", \"pla"
     tags: [a,buildable,critique,design,exploration,feature,idea,in,interactive,one]
@@ -247,8 +277,6 @@ skills:
 agents:
   - name: aesthetician
     description: "Specialized in visual excellence, design craft, trend-awareness, and distinctive aesthetics (NOT accessibility)"
-  - name: agent-updater
-    description: "Codify review feedback patterns into automated agent enforcement rules"
   - name: algorithm-archaeologist
     description: "Analyzes recent code changes to understand algorithmic decisions, alternatives, and CS learning opportunities"
   - name: api-design-specialist
@@ -277,6 +305,8 @@ agents:
     description: "Specialized in design systems, component architecture, visual consistency, and frontend UI patterns"
   - name: documentation-quality-reviewer
     description: "Documentation clarity, completeness, maintainability, and naming quality"
+  - name: drift-sentinel
+    description: "Detect silent architectural drift in PRs. Spawn when diff >100 LOC or touches >5 files. Checks boundary violations, dependency direction, new global state, layer bypass, interface bloat, and naming re"
   - name: electron-architect
     description: "Reviews Electron IPC boundaries, process separation, preload safety, window lifecycle, and tray app patterns. Flags security violations, sync/async boundary leaks, and architectural drift."
   - name: error-handling-specialist
@@ -293,16 +323,10 @@ agents:
     description: "Retrospective architectural review - \"Would you do it the same way from scratch?\""
   - name: infrastructure-guardian
     description: "Project infrastructure for quality gates, testing, CI/CD, and deployment"
-  - name: interview-coach
-    description: "Creates mock interview scenarios and communication practice for FAANG technical interviews"
-  - name: interview-pattern-scout
-    description: "Identifies classic interview patterns in codebase and finds critical gaps for FAANG preparation"
   - name: jobs
     description: "Craft + simplicity + excellence - \"Simple can be harder than complex\""
   - name: learning-codifier
     description: "Transform learnings from recent work into permanent, executable knowledge"
-  - name: leetcode-problem-generator
-    description: "Creates custom LeetCode-style practice problems targeting interview pattern gaps using code context"
   - name: lightning-auditor
     description: "Deep Lightning Network analysis. Spawned by lightning skill for thorough examination of channels, liquidity, routing, and node security."
   - name: maintainability-maven
@@ -311,8 +335,6 @@ agents:
     description: "Logging, monitoring, and alerting coverage analysis - ensure bugs scream loudly"
   - name: ousterhout
     description: "Deep modules + information hiding - \"Deep modules manage complexity\""
-  - name: pattern-extractor
-    description: "Extract reusable code patterns into clean abstractions and comprehensive tests"
   - name: performance-pathfinder
     description: "Specialized in performance bottleneck detection, algorithmic efficiency analysis, and optimization opportunities"
   - name: performance-professor
@@ -329,8 +351,6 @@ agents:
     description: "Reviews code for structural consumability — how easy it is to read, skim, and grep. Focuses on control flow, data flow, naming, and cognitive load. Not style or formatting — structure."
   - name: security-sentinel
     description: "Specialized in security vulnerability detection, authentication/authorization analysis, and defensive coding practices"
-  - name: skill-builder
-    description: "Transform multi-step workflows into executable, reusable Claude Code skills"
   - name: state-management-analyst
     description: "Frontend state management patterns, data flow, and state synchronization"
   - name: stripe-auditor

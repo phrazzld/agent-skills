@@ -194,6 +194,33 @@ agent-browser --session {SESSION} close
 
 3. Tell the user the report is ready and summarize findings: total issues, breakdown by severity, and the most critical items.
 
+### 7. Publish to PR (when invoked in a PR context)
+
+If a PR exists for the current branch, upload evidence and post a QA comment.
+
+```bash
+# Convert any .webm videos to .gif for inline rendering
+ffmpeg -y -i {OUTPUT_DIR}/videos/issue-001-repro.webm \
+  -vf "fps=8,scale=800:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer" \
+  -loop 0 {OUTPUT_DIR}/videos/issue-001-repro.gif
+
+# Upload to draft release
+gh release create qa-dogfood-pr-{PR_NUMBER} --draft \
+  --title "Dogfood QA: PR #{PR_NUMBER}" \
+  --notes "Dogfood QA evidence for PR #{PR_NUMBER}" \
+  {OUTPUT_DIR}/screenshots/*.png {OUTPUT_DIR}/videos/*.gif
+
+# Post summary comment with embedded evidence
+gh pr comment {PR_NUMBER} --body "## Dogfood QA Report ..."
+```
+
+Link the release at the bottom of the comment. Include the summary table,
+severity counts, and key screenshots/GIFs inline. See
+`autopilot/references/pr-evidence-upload.md` for the full upload recipe.
+
+Skip this step if running standalone (no PR context) or if the user only wants
+a local report.
+
 ## Guidance
 
 - **Repro is everything.** Every issue needs proof -- but match the evidence to the issue. Interactive bugs need video and step-by-step screenshots. Static bugs (typos, placeholder text, visual glitches visible on load) only need a single annotated screenshot.
