@@ -83,6 +83,16 @@ When invoked with `--overnight` or for autonomous multi-hour sessions:
 - Context resets between sprints if context window is filling
 - Full QA pass at end before shipping
 
+## Gotchas
+
+- **Skipping shape:** Building without a context packet produces plausible garbage. If the item lacks an oracle, run /shape first. Always.
+- **Builder scope creep:** Builders add features not in the spec. The spec is the constraint — raise blockers, don't silently expand.
+- **Review theater:** Running /code-review on your own unchanged code. Review the delta, not the whole file.
+- **Overnight without oracle:** Night-shift mode without verifiable criteria = autonomous slop production. Oracle is non-negotiable.
+- **Parallelizing coupled work:** Multiple builders on files that import each other. Parallelize only when file ownership is disjoint.
+- **Force-pushing:** Never. No exceptions. Create new commits.
+- **Shipping with red tests:** "They were red before" is not an excuse. Fix what you touch.
+
 ## Stopping Conditions
 
 Stop only if: build fails after multiple attempts, requires external action,

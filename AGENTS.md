@@ -1,20 +1,36 @@
 # AGENTS.md — Spellbook
 
-## Scope
-- Spellbook repository-specific foundation.
-- Optimized for local agent workflows.
+Map, not manual. Points to deeper sources of truth.
 
-## Engineering doctrine
-- Root-cause remediation over symptom patching.
-- Favor convention over configuration.
+## Architecture
 
-## Skill creation/modification
+8 skills, 7 agents. Resist expansion.
 
-Use **`/craft-primitive`** for all skill and agent creation/modification. It routes to
-focused references for skill creation, agent creation, research, absorption, and more.
+**Workflow:** `backlog.d/ → /groom → /shape → /autopilot → /code-review → ship`
 
-Quality gates, classification, structure, progressive disclosure, packaging — all in one skill.
+**Skills:** autopilot, code-review, debug, groom, harness, reflect, research, shape.
+
+**Agents:** planner → builder → critic (GAN triad) + ousterhout, carmack, grug, beck (design review bench).
+
+## Orchestration
+
+Non-trivial work uses the planner→builder→critic pipeline.
+Planner specs. Builder implements. Critic evaluates. Most conservative reviewer wins.
+
+For serial edits (< 3 files, low risk): skip the pipeline, just do it.
+
+## Skill creation
+
+Use `/harness create` to create skills. `/harness lint` to validate. `/harness eval` to test.
+Quality gates: description triggers correctly, < 500 lines, encodes judgment not procedure,
+has gotchas section, passes eval baseline comparison.
 
 ## Quality bar
-- Ensure local tests pass before merge.
-- Meaningful test coverage over line-count gaming.
+
+TDD default. Fix what you touch. Never lower quality gates.
+Never assert model facts from memory — `/research` first.
+
+## Codification
+
+When encoding a learning: type system > lint rule > hook > test > CI > skill > AGENTS.md > memory.
+This file is near the bottom. Prefer mechanical enforcement.

@@ -2,53 +2,22 @@
 
 ## What This Repo Is
 
-**Spellbook** — 8 workflow skills, 7 agents, and harness infrastructure for
-AI-assisted software development. One repo. All harnesses.
-
-Not a prompt library. Codified engineering judgment.
-
-## Philosophy
-
-See `SPEC.md` for the full vision. See `harnesses/shared/principles.md` for
-engineering doctrine shared across all harnesses.
-
-Core: the harness is the product. Strip what's not load-bearing. Separate
-generator from evaluator. Fix the system, not the instance.
+**Spellbook** — 8 workflow skills, 7 agents, and harness configs for
+AI-assisted development. One repo, all harnesses, symlinked to
+~/.claude, ~/.codex, ~/.pi via bootstrap.sh.
 
 ## Structure
 
 ```
 spellbook/
-├── skills/           # 8 workflow skills (autopilot, code-review, debug,
-│                     #   groom, harness, reflect, research, shape)
-├── agents/           # 7 agents (planner, builder, critic,
-│                     #   ousterhout, carmack, grug, beck)
-├── harnesses/        # Per-harness configs (claude/, codex/, pi/, etc.)
-│   ├── shared/       #   Common doctrine
-│   └── claude/       #   settings.json, hooks/, CLAUDE.md
-├── scripts/          # Shared tooling
-├── registry.yaml     # Single source of truth
-├── bootstrap.sh      # Installs globals to harness dirs
-└── SPEC.md           # Full lifecycle vision
+├── skills/        # 8 skills: autopilot, code-review, debug, groom,
+│                  #   harness, reflect, research, shape
+├── agents/        # 7 agents: planner, builder, critic,
+│                  #   ousterhout, carmack, grug, beck
+├── harnesses/     # Per-harness configs, hooks, shared principles
+├── registry.yaml  # Single source of truth for globals
+└── bootstrap.sh   # Symlinks spellbook → harness dirs
 ```
-
-## The 8 Skills
-
-| Skill | Purpose |
-|-------|---------|
-| `autopilot` | Full delivery: plan→build→review→ship |
-| `code-review` | Parallel multi-agent review, auto-fix loop |
-| `debug` | Investigate, triage, fix |
-| `groom` | Backlog management, brainstorming, rethink, scaffold |
-| `harness` | Skill engineering, primitive management, context lifecycle |
-| `reflect` | Session retrospective, learning extraction, harness postmortem |
-| `research` | Multi-source web research, delegation, think tank |
-| `shape` | Spec/design → context packet output |
-
-## The 7 Agents
-
-**GAN triad:** planner (spec), builder (implement), critic (evaluate)
-**Philosophy bench:** ousterhout (depth), carmack (ship), grug (simplicity), beck (TDD)
 
 ## Workflow
 
@@ -56,20 +25,25 @@ spellbook/
 backlog.d/ → /groom → /shape (planner) → /autopilot (builder) → /code-review (critic + bench) → ship
 ```
 
-## Backlog: backlog.d/
-
-File-driven. One markdown file per item. Each has: goal, non-goals, oracle.
-
-## Adding a Skill
-
-1. Create `skills/{name}/SKILL.md` with frontmatter
-2. Keep it < 200 lines. Encode judgment, not procedures.
-3. Commit and push — pre-commit hook regenerates index.yaml
-
 ## Principles
 
-- **Flat over nested** — every skill at `skills/{name}/`
+See `harnesses/shared/principles.md` for engineering doctrine.
+
 - **8 skills, 7 agents** — resist expansion
-- **Strip non-load-bearing complexity** — stress-test every component
-- **File-driven** — backlog.d/, not GitHub Issues
-- **Progressive disclosure** — description → SKILL.md → references
+- **Harness is the product** — models are commodities
+- **Gotchas > instructions** — enumerate what goes wrong
+- **Description is the trigger** — write it assertively
+- **Strip non-load-bearing scaffold** — stress-test after model upgrades
+- **Map, not manual** — AGENTS.md and CLAUDE.md point to skills, not contain them
+
+## Gotchas for Contributing to This Repo
+
+- Skills encode judgment, not procedures. If the model already knows how, delete the skill.
+- SKILL.md must be < 500 lines. Extract deep content to references/.
+- Run `/harness lint` on any skill you create or modify.
+- Run `/harness eval` to verify the skill actually improves output vs baseline.
+- The pre-commit hook regenerates index.yaml — don't edit it manually.
+- bootstrap.sh has two modes: symlink (local checkout) and download (remote).
+  Test both paths if you change it.
+- `harnesses/claude/settings.json` is COPIED by bootstrap (Claude modifies it
+  at runtime), not symlinked. Changes there need a re-bootstrap to take effect.

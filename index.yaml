@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-25T16:06:58Z
+# Generated: 2026-03-25T16:26:35Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -16,8 +16,8 @@ skills:
     description: "Backlog management, brainstorming, architectural exploration, project bootstrapping. File-driven backlog via backlog.d/. Explore, brainstorm, research, synthesize, prioritize. Includes divergent think"
     tags: [architectural,backlog,bootstrapping,brainstorm,brainstorming,d,divergent,exploration,explore,file-driven]
   - name: harness
-    description: "Harness design, skill engineering, context lifecycle, primitive management. Build and maintain the infrastructure that makes agents effective. Use when: \"create a skill\", \"update skill\", \"focus\", \"syn"
-    tags: [a,agents,build,context,create,design,effective,engineering,focus,harness]
+    description: "Build, maintain, evaluate, and optimize the agent harness — skills, agents, hooks, CLAUDE.md, AGENTS.md, and enforcement infrastructure. Use when: \"create a skill\", \"update skill\", \"improve the harnes"
+    tags: [a,agent,agents,build,claude,create,enforcement,evaluate,harnes,harness]
   - name: reflect
     description: "Session retrospective, learning extraction, harness postmortem, codification. Distill learnings into hooks/rules/skills. Fix the system, not the instance. Use when: \"done\", \"wrap up\", \"what did we lea"
     tags: [codification,did,distill,done,extraction,fix,harness,hooks,instance,lea]

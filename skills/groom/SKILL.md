@@ -100,6 +100,14 @@ Bootstrap a new project with quality gates:
 3. Delete stale items (>30 days untouched, no longer relevant)
 4. Verify each remaining item has goal + oracle
 
+## Gotchas
+
+- **Items without oracles:** If you can't write a "definition of done" with checkable criteria, the item isn't scoped. Go back and scope it.
+- **Listing without recommending:** "Here are 5 options" is a menu, not grooming. Pick one and argue for it.
+- **Scope creep during rethink:** Rethink mode explores, but it must end with one concrete recommendation, not a wish list.
+- **Backlog as graveyard:** Items >30 days old with no progress are dead. Archive or delete during tidy.
+- **Over-decomposing:** An agent-hour of work is one item, not three. Agent compression ratios make most splits unnecessary.
+
 ## Principles
 
 - Recommend, don't just list — always have an opinion

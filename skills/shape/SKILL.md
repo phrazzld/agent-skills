@@ -81,6 +81,14 @@ tests > type system > code > docs > lore
 
 If you can't write an oracle, the goal isn't clear enough. Go back to Phase 2.
 
+## Gotchas
+
+- **Vague oracles:** "It should work" is not an oracle. "These 3 tests pass and this endpoint returns 200" is.
+- **Speccing after building:** A context packet written after implementation is documentation, not specification. Spec first.
+- **50 repo anchors:** If everything is an anchor, nothing is. Pick 3-10 files whose patterns MUST be followed.
+- **Skipping non-goals:** Agents drift toward scope expansion. Non-goals are load-bearing constraints. Write them.
+- **Over-speccing implementation details:** Specify WHAT and WHY. Let the builder figure out HOW. Detailed pseudocode cascades errors.
+
 ## Principles
 
 - Minimize touch points (fewer files = less risk)

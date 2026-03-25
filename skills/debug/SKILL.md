@@ -236,11 +236,10 @@ For non-trivial production issues, create `INCIDENT-{timestamp}.md`:
 - **Fix**: How it was resolved
 - **Verification**: Observable proof it works
 
-## References
+## Gotchas
 
-- `references/systematic-debugging.md` — Full four-phase protocol with examples
-- `references/investigation-protocol.md` — Production incident investigation
-- `references/triage.md` — Incident lifecycle (triage through postmortem)
-- `references/audit.md` — Domain auditing with dynamic checklist routing
-- `references/fix.md` — Audit then fix highest priority issue
-- `references/log-issues.md` — Create GitHub issues from findings
+- **Fixing before investigating:** The #1 failure mode. If you haven't traced data flow, you don't know the root cause.
+- **Stacking changes:** One variable per experiment. Multiple simultaneous changes make results uninterpretable.
+- **Confusing symptom for root cause:** "The test fails" is a symptom. "The auth token expires before the refresh interval" is a root cause.
+- **Skipping reproduction:** If you can't reproduce it, you can't verify the fix. Gather more data first.
+- **Config is almost always the answer:** Env vars, endpoints, credentials. Check config before reading code.

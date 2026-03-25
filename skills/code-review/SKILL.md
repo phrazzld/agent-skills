@@ -107,3 +107,12 @@ After review passes, if diff > 200 LOC net:
 
 ### Iterations: 2 (fixed auth layer on iteration 2)
 ```
+
+## Gotchas
+
+- **Self-review leniency:** Models consistently overrate their own work. The critic must be a separate agent, not the builder evaluating itself.
+- **Reviewing the whole codebase:** Review the diff, not the repo. `git diff main...HEAD` is the scope.
+- **Vague feedback:** "Needs improvement" is useless. Every concern must have file:line + specific fix.
+- **Infinite loop:** Cap at 3 review iterations. If still blocked, escalate — the issue needs human judgment.
+- **Skipping philosophy agents:** Running only the critic misses structural issues. The bench adds distinct perspectives the critic doesn't cover.
+- **Treating all concerns equally:** Blocking issues (correctness, security) gate shipping. Style preferences don't.

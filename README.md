@@ -1,84 +1,67 @@
 # Spellbook
 
-Portable library of agent primitives (skills + agents) for multi-model AI harnesses. Works with Claude Code, Codex, Gemini, Factory, and Pi.
-
-Markdown-first. No application code, no dependencies. Primitives teach agents *how to work*: debugging, PR workflows, design systems, incident response, and domain-specific playbooks.
+8 workflow skills, 7 agents, and harness infrastructure for AI-assisted
+software development. One repo. All harnesses (Claude Code, Codex, Pi).
 
 ## Quick Start
 
 ```bash
 # Bootstrap (one-time per machine)
+# Symlinks if local checkout exists, downloads from GitHub otherwise
 curl -sL https://raw.githubusercontent.com/phrazzld/spellbook/master/bootstrap.sh | bash
 ```
 
-This installs two global skills: `/focus` (primitive manager) and `/research` (multi-source web research). Everything else is project-local.
+## The 8 Skills
 
-```bash
-# In any project:
-/focus init                    # Analyze project, generate .spellbook.yaml
-/focus                         # Pull declared primitives from GitHub
-/focus add stripe              # Add a skill to manifest
-/focus search "webhook handler" # Semantic search across all sources
+| Skill | Purpose |
+|-------|---------|
+| `/autopilot` | Full delivery: plan→build→review→ship |
+| `/code-review` | Parallel multi-agent review, auto-fix loop |
+| `/debug` | Investigate, triage, fix |
+| `/groom` | Backlog management, brainstorming, rethink, scaffold |
+| `/harness` | Skill engineering, primitive management, context lifecycle |
+| `/reflect` | Session retrospective, learning extraction, harness postmortem |
+| `/research` | Multi-source web research, delegation, think tank |
+| `/shape` | Spec/design → context packet output |
+
+## The 7 Agents
+
+**GAN triad:** planner (spec) → builder (implement) → critic (evaluate)
+
+**Design review bench:** ousterhout (depth), carmack (ship), grug (simplicity), beck (TDD)
+
+## Workflow
+
+```
+backlog.d/ → /groom → /shape (planner) → /autopilot (builder) → /code-review (critic + bench) → ship
 ```
 
-## How It Works
-
-Projects declare what they need in `.spellbook.yaml`:
-
-```yaml
-skills:
-  - debug
-  - autopilot
-  - anthropics/skills@frontend-design    # external source
-agents:
-  - ousterhout
-  - grug
-```
-
-`/focus` reads the manifest, pulls primitives from GitHub, and installs them into the project's local harness directory (`.claude/skills/`, `.claude/agents/`). Managed primitives are marked with a `.spellbook` file — project-local primitives without the marker are never touched.
-
-### Multi-Source Discovery
-
-Spellbook indexes skills from multiple GitHub repos using Gemini Embedding 2 for semantic search. When you run `/focus init` or `/focus search`, it matches your project context or query against the full index.
-
-Unqualified names (`debug`) resolve to `phrazzld/spellbook`. External skills use fully qualified names (`owner/repo@skill-name`) to avoid collisions.
-
-Spellbook keeps the text catalog in `index.yaml`. Embeddings are generated and
-cached locally on first search under `$CODEX_HOME/cache/spellbook/` when
-available, otherwise `~/.cache/spellbook/`.
-
-## Repo Structure
+## Structure
 
 ```
 spellbook/
-├── skills/              # All skills, flat
-├── agents/              # Agent definitions, flat
-├── index.yaml           # Generated text catalog
-├── collections.yaml     # Named skill groups (human browsing)
-├── bootstrap.sh         # One-command global install
-└── scripts/
-    ├── generate-index.sh
-    ├── generate-embeddings.py
-    └── search-embeddings.py
+├── skills/        # 8 workflow skills
+├── agents/        # 7 agent definitions
+├── harnesses/     # Per-harness configs (claude/, codex/, pi/)
+│   └── shared/    # Common engineering principles
+├── registry.yaml  # Single source of truth
+└── bootstrap.sh   # Symlinks spellbook → harness dirs
 ```
 
 ## Adding a Skill
 
 1. Create `skills/{name}/SKILL.md` with frontmatter
-2. Add `references/`, `scripts/`, `assets/` as needed
-3. Run `./scripts/generate-index.sh`
-4. Optional: run `python3 scripts/generate-embeddings.py` to prewarm your local cache
-5. Commit and push — consumers get the updated catalog on next `/focus`
+2. Keep it < 500 lines. Encode judgment, not procedures.
+3. Run `/harness lint` to validate quality gates
+4. Commit — pre-commit hook regenerates index.yaml
 
 ## Principles
 
-- **Flat over nested** — every skill at `skills/{name}/`
-- **Manifest-driven** — projects declare needs, `/focus` delivers
-- **Harness-agnostic** — works across Claude Code, Codex, Pi, Factory, Gemini
-- **Nuke and rebuild** — `/focus` deletes and recreates managed primitives each sync
-- **Embeddings-first discovery** — semantic search, not keyword matching
-- **Multi-source** — index skills from any GitHub repo, not just this one
-- **Always project-local** — `/focus` installs to project dirs, never global
+- **8 skills, 7 agents** — resist expansion
+- **Gotchas > instructions** — enumerate what goes wrong
+- **Strip non-load-bearing scaffold** — stress-test after model upgrades
+- **Symlink, not copy** — bootstrap.sh links to local checkout when available
+- **Progressive disclosure** — description → SKILL.md → references
 
 ## License
 

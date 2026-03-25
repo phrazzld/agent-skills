@@ -172,7 +172,7 @@ Scan the session for:
 
 ### Codification Targets
 
-Apply codification hierarchy from `/calibrate` — highest reliability level wins:
+Apply codification hierarchy (see `/reflect calibrate`) — highest reliability level wins:
 
 ```
 Type system > Lint rule > Hook > Test > CI > Skill/reference > AGENTS.md > Memory

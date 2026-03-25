@@ -76,7 +76,7 @@ Machine-verifies `## Acceptance Criteria` from a GitHub issue body.
 - If any AC remains `UNVERIFIED` after attempt 2:
   - mark run as `FAILED`
   - return blocking message
-  - caller (`/autopilot`, `/pr-fix`, `/pr-polish`) must not proceed to commit/ship
+  - caller (`/autopilot`, `/code-review`) must not proceed to commit/ship
 
 `PARTIAL` does not hard-fail by default, but must be reported.
 
@@ -94,9 +94,8 @@ Reason: 1 AC remained UNVERIFIED after 2 attempts.
 
 ## Integration Points
 
-- `/autopilot`: run after build/QA, before commit.
-- `/pr-fix`: run in self-review phase before final push.
-- `/pr-polish`: run before final PR handoff.
+- `/autopilot`: run after build, before code-review.
+- `/code-review`: run as part of review criteria.
 
 ## Non-Goals
 

@@ -84,9 +84,10 @@ When a session reveals something MISSING:
 Issue-scoped feedback: `{repo}/.groom/retro/<issue>.md`
 One file per issue. Feeds `/groom`'s planning loop.
 
-## Anti-Patterns
+## Gotchas
 
-- Reflecting without producing artifacts
-- Over-codifying obvious patterns
-- Creating docs nobody reads (prefer hooks that enforce)
-- Fixing only the code without fixing the harness (calibrate mode)
+- **Reflecting without artifacts:** If reflect doesn't produce a commit (hook, rule, skill update, AGENTS.md edit), it was a waste.
+- **Codifying at the wrong level:** Writing a CLAUDE.md line when a hook would be more reliable. Use the hierarchy — type system > lint > hook > test > ... > memory.
+- **Fixing only the code:** When calibrate mode triggers, the harness fix IS the deliverable. The code fix should be trivial after.
+- **Stale context is worse than no context:** A wrong instruction in AGENTS.md causes more harm than a gap. When in doubt, delete stale content.
+- **Over-codifying obvious patterns:** If the model handles it natively, don't write a skill for it. Run `/harness eval` to check.

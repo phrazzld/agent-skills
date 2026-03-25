@@ -236,6 +236,6 @@ use the Task tool with `subagent_type: "general-purpose"`.
 
 ## Related
 
-- `/context-engineering` — Instruction design and context lifecycle
-- `/pr-fix` — Example implementation
+- `/harness` — Harness engineering and context lifecycle
+- `/code-review` — Multi-agent review implementation
 - `/research thinktank` — Multi-model synthesis

@@ -1,106 +1,194 @@
 ---
 name: harness
 description: |
-  Harness design, skill engineering, context lifecycle, primitive management.
-  Build and maintain the infrastructure that makes agents effective.
-  Use when: "create a skill", "update skill", "focus", "sync skills",
-  "harness engineering", "context engineering", "tune the harness",
-  "add skill", "remove skill", "init spellbook".
+  Build, maintain, evaluate, and optimize the agent harness — skills, agents,
+  hooks, CLAUDE.md, AGENTS.md, and enforcement infrastructure.
+  Use when: "create a skill", "update skill", "improve the harness",
+  "sync skills", "eval skill", "lint skill", "tune the harness",
+  "add skill", "remove skill", "convert agent to skill".
   Trigger: /harness, /focus, /skill, /primitive.
-argument-hint: "[sync|init|add|remove|search|create|engineer] [target]"
+argument-hint: "[create|eval|lint|convert|sync|engineer] [target]"
 ---
 
 # /harness
 
 Build and maintain the infrastructure that makes agents effective.
-Covers: skill engineering, primitive management, context lifecycle,
-harness design patterns.
 
 ## Modes
 
 | Mode | Intent |
 |------|--------|
-| **sync** | Pull declared primitives from spellbook into project |
-| **init** | Analyze project, generate .spellbook.yaml manifest |
-| **add/remove** | Manage primitives in .spellbook.yaml |
-| **search** | Find relevant skills/agents by description |
-| **create** | Create a new skill or agent |
+| **create** | Create a new skill or agent from scratch |
+| **eval** | Test a skill with/without baseline comparison |
+| **lint** | Validate skill quality against gates |
+| **convert** | Convert a sub-agent definition to a skill (or vice versa) |
+| **sync** | Pull primitives from spellbook into project harness dirs |
 | **engineer** | Design harness improvements (hooks, enforcement, context) |
 
-## Primitive Management (was /focus)
+## Creating a Skill
 
-### Sync
-Read `.spellbook.yaml`, pull declared skills and agents from GitHub
-into project-local harness directories. Nuke-and-rebuild each sync.
+### The description field is everything
 
-### Init
-Analyze the project (stack, dependencies, domain), recommend primitives,
-generate `.spellbook.yaml`. Interactive — confirm before writing.
+The description determines when the model loads the skill. Write it assertively.
+Include trigger phrases users actually say. If the skill doesn't fire, the
+description is wrong — not the model.
 
-### Manifest Format
-```yaml
-skills:
-  - debug
-  - autopilot
-  - anthropics/skills@frontend-design  # external source
-agents:
-  - ousterhout
-  - grug
+**Good:** `"Use when: 'debug this', 'why is this broken', 'investigate', 'production down'"`
+**Bad:** `"A debugging utility for code analysis"`
+
+### Structure
+
+```
+skill-name/
+├── SKILL.md          # < 500 lines. Core instructions.
+├── references/       # Deep context loaded on demand.
+└── scripts/          # Executable code for deterministic tasks.
 ```
 
-### Managed vs Unmanaged
-Spellbook-managed primitives have a `.spellbook` marker file.
-/harness sync only touches directories with this marker.
+### What to encode
 
-## Skill Engineering (was /craft-primitive)
+Encode judgment the model lacks. Not procedures it already knows.
 
-### Creating a Skill
-1. `skills/{name}/SKILL.md` with frontmatter (name, description, trigger)
-2. Optional: `references/`, `scripts/`, `assets/`
-3. Keep SKILL.md < 200 lines. Encode judgment, not procedures.
-4. Progressive disclosure: description triggers loading → body gives instructions → references for deep context
+**Highest signal:** Gotchas — what goes wrong, not just what to do right.
+A gotcha list is more valuable than pages of happy-path instructions.
+Enumerate failure modes, common mistakes, things the model consistently
+gets wrong without the skill.
 
-### Quality Gates for Skills
-- Does it encode judgment the model lacks? (If not, delete it)
-- Is the description specific enough to trigger correctly?
-- Is it < 200 lines? (If not, extract to references)
-- Does it have an oracle (definition of done)?
+**Avoid:** Step-by-step procedures the model can derive from context.
+If you're writing "1. Read the file 2. Find the function 3. Edit it" —
+that's not a skill, that's a task description.
 
-## Context Engineering (was /context-engineering)
+### Progressive disclosure
 
-### Principles
-- Write context for machines, not humans
-- Progressive disclosure: load only what's needed
-- Authority order: tests > type system > code > docs > lore
-- Staleness kills: stale context is worse than no context
+Three layers. Each loads only when needed:
 
-### Codification Hierarchy
-When encoding knowledge, use the highest-leverage mechanism:
+1. **Description** (~100 tokens) — always in context. Decides triggering.
+2. **SKILL.md body** (< 500 lines) — loads when skill fires.
+3. **References** (unlimited) — loaded on demand via file reads.
+
+Keep SKILL.md focused on what to do and what goes wrong. Move deep
+reference material (API docs, checklists, examples) to references/.
+
+### Frontmatter fields that matter
+
+```yaml
+---
+name: my-skill
+description: |
+  What it does. When to use it. Trigger phrases.
+argument-hint: "[arg1] [arg2]"      # shown in autocomplete
+context: fork                        # run in isolated subagent (optional)
+agent: Explore                       # which subagent type (optional)
+disable-model-invocation: true       # user-only invocation (optional)
+allowed-tools: Read, Grep, Glob     # restrict tool access (optional)
+hooks:                               # skill-scoped lifecycle hooks (optional)
+  PostToolUse:
+    - matcher: "Edit|Write"
+      hooks: [{type: command, command: "bash scripts/validate.sh"}]
+---
+```
+
+### Dynamic context injection
+
+Use `` !`command` `` to inject runtime data before the skill reaches the model:
+
+```markdown
+Current branch: !`git branch --show-current`
+Recent changes: !`git log --oneline -5`
+```
+
+The command runs at skill load time. Claude sees the output, not the command.
+
+## Evaluating a Skill (/harness eval)
+
+Test whether a skill improves output quality. Inspired by Anthropic's
+skill-creator methodology.
+
+1. **Define 2-3 representative prompts** — real tasks the skill should help with
+2. **Run without skill** — capture baseline output
+3. **Run with skill** — capture skill-enhanced output
+4. **Compare** — did the skill make output measurably better?
+   - More correct? Fewer errors?
+   - Better structured? Clearer?
+   - Catches edge cases baseline missed?
+5. **Iterate** — if improvement is marginal, the skill isn't load-bearing. Delete it.
+
+Write eval prompts to `evals/` in the skill directory. Rerun after changes.
+
+## Linting a Skill (/harness lint)
+
+Validate a skill against quality gates:
+
+| Gate | Check | Fix |
+|------|-------|-----|
+| **Description triggers** | Does description include trigger phrases? | Add "Use when:" with concrete phrases |
+| **Size** | SKILL.md < 500 lines? | Extract to references/ |
+| **Gotchas** | Does it enumerate failure modes? | Add a gotchas section |
+| **Judgment test** | Does it encode judgment the model lacks? | If not, delete the skill |
+| **Oracle** | Can you verify the skill worked? | Add success criteria |
+| **Freshness** | Do instructions match current model capabilities? | Strip non-load-bearing scaffold |
+
+Run on all skills: `for s in skills/*/SKILL.md; do /harness lint "$s"; done`
+
+## Converting Agent ↔ Skill (/harness convert)
+
+### Agent → Skill
+1. Read the agent's system prompt and tools
+2. Strip agent-specific fields (model, tools, color)
+3. Transform description from "who this agent is" to "when to invoke"
+4. Restructure as SKILL.md with progressive disclosure
+5. Move detailed instructions to references/
+
+### Skill → Agent
+1. Read the skill's SKILL.md
+2. Add agent frontmatter (name, description, tools)
+3. Rewrite description as persona ("You are...")
+4. Keep instructions focused — agents get full context at startup
+
+## Harness Engineering (/harness engineer)
+
+### Codification hierarchy
+
+When encoding knowledge, target the highest-leverage mechanism:
+
 ```
 Type system > Lint rule > Hook > Test > CI > Skill > AGENTS.md > Memory
 ```
 
-## Harness Engineering
+### Hooks are the highest-leverage investment
 
-### Core Principle
-The harness is the product. Models are commodities. Leverage comes from
-persistent context infrastructure.
+Hooks run on every tool use. CLAUDE.md is read once. A hook that blocks
+`rm -rf` is infinitely more reliable than a CLAUDE.md line saying
+"don't delete files." Invest in hooks over prose.
 
-### Mechanical Enforcement
-A rule in CLAUDE.md is a suggestion. A lint rule is a law. A test is physics.
+Source of truth: `harnesses/claude/hooks/`
 
-### Stress-Test Assumptions
+### AGENTS.md is a map, not a manual
+
+Keep AGENTS.md under 100 lines. It should point to deeper sources of truth
+(skills, references, docs/) rather than containing all instructions inline.
+A monolithic AGENTS.md becomes a graveyard of stale rules.
+
+### Stress-test assumptions
+
 Every harness component encodes an assumption about model limitations.
-When a new model drops, re-examine: is this still load-bearing?
-Strip what's not.
+When a new model drops, audit: is this skill still needed? Is this hook
+still catching real problems? Strip what's not load-bearing.
 
-### Hooks (Claude Code)
-Enforcement scripts in `harnesses/claude/hooks/`. Highest-leverage
-codification target — they run on every tool use, not just when the
-model remembers to check.
+## Sync (/harness sync)
 
-## Related
+Reads `.spellbook.yaml`, pulls declared skills/agents from GitHub into
+project-local harness directories. When a local spellbook checkout exists,
+uses symlinks instead (edits propagate instantly).
 
-- `/reflect` — uses codification hierarchy when extracting learnings
-- `/groom` — scaffold mode bootstraps projects with harness infrastructure
-- `/autopilot` — the workflow that the harness supports
+Managed primitives have a `.spellbook` marker file.
+/harness sync only touches directories with this marker.
+
+## Gotchas
+
+- Skills that describe procedures the model already knows are waste
+- Descriptions that don't include trigger phrases won't fire
+- SKILL.md over 500 lines means you failed progressive disclosure
+- Hooks that reference deleted skills will silently break
+- Stale AGENTS.md instructions cause more harm than missing ones
+- After any model upgrade, re-eval your skills — some become dead weight
