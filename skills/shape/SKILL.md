@@ -1,180 +1,85 @@
 ---
 name: shape
 description: |
-  Shape a raw idea into something buildable. Product + technical exploration
-  in one interactive session. Spec, design, critique, plan.
+  Shape a raw idea into something buildable. Product + technical exploration.
+  Spec, design, critique, plan. Output is a context packet.
   Use when: "shape this", "write a spec", "design this feature",
-  "plan this", "spec out", "technical design", "product exploration".
-  Trigger: /shape, /spec, /plan.
-argument-hint: "[idea|issue] [--spec-only] [--design-only] [--critique persona] [--plan]"
+  "plan this", "spec out", "context packet", "technical design".
+  Trigger: /shape, /spec, /plan, /cp.
+argument-hint: "[idea|issue|backlog-item] [--spec-only] [--design-only]"
 ---
 
 # /shape
 
-## Routing
-
-| Mode | When | Reference |
-|------|------|-----------|
-| **Full** (default) | Interactive product + technical exploration | Core workflow below |
-| `--spec-only` | Product exploration only (WHAT and WHY) | — |
-| `--design-only` | Technical exploration only (HOW). Needs existing spec. | — |
-| `--critique <persona>` | Adversarial expert review | `references/critique-personas.md` |
-| `--plan` | Implementation plan from existing spec+design | `references/writing-plans.md` |
-| Shape Up methodology | R/S notation, fit checks, spikes, slicing | `references/shaping-methodology.md` |
-| Breadboarding | Affordance mapping, vertical slicing | `references/breadboarding.md` |
-
-## Executive / Worker Split
-
-Keep the strongest available model on shaping decisions:
-- problem framing, option generation, and recommendation
-- spec intent contracts and design tradeoff calls
-- critique synthesis and final scope lock
-
-Delegate bounded research work to smaller worker subagents:
-- codebase mapping and pattern collection
-- targeted prior-art or reference searches
-- draft writeups for one option, one subsystem, or one risk area
-
-Workers can prepare options; the lead chooses the direction and writes the final spec/design.
+Shape a raw idea into something buildable. Output is a **context packet** —
+the unit of specification that precedes implementation.
 
 ## Workflow
 
 ### Phase 1: Understand
 
-Accept: raw idea (string), issue ID, or observation.
-
-1. If no issue exists → create skeleton immediately
-2. If issue exists → `gh issue view $1 --comments`
-3. Read codebase context — adjacent features, existing patterns, constraints
-
-**All web research MUST use `/research`** (routes through Exa for code context).
+Accept: raw idea, backlog.d/ item, issue ID, or observation.
+Read codebase context — adjacent features, existing patterns, constraints.
+Use `/research` for prior art and reference architectures.
 
 ### Phase 2: Product Exploration
 
-**GATE: Do NOT write any code or take implementation actions until product direction is locked.**
+**GATE: Do NOT write code until product direction is locked.**
 
-1. **Investigate** — Problem space, user impact, prior art.
-
-2. **Brainstorm** — 2-3 product approaches with tradeoffs. For each:
-   - Concrete interaction flow (what the user experiences)
-   - Value delivered, scope (S/M/L), downstream enablement
-   - **Recommend one.** Lead with recommendation.
-
-3. **Discuss** — One question at a time. Multiple choice preferred.
-   Iterate until product direction is locked.
-
-4. **Cheapest test** — If uncertainty is real, define the fastest experiment
-   that would change the decision. Prefer probes over speculation.
-
-5. **Draft spec** — Post on issue:
-
-   ```markdown
-   ## Product Spec
-
-   ### Problem
-   [2-3 sentences]
-
-   ### Intent Contract
-   - Intent: [What must be true after shipping]
-   - Success Conditions: [Measurable outcomes]
-   - Hard Boundaries: [What must never change]
-   - Non-Goals: [Explicitly out of scope]
-
-   ### Acceptance Criteria
-   - [ ] Given [precondition], when [action], then [expected]
-
-   ### Open Questions for Architect
-   [Technical unknowns]
-   ```
+1. **Investigate** — Problem space, user impact, prior art
+2. **Brainstorm** — 2-3 approaches with tradeoffs. **Recommend one.**
+3. **Discuss** — One question at a time. Iterate until locked.
+4. **Draft spec** — Goal, non-goals, acceptance criteria
 
 ### Phase 3: Technical Exploration
 
-1. **Investigate** — Read locked spec, codebase, research patterns.
-   Delegate codebase mapping and reference gathering to smaller workers if the
-   surface area is broad, then synthesize their findings on the lead model.
+1. **Explore** — 3-5 technical approaches. For each:
+   architecture sketch, files to modify, pattern alignment, effort, tradeoffs.
+   **Recommend one.**
+2. **Validate** — For effort M or larger, run multi-perspective review
+   (ousterhout, carmack, grug via sub-agents or sequentially)
+3. **Discuss** — No limit on rounds. Design isn't ready until user says so.
 
-2. **Explore** — 3-5 technical approaches. For each:
-   - Architecture sketch, files to modify/create
-   - Pattern alignment with existing codebase
-   - Tradeoffs (complexity, performance, deletability)
-   - Effort: S/M/L/XL
-   - **Recommend one.**
+### Phase 4: Context Packet
 
-3. **Validate** — For effort M or larger:
-   - Run `/research thinktank` with design + spec + codebase context
-   - Spawn the Triad for design review:
+The output of shape. This is what `/autopilot` and builders consume.
 
-   | Agent | Focus |
-   |-------|-------|
-   | `ousterhout` | Deep modules? Information hidden? |
-   | `carmack` | Simplest thing that works? |
-   | `grug` | Too many layers? |
+```markdown
+# Context Packet: <title>
 
-4. **Discuss** — No limit on rounds. Design isn't ready until user says so.
+## Goal
+<1 sentence — what outcome, not mechanism>
 
-Use the strongest available models for critique, recommendation, and scope-lock
-decisions. Smaller workers can draft comparison tables or subsystem notes, but
-they do not choose the design.
+## Non-Goals
+- <what NOT to do, even if it seems like a good idea>
 
-5. **Draft design** — Post on issue:
+## Constraints / Invariants
+- <things that must remain true before, during, and after>
 
-   ```markdown
-   ## Technical Design
+## Authority Order
+tests > type system > code > docs > lore
 
-   ### Approach
-   [Strategy and key decisions]
+## Repo Anchors
+- `src/auth/middleware.ts` — current pattern to follow
+- `tests/auth/` — existing coverage
 
-   ### Files to Modify/Create
-   - `path/file.ts` — [what changes]
+## Prior Art
+- `src/payments/middleware.ts` — similar pattern
 
-   ### Implementation Sequence
-   1. [First chunk]
-   2. [Second chunk]
+## Oracle (Definition of Done)
+- [ ] All existing auth tests pass
+- [ ] New endpoint returns 200 with valid token
+- [ ] Response time < 100ms p99
 
-   ### Risks & Mitigations
-   [Technical risks]
-   ```
+## Implementation Sequence
+1. <first chunk>
+2. <second chunk>
 
-### The Interweaving
+## Risk + Rollout
+- <how it could fail, how to undo it>
+```
 
-During technical exploration, product decisions can be revisited.
-"This architecture would be simpler if we scoped differently" →
-return to product discussion → refine → continue.
-
-No phase is final until everything is locked.
-
-### Phase 4: Synthesis
-
-1. Verify alignment — do spec and design tell a coherent story?
-2. Break down — if scope warrants, yield multiple atomic issues
-3. Stress-test — run critique (`references/critique-personas.md`)
-4. Prefer probe issues first if uncertainty remains high
-5. Signal readiness — `status/ready` for `/build` or `/autopilot`
-
-## Effort Calibration
-
-When scoping, show both scales:
-
-| Task type | Human team | Agent | Compression |
-|-----------|-----------|-------|-------------|
-| Scaffolding | 2 days | 15 min | ~100x |
-| Tests | 1 day | 15 min | ~50x |
-| Feature implementation | 1 week | 30 min | ~30x |
-| Bug fix + regression | 4 hours | 15 min | ~20x |
-| Architecture / design | 2 days | 4 hours | ~5x |
-
-Use this to calibrate "is this worth splitting?" A feature that takes a human
-team a week is 30 minutes of agent time — probably one issue, not three.
-
-## Completeness Principle
-
-AI makes the marginal cost of completeness near-zero. When presenting options:
-
-- If Option A is complete (all edge cases, full coverage) and Option B saves
-  modest effort — **recommend A.** The delta between 80 and 150 lines is noise.
-- **Lake vs ocean:** A lake is boilable (100% coverage for a module, full feature).
-  An ocean is not (rewrite entire system, multi-quarter migration).
-  Recommend boiling lakes. Flag oceans as out of scope.
+If you can't write an oracle, the goal isn't clear enough. Go back to Phase 2.
 
 ## Principles
 
@@ -182,9 +87,5 @@ AI makes the marginal cost of completeness near-zero. When presenting options:
 - Design for deletion (easy to remove later)
 - Favor existing patterns over novel ones
 - YAGNI ruthlessly
-- One question at a time — don't overwhelm
-- Explore alternatives — always 2-3+ before settling
-
-## Completion
-
-"Shape complete. {N} issue(s) ready for `/build` or `/autopilot`."
+- Recommend, don't just list options
+- One question at a time
