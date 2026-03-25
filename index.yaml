@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-25T14:51:21Z
+# Generated: 2026-03-25T15:01:47Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -81,6 +81,9 @@ skills:
   - name: context-engineering
     description: "Context lifecycle for AI agents: write, select, compress, isolate. Design high-signal context windows, instruction hierarchies, and memory strategies. Use when designing agent prompts, debugging conte"
     tags: [agent,agents,ai,compress,conte,context,debugging,design,designing,hierarchies]
+  - name: context-packet
+    description: "Write a context packet — the unit of specification that precedes implementation. Encodes senior judgment as explicit constraints so agents stop guessing. Use when: starting any non-trivial implementat"
+    tags: [a,agents,as,constraints,context,encodes,explicit,guessing,implementat,implementation]
   - name: craft-primitive
     description: "Create, update, or absorb agent primitives (skills and subagents). Quality gates, classification, structure, progressive disclosure, packaging, absorption lifecycle. Handles both skill and agent creat"
     tags: [absorb,absorption,agent,both,classification,creat,create,disclosure,gates,handles]
@@ -102,6 +105,9 @@ skills:
   - name: electron
     description: "Electron desktop app architecture: IPC, process separation, preload bridge, BrowserWindow lifecycle, tray apps, state management, crash recovery, packaging, security. Reference skill for all Electron "
     tags: [app,apps,architecture,bridge,browserwindow,crash,desktop,electron,ipc,lifecycle]
+  - name: evaluator
+    description: "GAN-inspired evaluation pattern: separate the agent judging work from the agent doing work. Grading criteria turn subjective quality into concrete, gradable terms. Calibrate with few-shot examples. Us"
+    tags: [agent,calibrate,concrete,criteria,doing,evaluation,examples,few-shot,gan-inspired,gradable]
   - name: external-integration-patterns
     description: "\"Patterns for reliable external service integration: env validation, health checks, error handling, observability. Invoke when integrating Stripe, Clerk, Sendgrid, or any external API.\""
     tags: [api,checks,clerk,env,error,external,handling,health,integrating,integration]
@@ -180,6 +186,9 @@ skills:
   - name: next-patterns
     description: "Next.js patterns, best practices, cache components, and upgrade guides. Auto-invoke when: writing Next.js code, configuring next.config, using App Router, implementing caching, upgrading Next.js versi"
     tags: [app,auto-invoke,best,cache,caching,code,components,config,configuring,guides]
+  - name: night-shift
+    description: "Autonomous multi-hour implementation from a spec. Strict spec/implement separation. Humans write specs during the day; the agent implements overnight. Use when: \"night shift\", \"implement overnight\", \""
+    tags: [a,agent,autonomous,day,during,humans,implement,implementation,implements,multi-hour]
   - name: observability
     description: "Complete observability infrastructure. Error tracking, alerting, logging, health checks. Optimized for indie dev: minimal services, CLI-manageable, AI agent integration."
     tags: [agent,ai,alerting,checks,cli-manageable,complete,dev,error,health,indie]

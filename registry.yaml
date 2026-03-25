@@ -18,11 +18,14 @@ global:
       - autopilot
       - calibrate
       - context-engineering
+      - context-packet
       - debug
+      - evaluator
       - groom
       - harness-engineering
       - health-check
       - moonshot
+      - night-shift
       - pr
       - craft-primitive
       - reflect
