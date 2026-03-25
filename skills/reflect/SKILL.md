@@ -74,6 +74,19 @@ using the canonical schema (see `/calibrate`) with gap-specific extensions:
 Gap-specific fields (`subtype`, `remediation`) extend the canonical fields — never replace them.
 Use the codification hierarchy (Phase 3) to determine the right remediation target.
 
+### 2.5. Health Assessment
+
+Run the assess-* suite on the session's changed files to measure health delta:
+- Compare working tree against `.spellbook/health.json` (last snapshot)
+- Run relevant assess-* checks: `assess-depth` on changed modules, `assess-tests`
+  on changed test files, `assess-drift` against declared constraints
+- Report delta per check: "Module depth +5, test quality -3, overall: healthier"
+- If any check degraded, surface as a codification target in Phase 3
+- Write updated snapshot to `.spellbook/health.json` with trend tracking
+
+This phase feeds directly into codification — if module depth degraded during
+the session, that's a signal to add a guardrail or update AGENTS.md.
+
 ### 3. Codification Pass
 
 Apply codification hierarchy from `/calibrate`. Highest reliability level wins:
@@ -92,7 +105,7 @@ If a risky subsystem had no relevant doc, record that retrieval miss explicitly.
 If this session implemented a GitHub issue, append implementation feedback:
 
 ```
-{repo}/.refine/retro/<issue>.md
+{repo}/.groom/retro/<issue>.md
 ```
 
 Capture:
@@ -102,7 +115,7 @@ Capture:
 - Blockers encountered
 - Reusable pattern for future scoping
 
-This feeds `/refine`'s planning feedback loop.
+This feeds `/groom`'s planning feedback loop.
 
 **Manual invoke:** `/reflect append --issue 42 --predicted m --actual l --scope "Added retry logic" --blocker "Undocumented API"`
 
@@ -154,9 +167,9 @@ For each item:
 
 ## Retro Storage
 
-See `references/retro-format.md` for entry format and how `/refine` consumes retros.
+See `references/retro-format.md` for entry format and how `/groom` consumes retros.
 
-Storage: `{repo}/.refine/retro/<issue>.md` — one file per issue.
+Storage: `{repo}/.groom/retro/<issue>.md` — one file per issue.
 
 ## Scripts
 
@@ -179,11 +192,11 @@ Storage: `{repo}/.refine/retro/<issue>.md` — one file per issue.
 | Session context | Updated AGENTS.md |
 | `git diff`, `git log` | New/updated skills, agents |
 | Task list state | New/updated hooks |
-| Error logs | `.refine/retro/<issue>.md` entries |
+| Error logs | `.groom/retro/<issue>.md` entries |
 
 **Hands off to:** `/commit` (if artifacts to commit)
 
 ## Related
 
-- `/refine` -- Reads `.refine/retro/*.md` during planning
+- `/groom` -- Reads `.groom/retro/*.md` during planning
 - `/pr` -- May append issue-scoped retro signals

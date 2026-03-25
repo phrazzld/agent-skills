@@ -13,24 +13,28 @@ global:
       - focus
       - research
     standard:
+      - assess-depth
+      - assess-tests
       - autopilot
       - calibrate
       - context-engineering
       - debug
+      - groom
       - harness-engineering
-      - land
+      - health-check
       - moonshot
       - pr
       - craft-primitive
-      - refine
       - reflect
       - rethink
+      - settle
       - shape
 
   # Design philosophy agents: installed by bootstrap.sh, always available.
   agents:
     - beck
     - carmack
+    - drift-sentinel
     - grug
     - ousterhout
 
@@ -114,6 +118,19 @@ collections:
       - github-cli-hygiene
       - guardrail
       - naming-conventions
+      - scaffold
+  quality-assess:
+    description: Agent-first quality assessment checks (LLM-powered semantic analysis)
+    skills:
+      - assess-depth
+      - assess-docs
+      - assess-drift
+      - assess-intent
+      - assess-review
+      - assess-simplify
+      - assess-tests
+      - health-check
+      - review-settle
   growth:
     description: SEO, ads, CRO, content, brand, and media
     skills:

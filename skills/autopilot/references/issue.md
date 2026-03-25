@@ -200,6 +200,6 @@ Parent #28 converted to epic with sub-issue checklist.
 ## Related
 
 - `groom/references/org-standards.md` — Scoring rubric and issue format
-- `/refine` — Phase 5 uses `/issue lint` as quality gate
+- `/groom` — Phase 5 uses `/issue lint` as quality gate
 - `/autopilot` — Runs `/issue lint` before starting work
 - `/tidy` — Runs `/issue lint --all --fix`

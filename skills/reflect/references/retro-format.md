@@ -3,7 +3,7 @@
 ## Storage
 
 ```
-{repo}/.refine/retro/<issue>.md
+{repo}/.groom/retro/<issue>.md
 ```
 
 Created automatically if missing. One file per issue to avoid branch-hot append conflicts.
@@ -27,9 +27,9 @@ Created automatically if missing. One file per issue to avoid branch-hot append 
 /reflect append --issue 42 --predicted m --actual l --scope "Added retry logic" --blocker "Undocumented API"
 ```
 
-## How /refine Uses Retro
+## How /groom Uses Retro
 
-During planning, `/refine` reads `.refine/retro/*.md` and extracts:
+During planning, `/groom` reads `.groom/retro/*.md` and extracts:
 - Effort calibration ("Payment issues take 1.5x estimates")
 - Scope patterns ("Webhook issues always need retry logic")
 - Blocker patterns ("External API docs frequently wrong")

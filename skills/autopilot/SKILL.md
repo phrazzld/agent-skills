@@ -1,8 +1,8 @@
 ---
 name: autopilot
 description: |
-  Full delivery pipeline: plan, build, ship, land.
-  Covers: shape/spec/design, TDD build, commit, PR creation, /land (CI/reviews/polish/simplify),
+  Full delivery pipeline: plan, build, ship, settle (was land).
+  Covers: shape/spec/design, TDD build, commit, PR creation, /settle (CI/reviews/polish/simplify),
   test coverage, verify ACs, walkthrough, issue management.
   Use when: shipping features, fixing PRs, creating PRs, building issues, simplifying code,
   checking quality, writing commits, managing issues.
@@ -22,7 +22,7 @@ Full delivery pipeline. From issue to merge-ready PR in one command, or invoke s
 | Spec, plan, design a feature — "shape this", "write a spec" | Standalone `/shape` skill |
 | Implement, code, TDD — "build this", "implement" | `references/build.md` |
 | Create/update a PR — "open PR", "create PR" | Standalone `/pr` skill |
-| Unblock, polish, simplify PR — "fix PR", "CI red", "simplify" | Standalone `/land` skill  |
+| Unblock, polish, simplify PR — "fix PR", "CI red", "simplify" | Standalone `/settle` skill  |
 | Verify acceptance criteria — "verify ACs" | `references/verify-ac.md` |
 | Lint, typecheck, test gates — "check quality" | `references/check-quality.md` |
 | TDD enforcement, coverage — "test coverage" | `references/test-coverage.md` |
@@ -33,7 +33,7 @@ Full delivery pipeline. From issue to merge-ready PR in one command, or invoke s
 If invoked as `/autopilot [issue-id]`, run the full pipeline (below).
 If invoked as `/build`, read `references/build.md` and follow it.
 If invoked as `/shape`, route to standalone `/shape` skill.
-If invoked as `/pr-fix`, `/pr-polish`, or `/simplify`, route to standalone `/land`.
+If invoked as `/pr-fix`, `/pr-polish`, or `/simplify`, route to standalone `/settle`.
 
 ## Role
 
@@ -184,6 +184,10 @@ The point is single ownership and meaningful progress. One issue should map to o
     gets addressed — the most conservative reviewer wins.
 
     After the triad passes, run `/simplify` if diff >200 LOC net.
+
+10a. **Health Check** — Run `/health-check` to measure session health delta before
+    PR creation. Report: module depth, test quality, architectural drift vs last snapshot.
+    If any check degraded significantly (score dropped >10), investigate before shipping.
 
 11. **Dogfood QA** — Run automated QA against local dev server (see Dogfood QA section below).
    Iterate until no P0/P1 issues remain. **Do not open a PR until QA passes.**

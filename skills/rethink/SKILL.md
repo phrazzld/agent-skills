@@ -22,8 +22,8 @@ Architectural exploration. Understand deeply, research alternatives, recommend a
 - System works but is harder to reason about than it should be
 - You want to question foundational assumptions, not just fix bugs
 
-NOT for: incremental improvements (use `/land --simplify`), issue planning (use `/shape`),
-backlog strategy (use `/refine`), deciding what to build next (use `/moonshot`).
+NOT for: incremental improvements (use `/settle --simplify`), issue planning (use `/shape`),
+backlog strategy (use `/groom`), deciding what to build next (use `/moonshot`).
 
 ## Interface
 
@@ -146,7 +146,7 @@ at this point in the project's life.]
 ## Anti-Patterns
 
 - Listing options without recommending one (that's a menu, not a rethink)
-- Recommending the current architecture with minor tweaks (that's `/land --simplify`)
+- Recommending the current architecture with minor tweaks (that's `/settle --simplify`)
 - Ignoring the "do nothing" option (sometimes the answer is "it's fine")
 - Over-researching without forming an opinion (research informs; it doesn't decide)
 - Proposing rewrites when the real problem is one leaky abstraction
@@ -156,6 +156,6 @@ at this point in the project's life.]
 
 After `/rethink`, the user may:
 - `/shape` — plan the recommended alternative in detail
-- `/refine` — fit the rethink into the backlog
+- `/groom` — fit the rethink into the backlog
 - `/autopilot` — just build it
 - `/research thinktank` — stress-test the recommendation further
