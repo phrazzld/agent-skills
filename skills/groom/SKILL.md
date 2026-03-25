@@ -57,11 +57,9 @@ Estimate: S | M | L | XL
 
 ## Workflow: Explore
 
-1. **Gather context** — Spawn parallel sub-agents to read the landscape fast:
-   ```
-   Agent(subagent_type: "Explore", prompt: "Map the codebase: architecture, tech debt, recent velocity. What are the biggest opportunities and risks?")
-   Agent(subagent_type: "Explore", prompt: "Read backlog.d/ and recent git history. What's done, what's stalled, what's missing?")
-   ```
+1. **Gather context** — Spawn parallel sub-agents to read the landscape fast.
+   One maps the codebase (architecture, tech debt, recent velocity, opportunities).
+   Another reads backlog.d/ and recent git history (what's done, stalled, missing).
 2. **Brainstorm** — Generate 3-5 candidate items with tradeoffs
 3. **Research** — Use `/research` for prior art, reference architectures
 4. **Discuss** — One question at a time. Recommend, don't just list.
@@ -70,12 +68,10 @@ Estimate: S | M | L | XL
 
 ## Workflow: Rethink
 
-1. **Understand deeply** — Spawn an Explore sub-agent to map the system:
-   ```
-   Agent(subagent_type: "Explore", prompt: "Deeply analyze [system/module]. Map all dependencies, pain points, complexity hotspots. What would you redesign?")
-   ```
-2. **Research alternatives** — Invoke `/research thinktank` for multi-perspective analysis.
-   This dispatches to multiple external models for independent opinions.
+1. **Understand deeply** — Spawn a sub-agent to map the target system: all
+   dependencies, pain points, complexity hotspots. What would it redesign?
+2. **Research alternatives** — Invoke `/research thinktank` for multi-perspective
+   analysis. This dispatches to multiple external models for independent opinions.
 3. **Synthesize options** — 2-3 approaches with honest tradeoffs
 4. **Recommend** — One clear recommendation with reasoning
 5. **Capture** — Write backlog.d/ item for the recommended change
@@ -85,17 +81,10 @@ the real problem is one leaky abstraction, ignoring the "do nothing" option.
 
 ## Workflow: Moonshot
 
-Force divergent thinking. Spawn a planner sub-agent with a divergent prompt:
-
-```
-Agent(subagent_type: "planner", prompt: """
-Forget the current backlog. Think from first principles:
-1. What's the single highest-leverage addition to this project?
-2. What would a competitor build that makes this obsolete?
-3. What's the user's biggest unmet need?
-One answer, fully argued. Include goal, oracle, and rough effort estimate.
-""")
-```
+Force divergent thinking. Spawn a planner sub-agent and ask it to forget the
+current backlog and think from first principles: what's the single highest-leverage
+addition? What would a competitor build? What's the user's biggest unmet need?
+One answer, fully argued, with goal + oracle + rough effort estimate.
 
 Review the planner's output. If compelling, write as backlog.d/ item.
 

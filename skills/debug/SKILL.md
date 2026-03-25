@@ -54,34 +54,17 @@ External service issues are usually config, not code. Check in order:
 
 ### Quick investigation (default)
 
-For straightforward bugs, spawn a single builder sub-agent to gather evidence:
-
-```
-Agent(subagent_type: "builder", prompt: """
-Investigate: $SYMPTOMS
-1. Reproduce the issue
-2. Trace data flow to identify root cause
-3. Report: root cause, evidence, proposed fix
-Do NOT implement the fix — just report findings.
-""")
-```
-
-You review the findings, decide if the root cause is proven, then fix or dig deeper.
+For straightforward bugs, spawn a single sub-agent to gather evidence. Tell it
+to investigate the symptoms, reproduce the issue, trace data flow, and report
+back with root cause + evidence + proposed fix. It should NOT implement the fix —
+just report. You review, decide if root cause is proven, then fix or dig deeper.
 
 ### Multi-Hypothesis Mode
 
-When >2 plausible root causes and single investigation would anchor on one,
-spawn parallel investigators — one per hypothesis:
-
-```
-# In one message, spawn all:
-Agent(prompt: "Investigate hypothesis: [H1 description]. Trace [subsystem]. Report: confirmed/disproved + evidence.")
-Agent(prompt: "Investigate hypothesis: [H2 description]. Trace [subsystem]. Report: confirmed/disproved + evidence.")
-Agent(prompt: "Investigate hypothesis: [H3 description]. Trace [subsystem]. Report: confirmed/disproved + evidence.")
-```
-
-Each investigator gets one hypothesis to prove/disprove. You synthesize
-their findings into a consensus root cause.
+When >2 plausible root causes and a single investigation would anchor on one:
+spawn parallel sub-agents, one per hypothesis. Each gets one hypothesis to
+prove or disprove by tracing a specific subsystem. They report back with
+confirmed/disproved + evidence. You synthesize into a consensus root cause.
 
 Use when: ambiguous stack trace, multiple services, flaky failures.
 Don't use when: obvious single cause, config issue, simple regression.

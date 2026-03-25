@@ -16,9 +16,8 @@ Full delivery pipeline. From backlog item to shipped code in one command.
 
 ## Architecture: Planner → Builder → Critic
 
-You are the orchestrator. You dispatch to sub-agents, synthesize their
-output, and make proceed/fix/escalate decisions. Never delegate the
-ship/don't-ship call.
+You are the orchestrator. Dispatch to sub-agents, synthesize their output,
+make proceed/fix/escalate decisions. Never delegate the ship/don't-ship call.
 
 ## Workflow
 
@@ -26,45 +25,31 @@ ship/don't-ship call.
 
 Read `backlog.d/` for highest-priority ready item, or accept explicit argument.
 
-### 2. Shape (planner sub-agent)
+### 2. Shape
 
-Spawn a **planner** sub-agent to run `/shape`:
-
-```
-Agent(subagent_type: "planner", prompt: """
-Shape this backlog item into a context packet:
-[paste backlog item content]
-Read the codebase, research prior art, produce a context packet with:
-goal, non-goals, constraints, repo anchors, oracle, implementation sequence.
-""")
-```
+Spawn a **planner** sub-agent. Give it the backlog item and ask it to produce
+a context packet: goal, non-goals, constraints, repo anchors, oracle,
+implementation sequence. The planner reads the codebase and researches
+prior art — you review and approve the spec before building.
 
 If the item already has a complete context packet (goal + oracle + sequence), skip.
 
-### 3. Build (builder sub-agents)
+### 3. Build
 
-Spawn **builder** sub-agent(s) with the context packet. For parallelizable work,
-spawn multiple builders with disjoint file ownership in separate worktrees:
+Spawn **builder** sub-agent(s) with the approved context packet.
 
-```
-Agent(subagent_type: "builder", isolation: "worktree", prompt: """
-Implement this spec via TDD:
-[paste context packet]
-Focus on: [specific chunk from implementation sequence]
-Files you own: [list — no overlap with other builders]
-Oracle criteria for this chunk: [subset]
-RED → GREEN → REFACTOR → COMMIT for each criterion.
-""")
-```
+For single-chunk work, spawn one builder with the full spec.
 
-Single-chunk work: one builder, no worktree needed.
-Multi-chunk work: one builder per chunk, each in a worktree.
+For parallelizable work, spawn multiple builders simultaneously — each in its
+own worktree, each with disjoint file ownership and a subset of the oracle
+criteria. Tell each builder exactly which files it owns and which criteria
+it's responsible for. TDD: RED → GREEN → REFACTOR → COMMIT.
 
-### 4. Review (critic + bench sub-agents)
+### 4. Review
 
-Invoke `/code-review`, which spawns the reviewer bench in parallel. See the
-code-review skill for details. If blocking issues → dispatch builder to fix →
-re-review. Loop max 3 iterations.
+Invoke `/code-review`. This spawns the full reviewer bench in parallel
+(critic + ousterhout + carmack + grug + beck). If blocking issues are found,
+spawn a builder sub-agent to fix each concern, then re-review. Loop max 3.
 
 ### 5. Ship
 

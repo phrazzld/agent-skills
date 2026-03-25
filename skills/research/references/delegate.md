@@ -14,44 +14,35 @@ You don't investigate/review/implement yourself. You:
 
 ## Sub-Agent Archetypes
 
-| Archetype | When to use | Example dispatch |
-|-----------|-------------|-----------------|
-| **planner** | Decompose work, write specs | `Agent(subagent_type: "planner", prompt: "...")` |
-| **builder** | Implement, test, fix | `Agent(subagent_type: "builder", prompt: "...")` |
-| **critic** | Evaluate output quality | `Agent(subagent_type: "critic", prompt: "...")` |
-| **Explore** | Codebase research, file discovery | `Agent(subagent_type: "Explore", prompt: "...")` |
-| **philosophy bench** | Design review (ousterhout, carmack, grug, beck) | Spawn all 4 in parallel |
+| Archetype | When to use |
+|-----------|-------------|
+| **planner** | Decompose work, write specs, scope decisions |
+| **builder** | Implement, test, fix, gather evidence |
+| **critic** | Evaluate output quality, grade against criteria |
+| **Explore** | Codebase research, file discovery, pattern mapping |
+| **philosophy bench** | Design review — spawn ousterhout, carmack, grug, beck in parallel |
 
 ### External tools (non-agent)
 
-| Tool | Invocation | Best for |
-|------|------------|----------|
-| Thinktank CLI | `thinktank question.md context.md --synthesis` | Multi-model consensus, architecture validation |
-| /research | Invoke the research skill | Web search, prior art, reference implementations |
+| Tool | Best for |
+|------|----------|
+| Thinktank CLI | Multi-model consensus, architecture validation |
+| /research | Web search, prior art, reference implementations |
 
 ## How to Delegate
 
-State goals, not steps:
+State goals, not steps. Give the sub-agent the objective and let it figure
+out the path. Include constraints and verify commands, but don't micromanage.
 
-**Good:**
-```
-Agent(subagent_type: "builder", prompt: "Investigate this stack trace. Find root cause. Propose fix with file:line.")
-```
+**Good:** "Investigate this stack trace. Find root cause. Propose fix with file:line."
 
-**Bad:**
-```
-Agent(prompt: "Step 1: Read file X. Step 2: Check line Y. Step 3: ...")
-```
+**Bad:** "Step 1: Read file X. Step 2: Check line Y. Step 3: ..."
 
 ## Parallel Execution
 
-Spawn independent sub-agents in a single message — they run concurrently:
-
-```
-Agent(subagent_type: "Explore", prompt: "Backend API review — list all endpoints, check auth")
-Agent(subagent_type: "Explore", prompt: "Frontend component audit — find unused components")
-Agent(subagent_type: "Explore", prompt: "Test coverage analysis — which modules lack tests?")
-```
+Spawn independent sub-agents simultaneously — they run concurrently. Use this
+when tasks don't depend on each other: one reviews the backend API, another
+audits frontend components, a third analyzes test coverage. All in one message.
 
 ## When to use which pattern
 
@@ -67,15 +58,14 @@ Agent(subagent_type: "Explore", prompt: "Test coverage analysis — which module
 For large work (10+ subtasks, multiple phases), use DAG-based scheduling:
 
 ```
-Phase 1 (no deps):    Task 01, 02, 03 → spawn in parallel
-Phase 2 (deps on P1): Task 04, 05     → blocked until P1 complete
-Phase 3 (deps on P2): Task 06, 07, 08 → blocked until P2 complete
+Phase 1 (no deps):    Tasks 01, 02, 03 → spawn in parallel
+Phase 2 (deps on P1): Tasks 04, 05     → blocked until P1 complete
+Phase 3 (deps on P2): Tasks 06, 07, 08 → blocked until P2 complete
 ```
 
-Use task tracking to manage phases:
-1. Decompose into atomic tasks with dependency declarations
-2. Spawn all unblocked tasks in a single message
-3. Mark completed, check newly-unblocked, spawn next phase
+Use task tracking to manage phases: decompose into atomic tasks with
+dependencies, spawn all unblocked tasks simultaneously, mark completed,
+check newly-unblocked, spawn next phase.
 
 ## Curation (Your Core Job)
 

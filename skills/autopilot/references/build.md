@@ -36,18 +36,13 @@ Do not write production code before a relevant failing test exists.
 
 ## Delegation Pattern
 
-For each logical chunk, spawn a builder sub-agent:
-
-```
-Agent(subagent_type: "builder", prompt: """
-Implement: [chunk description from context packet]
-Files you own: [specific files — no overlap with other builders]
-Pattern to follow: [reference file path]
-Oracle for this chunk: [specific criteria]
-Verify: [test command]
-RED first, then GREEN, then REFACTOR.
-""")
-```
+For each logical chunk, spawn a builder sub-agent. Tell it:
+- What to implement (chunk description from context packet)
+- Which files it owns (no overlap with other builders)
+- Which pattern to follow (reference file path)
+- Which oracle criteria it's responsible for
+- How to verify (test command)
+- TDD: RED first, then GREEN, then REFACTOR
 
 ### Pre-delegation checklist
 - Existing tests? Warn: "Don't break tests in [file]"
@@ -59,14 +54,8 @@ RED first, then GREEN, then REFACTOR.
 ## Multi-Module Mode
 
 When the work spans 3+ distinct modules, spawn parallel builder sub-agents
-with disjoint file ownership:
-
-```
-Agent(subagent_type: "builder", isolation: "worktree", prompt: "Implement API layer: [spec]. Files: src/api/...")
-Agent(subagent_type: "builder", isolation: "worktree", prompt: "Implement UI layer: [spec]. Files: src/components/...")
-Agent(subagent_type: "builder", isolation: "worktree", prompt: "Implement test layer: [spec]. Files: tests/...")
-```
-
+in separate worktrees with disjoint file ownership. One for the API layer,
+one for the UI, one for tests, etc. Each builds independently.
 Coordinate commit sequencing after all builders complete.
 
 ## Execution Loop

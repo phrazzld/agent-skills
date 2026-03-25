@@ -20,13 +20,9 @@ the unit of specification that precedes implementation.
 
 Accept: raw idea, backlog.d/ item, issue ID, or observation.
 
-Spawn parallel sub-agents to gather context fast:
-
-```
-Agent(subagent_type: "Explore", prompt: "Map the codebase area relevant to [topic]. What files exist, what patterns are established, what constraints apply?")
-Agent(subagent_type: "Explore", prompt: "Search for prior art: how do other projects solve [problem]? Check the codebase, then /research if needed.")
-```
-
+Spawn parallel sub-agents to gather context fast: one to map the relevant
+codebase area (files, patterns, constraints), another to search for prior art
+(how do other projects solve this? check codebase first, then /research).
 Synthesize their findings before proceeding.
 
 ### Phase 2: Product Exploration
@@ -44,13 +40,11 @@ Synthesize their findings before proceeding.
    architecture sketch, files to modify, pattern alignment, effort, tradeoffs.
    **Recommend one.**
 
-2. **Validate** — For effort M or larger, spawn the design review bench:
-   ```
-   Agent(subagent_type: "ousterhout", prompt: "Review this design for module depth and information hiding: [design summary]")
-   Agent(subagent_type: "carmack", prompt: "Review this design for shippability and over-engineering: [design summary]")
-   Agent(subagent_type: "grug", prompt: "Review this design for complexity: [design summary]")
-   ```
-   If any reviewer has blocking concerns, revise before proceeding.
+2. **Validate** — For effort M or larger, spawn the design review bench in parallel:
+   ousterhout reviews for module depth and information hiding, carmack for
+   shippability and over-engineering, grug for complexity. Give each the design
+   summary and ask for a verdict + concerns. If any has blocking concerns,
+   revise the design before proceeding.
 
 3. **Discuss** — No limit on rounds. Design isn't ready until user says so.
 

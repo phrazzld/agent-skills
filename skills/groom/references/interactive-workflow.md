@@ -122,13 +122,9 @@ prompts, routing tables, and templates.
 
 ### Track A: Reference Architecture Search
 
-Launch 2-3 sub-agents to find similar projects:
-
-```
-Agent(subagent_type: "Explore", prompt: "Scan codebase for architectural patterns. Compare to industry standard approaches for [domain].")
-```
-
-Plus invoke `/research` for external reference architectures:
+Spawn a sub-agent to scan the codebase for architectural patterns and compare
+to industry standard approaches for the domain. In parallel, invoke `/research`
+for external reference architectures:
 - "Find open-source repos solving similar problems to [project description]"
 - "[domain] [tech stack] reference implementations"
 

@@ -101,34 +101,14 @@ The command runs at skill load time. Claude sees the output, not the command.
 
 ## Evaluating a Skill (/harness eval)
 
-Test whether a skill improves output quality. Spawn parallel sub-agents
-for baseline comparison — one with the skill, one without:
+Test whether a skill improves output quality via baseline comparison.
 
-```
-# Run both in parallel for the same prompt:
-Agent(prompt: """
-[DO NOT load the {skill} skill for this run]
-Task: {eval prompt}
-Output your result, then rate your confidence 1-10.
-""")
+Spawn two sub-agents in parallel with the same representative prompt. One runs
+without the skill loaded (baseline). The other runs with the skill active.
+Both produce their output and rate their confidence.
 
-Agent(prompt: """
-[Load and follow the {skill} skill]
-Task: {eval prompt}
-Output your result, then rate your confidence 1-10.
-""")
-```
-
-Then spawn a **critic** sub-agent to compare:
-
-```
-Agent(subagent_type: "critic", prompt: """
-Compare these two outputs for the same task.
-Baseline (no skill): [output A]
-With skill: [output B]
-Which is better? By how much? Is the skill load-bearing or marginal?
-""")
-```
+Then spawn a critic sub-agent to compare the two outputs: which is better?
+By how much? Is the skill load-bearing or marginal?
 
 If improvement is marginal, the skill isn't load-bearing. Delete it.
 Write eval prompts to `evals/` in the skill directory. Rerun after changes.
