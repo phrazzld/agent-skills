@@ -124,9 +124,13 @@ prompts, routing tables, and templates.
 
 Launch 2-3 sub-agents to find similar projects:
 
-- Gemini CLI: "We're building [project description from project.md]. Find open-source repos, articles, frameworks solving similar problems."
-- Web search: "[domain] open-source [tech stack alternatives]"
-- Codex: scan codebase for architectural patterns, compare to industry standard
+```
+Agent(subagent_type: "Explore", prompt: "Scan codebase for architectural patterns. Compare to industry standard approaches for [domain].")
+```
+
+Plus invoke `/research` for external reference architectures:
+- "Find open-source repos solving similar problems to [project description]"
+- "[domain] [tech stack] reference implementations"
 
 For each reference found, capture:
 - Design choices and tech stack
@@ -195,7 +199,7 @@ If radical restructuring was chosen, research the target architecture deeply.
    - current docs
    - deprecations
    - updated approaches
-   - use Gemini when helpful
+   - use /research when helpful
 2. **Cross-repo investigation**
    - how sibling repos solved similar problems
    - shared patterns/libraries to reuse
@@ -254,4 +258,4 @@ Use plain conversation by default. Structured questions only when a real decisio
 | Infra & quality | production, quality gates, observability |
 | Product & growth | landing, onboarding, virality, strategy |
 | Payments & integrations | Stripe, Bitcoin, Lightning |
-| AI enrichment | Gemini research, Codex implementation recs |
+| AI enrichment | /research, sub-agent implementation recs |

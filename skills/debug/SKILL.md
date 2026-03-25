@@ -50,43 +50,50 @@ External service issues are usually config, not code. Check in order:
 3. **Endpoints reachable?** `curl -I -X POST <webhook_url>`
 4. **Then** examine code
 
-## The Codex First-Draft Pattern
+## Sub-Agent Patterns
 
-Codex investigates. You review and verify.
+### Quick investigation (default)
 
-```bash
-codex exec "DEBUG: $SYMPTOMS. Reproduce, isolate root cause, propose fix." \
-  --output-last-message /tmp/codex-debug.md 2>/dev/null
+For straightforward bugs, spawn a single builder sub-agent to gather evidence:
+
+```
+Agent(subagent_type: "builder", prompt: """
+Investigate: $SYMPTOMS
+1. Reproduce the issue
+2. Trace data flow to identify root cause
+3. Report: root cause, evidence, proposed fix
+Do NOT implement the fix — just report findings.
+""")
 ```
 
-## Executive / Worker Split
+You review the findings, decide if the root cause is proven, then fix or dig deeper.
 
-Keep the strongest available model on debugging judgment:
-- ranking hypotheses and deciding what to test next
-- declaring root cause proven
-- choosing the remediation and deciding when evidence is sufficient
+### Multi-Hypothesis Mode
 
-Delegate bounded evidence work to smaller worker subagents:
-- tracing one subsystem or one hypothesis
-- comparing working vs broken implementations
-- gathering logs, reproductions, and targeted test cases
+When >2 plausible root causes and single investigation would anchor on one,
+spawn parallel investigators — one per hypothesis:
 
-Workers gather proof. The lead decides what the proof means.
+```
+# In one message, spawn all:
+Agent(prompt: "Investigate hypothesis: [H1 description]. Trace [subsystem]. Report: confirmed/disproved + evidence.")
+Agent(prompt: "Investigate hypothesis: [H2 description]. Trace [subsystem]. Report: confirmed/disproved + evidence.")
+Agent(prompt: "Investigate hypothesis: [H3 description]. Trace [subsystem]. Report: confirmed/disproved + evidence.")
+```
 
-## Multi-Hypothesis Mode (Agent Teams)
-
-When >2 plausible root causes and single investigation would anchor on one:
-
-1. Create agent team with 3-5 investigators
-2. Each teammate gets one hypothesis to prove/disprove
-3. Teammates challenge each other's findings
-4. Lead synthesizes consensus root cause
-
-Prefer smaller worker-class models for these investigators unless a hypothesis
-demands frontier-level reasoning. Keep the synthesis on the strongest model.
+Each investigator gets one hypothesis to prove/disprove. You synthesize
+their findings into a consensus root cause.
 
 Use when: ambiguous stack trace, multiple services, flaky failures.
 Don't use when: obvious single cause, config issue, simple regression.
+
+### What you keep vs what you delegate
+
+| You (lead) | Sub-agents (investigators) |
+|------------|---------------------------|
+| Ranking hypotheses | Tracing one subsystem |
+| Declaring root cause proven | Comparing working vs broken |
+| Choosing the fix | Gathering logs and reproductions |
+| Deciding when evidence is sufficient | Running targeted test cases |
 
 ## Instrumented Reproduction Loop
 
@@ -221,14 +228,11 @@ For non-trivial production issues, create `INCIDENT-{timestamp}.md`:
 
 ## Toolkit
 
-- **Sentry MCP**: `get_issue_details` for full context, `analyze_issue_with_seer` for AI root cause,
-  `get_trace_details` for distributed traces, `search_events` for raw event search,
-  `get_profile` for performance profiling
+- **Sentry MCP**: `get_issue_details`, `analyze_issue_with_seer`, `get_trace_details`, `search_events`
 - **Git**: bisect, blame, recent deploys
-- **Observability**: vercel/convex logs, sentry-cli
-- **Codex**: Delegate investigation
-- **Gemini**: Web-grounded research, similar issues
-- **Thinktank**: Multi-model hypothesis validation
+- **Observability**: platform logs, sentry-cli, monitoring dashboards
+- **Sub-agents**: Parallel hypothesis investigation (see above)
+- **/research thinktank**: Multi-model hypothesis validation
 
 ## Output
 

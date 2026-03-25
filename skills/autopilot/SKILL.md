@@ -16,55 +16,77 @@ Full delivery pipeline. From backlog item to shipped code in one command.
 
 ## Architecture: Planner → Builder → Critic
 
-Autopilot orchestrates three sub-agent archetypes:
-
-1. **Planner** — decomposes work, writes specs via `/shape`
-2. **Builder** — implements via TDD, commits atomically
-3. **Critic** — evaluates output via `/code-review`, fails or approves
-
-You (the top-level agent) are the orchestrator. You dispatch to sub-agents,
-synthesize their output, and make proceed/fix/escalate decisions.
+You are the orchestrator. You dispatch to sub-agents, synthesize their
+output, and make proceed/fix/escalate decisions. Never delegate the
+ship/don't-ship call.
 
 ## Workflow
 
-1. **Pick work** — Read `backlog.d/` for highest-priority ready item.
-   Or accept explicit argument (issue ID, backlog file, raw description).
+### 1. Pick work
 
-2. **Shape** — Launch planner sub-agent to run `/shape` on the item.
-   Output: context packet with goal, non-goals, constraints, oracle,
-   implementation sequence. If the item is already well-specced, skip.
+Read `backlog.d/` for highest-priority ready item, or accept explicit argument.
 
-3. **Build (TDD)** — Launch builder sub-agent(s) with the spec.
-   - RED: write failing tests from oracle criteria
-   - GREEN: implement until tests pass
-   - REFACTOR: simplify
-   - Commit atomically after each logical chunk
-   - If work is parallelizable, launch multiple builders with disjoint file ownership
+### 2. Shape (planner sub-agent)
 
-4. **Review** — Trigger `/code-review` on the built code.
-   Launches parallel reviewer team (critic + philosophy agents).
-   If blocking issues found → dispatch builder to fix → re-review.
-   Loop until clean.
+Spawn a **planner** sub-agent to run `/shape`:
 
-5. **Ship** — Once review passes:
-   - Squash or create semantic commits
-   - Open PR if collaborating (include context packet in body)
-   - Or commit directly to main if solo project
-   - Run quality gates (lint, typecheck, test) before push
+```
+Agent(subagent_type: "planner", prompt: """
+Shape this backlog item into a context packet:
+[paste backlog item content]
+Read the codebase, research prior art, produce a context packet with:
+goal, non-goals, constraints, repo anchors, oracle, implementation sequence.
+""")
+```
 
-6. **Retro** (optional) — If the build surfaced learnings, run `/reflect`.
+If the item already has a complete context packet (goal + oracle + sequence), skip.
 
-## Executive / Worker Split
+### 3. Build (builder sub-agents)
 
-Keep the strongest model on orchestration:
-- Work selection and scope decisions
-- Spec approval and tradeoff calls
-- Review synthesis and ship/don't-ship judgment
+Spawn **builder** sub-agent(s) with the context packet. For parallelizable work,
+spawn multiple builders with disjoint file ownership in separate worktrees:
 
-Delegate to workers:
-- Implementation chunks with disjoint file ownership
-- Test writing and repair
-- Mechanical refactors and cleanup
+```
+Agent(subagent_type: "builder", isolation: "worktree", prompt: """
+Implement this spec via TDD:
+[paste context packet]
+Focus on: [specific chunk from implementation sequence]
+Files you own: [list — no overlap with other builders]
+Oracle criteria for this chunk: [subset]
+RED → GREEN → REFACTOR → COMMIT for each criterion.
+""")
+```
+
+Single-chunk work: one builder, no worktree needed.
+Multi-chunk work: one builder per chunk, each in a worktree.
+
+### 4. Review (critic + bench sub-agents)
+
+Invoke `/code-review`, which spawns the reviewer bench in parallel. See the
+code-review skill for details. If blocking issues → dispatch builder to fix →
+re-review. Loop max 3 iterations.
+
+### 5. Ship
+
+Once review passes:
+- Squash or create semantic commits
+- Open PR if collaborating (context packet in body)
+- Or commit directly if solo project
+- Run quality gates (lint, typecheck, test) before push
+
+### 6. Retro (optional)
+
+If the build surfaced learnings, invoke `/reflect`.
+
+## What you keep vs what you delegate
+
+| You (orchestrator) | Sub-agents |
+|--------------------|------------|
+| Work selection, priority | Codebase research (planner) |
+| Spec approval, scope decisions | Implementation chunks (builder) |
+| Review synthesis, ship/don't-ship | Code review (critic + bench) |
+| Conflict resolution between agents | Test writing and repair (builder) |
+| Final commit and push | Mechanical refactors (builder) |
 
 ## Quality Gates
 

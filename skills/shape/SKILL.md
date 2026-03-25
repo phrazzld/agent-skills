@@ -19,8 +19,15 @@ the unit of specification that precedes implementation.
 ### Phase 1: Understand
 
 Accept: raw idea, backlog.d/ item, issue ID, or observation.
-Read codebase context — adjacent features, existing patterns, constraints.
-Use `/research` for prior art and reference architectures.
+
+Spawn parallel sub-agents to gather context fast:
+
+```
+Agent(subagent_type: "Explore", prompt: "Map the codebase area relevant to [topic]. What files exist, what patterns are established, what constraints apply?")
+Agent(subagent_type: "Explore", prompt: "Search for prior art: how do other projects solve [problem]? Check the codebase, then /research if needed.")
+```
+
+Synthesize their findings before proceeding.
 
 ### Phase 2: Product Exploration
 
@@ -36,8 +43,15 @@ Use `/research` for prior art and reference architectures.
 1. **Explore** — 3-5 technical approaches. For each:
    architecture sketch, files to modify, pattern alignment, effort, tradeoffs.
    **Recommend one.**
-2. **Validate** — For effort M or larger, run multi-perspective review
-   (ousterhout, carmack, grug via sub-agents or sequentially)
+
+2. **Validate** — For effort M or larger, spawn the design review bench:
+   ```
+   Agent(subagent_type: "ousterhout", prompt: "Review this design for module depth and information hiding: [design summary]")
+   Agent(subagent_type: "carmack", prompt: "Review this design for shippability and over-engineering: [design summary]")
+   Agent(subagent_type: "grug", prompt: "Review this design for complexity: [design summary]")
+   ```
+   If any reviewer has blocking concerns, revise before proceeding.
+
 3. **Discuss** — No limit on rounds. Design isn't ready until user says so.
 
 ### Phase 4: Context Packet

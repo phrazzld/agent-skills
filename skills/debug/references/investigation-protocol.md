@@ -15,8 +15,8 @@ Absorbed from the `investigate` skill.
 
 - **Observability**: sentry-cli, npx convex, vercel
 - **Git**: Recent deploys, changes, bisect
-- **Gemini CLI**: Web-grounded research, hypothesis generation
-- **Thinktank**: Multi-model validation on hypotheses
+- **/research**: Web-grounded research, hypothesis generation
+- **/research thinktank**: Multi-model validation on hypotheses
 
 ### Multi-Hypothesis Mode (Agent Teams)
 

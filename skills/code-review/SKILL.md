@@ -29,19 +29,47 @@ Optional external reviewers: Think Tank CLI, Cerberus CLI, other model APIs.
 
 ## Workflow
 
-1. **Gather diff** — `git diff main...HEAD` or specified scope
-2. **Launch reviewers in parallel** — each gets the full diff + context
-3. **Collect verdicts** — each reviewer returns:
-   - **Ship / Don't Ship** verdict
-   - Top 3 concerns (file:line + specific fix)
-   - One sentence: best thing about this code
-4. **Synthesize** — deduplicate findings, rank by severity
-5. **Gate decision:**
-   - All Ship → approve, proceed to merge
-   - Any Don't Ship → dispatch builder sub-agents to fix concerns
-   - Re-review after fixes (return to step 1)
-   - Loop until clean or max 3 iterations
-6. **If stuck after 3 iterations** — escalate to human with findings summary
+### 1. Gather diff
+
+```bash
+git diff main...HEAD
+```
+
+Or use the specified scope (branch, files, commit range).
+
+### 2. Launch all reviewers in parallel
+
+Spawn all 5 in a single message — they run concurrently:
+
+```
+# In one message, spawn all of these:
+Agent(subagent_type: "critic", prompt: "Review this diff. [diff]. Verdict: Ship/Don't Ship. Top 3 concerns (file:line + fix). Best thing about this code.")
+Agent(subagent_type: "ousterhout", prompt: "Review this diff for module depth, information hiding, interface simplicity. [diff]. Verdict + concerns.")
+Agent(subagent_type: "carmack", prompt: "Review this diff for shippability, over-engineering, speculative generality. [diff]. Verdict + concerns.")
+Agent(subagent_type: "grug", prompt: "Review this diff for complexity. Too many layers? Too clever? [diff]. Verdict + concerns.")
+Agent(subagent_type: "beck", prompt: "Review this diff for test quality. TDD? One behavior per test? Edge cases? [diff]. Verdict + concerns.")
+```
+
+If the harness doesn't support 5 concurrent sub-agents, run critic first,
+then the philosophy bench in parallel (4), or run all sequentially.
+
+### 3. Collect and synthesize
+
+Each reviewer returns: Ship/Don't Ship + concerns + best thing.
+Deduplicate findings. Rank by severity.
+
+### 4. Gate
+
+- **All Ship** → approve, proceed to merge
+- **Any Don't Ship** → dispatch builder sub-agent to fix the blocking concern:
+  ```
+  Agent(subagent_type: "builder", prompt: "Fix this blocking issue: [concern with file:line and specific fix instruction]. Run tests after fixing.")
+  ```
+- Re-review after fixes (return to step 2). Max 3 iterations.
+
+### 5. Escalate
+
+If still blocked after 3 iterations → report findings to user, ask for judgment.
 
 ## Grading Criteria
 

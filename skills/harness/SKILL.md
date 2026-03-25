@@ -101,18 +101,36 @@ The command runs at skill load time. Claude sees the output, not the command.
 
 ## Evaluating a Skill (/harness eval)
 
-Test whether a skill improves output quality. Inspired by Anthropic's
-skill-creator methodology.
+Test whether a skill improves output quality. Spawn parallel sub-agents
+for baseline comparison — one with the skill, one without:
 
-1. **Define 2-3 representative prompts** — real tasks the skill should help with
-2. **Run without skill** — capture baseline output
-3. **Run with skill** — capture skill-enhanced output
-4. **Compare** — did the skill make output measurably better?
-   - More correct? Fewer errors?
-   - Better structured? Clearer?
-   - Catches edge cases baseline missed?
-5. **Iterate** — if improvement is marginal, the skill isn't load-bearing. Delete it.
+```
+# Run both in parallel for the same prompt:
+Agent(prompt: """
+[DO NOT load the {skill} skill for this run]
+Task: {eval prompt}
+Output your result, then rate your confidence 1-10.
+""")
 
+Agent(prompt: """
+[Load and follow the {skill} skill]
+Task: {eval prompt}
+Output your result, then rate your confidence 1-10.
+""")
+```
+
+Then spawn a **critic** sub-agent to compare:
+
+```
+Agent(subagent_type: "critic", prompt: """
+Compare these two outputs for the same task.
+Baseline (no skill): [output A]
+With skill: [output B]
+Which is better? By how much? Is the skill load-bearing or marginal?
+""")
+```
+
+If improvement is marginal, the skill isn't load-bearing. Delete it.
 Write eval prompts to `evals/` in the skill directory. Rerun after changes.
 
 ## Linting a Skill (/harness lint)

@@ -42,10 +42,10 @@ If all clean: "All systems nominal. No action required."
 
 ### Delegation
 
-- **Codex**: Stack trace analysis, code archaeology
-- **Gemini**: Research patterns, known issues
-- **Thinktank**: Validate proposed fix before implementing
-- **Agent teams**: When >2 plausible root causes (see `/debug`)
+- **Builder sub-agent**: Stack trace analysis, code archaeology
+- **/research**: Prior art, known issues, similar incidents
+- **/research thinktank**: Validate proposed fix before implementing
+- **Parallel investigators**: When >2 plausible root causes (see `/debug`)
 
 ### Multi-Hypothesis Mode
 

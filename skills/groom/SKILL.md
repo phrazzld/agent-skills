@@ -57,7 +57,11 @@ Estimate: S | M | L | XL
 
 ## Workflow: Explore
 
-1. **Gather context** — Read backlog.d/, recent git history, project docs
+1. **Gather context** — Spawn parallel sub-agents to read the landscape fast:
+   ```
+   Agent(subagent_type: "Explore", prompt: "Map the codebase: architecture, tech debt, recent velocity. What are the biggest opportunities and risks?")
+   Agent(subagent_type: "Explore", prompt: "Read backlog.d/ and recent git history. What's done, what's stalled, what's missing?")
+   ```
 2. **Brainstorm** — Generate 3-5 candidate items with tradeoffs
 3. **Research** — Use `/research` for prior art, reference architectures
 4. **Discuss** — One question at a time. Recommend, don't just list.
@@ -66,8 +70,12 @@ Estimate: S | M | L | XL
 
 ## Workflow: Rethink
 
-1. **Understand deeply** — Read the system. Map dependencies. Find pain.
-2. **Research alternatives** — `/research thinktank` for multi-perspective analysis
+1. **Understand deeply** — Spawn an Explore sub-agent to map the system:
+   ```
+   Agent(subagent_type: "Explore", prompt: "Deeply analyze [system/module]. Map all dependencies, pain points, complexity hotspots. What would you redesign?")
+   ```
+2. **Research alternatives** — Invoke `/research thinktank` for multi-perspective analysis.
+   This dispatches to multiple external models for independent opinions.
 3. **Synthesize options** — 2-3 approaches with honest tradeoffs
 4. **Recommend** — One clear recommendation with reasoning
 5. **Capture** — Write backlog.d/ item for the recommended change
@@ -77,11 +85,19 @@ the real problem is one leaky abstraction, ignoring the "do nothing" option.
 
 ## Workflow: Moonshot
 
-Force divergent thinking beyond the current roadmap:
-1. What's the single highest-leverage addition?
-2. What would a competitor build that would make this obsolete?
+Force divergent thinking. Spawn a planner sub-agent with a divergent prompt:
+
+```
+Agent(subagent_type: "planner", prompt: """
+Forget the current backlog. Think from first principles:
+1. What's the single highest-leverage addition to this project?
+2. What would a competitor build that makes this obsolete?
 3. What's the user's biggest unmet need?
-One answer, fully argued. Write as backlog.d/ item.
+One answer, fully argued. Include goal, oracle, and rough effort estimate.
+""")
+```
+
+Review the planner's output. If compelling, write as backlog.d/ item.
 
 ## Workflow: Scaffold
 

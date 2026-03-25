@@ -26,7 +26,11 @@ Absorbs `/calibrate` — mid-session harness postmortem is now a mode of reflect
 
 ## Workflow: Distill
 
-1. **Gather evidence** — `git diff --stat`, `git log --oneline -10`, conversation context
+1. **Gather evidence** — Spawn parallel sub-agents to scan what changed:
+   ```
+   Agent(subagent_type: "Explore", prompt: "Read git diff --stat and git log --oneline -10. Summarize: what changed, what areas were touched, what patterns emerged.")
+   Agent(subagent_type: "Explore", prompt: "Scan AGENTS.md, CLAUDE.md, and active skills for instructions that conflict with what we actually did this session. Flag stale or wrong guidance.")
+   ```
 2. **Categorize** — went well, friction, bugs, missing artifacts, gaps
 3. **Codify** — apply hierarchy (highest leverage wins):
    ```
