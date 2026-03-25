@@ -1,0 +1,78 @@
+model = "gpt-5-codex"
+model_reasoning_effort = "high"
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+project_doc_fallback_filenames = ["CLAUDE.md", "TEAM_GUIDE.md", ".agents.md"]
+
+# Profiles for different workflows
+[profiles.ultrathink]
+model = "gpt-5"
+model_reasoning_effort = "high"
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+
+[profiles.execute]
+model = "gpt-5-codex"
+model_reasoning_effort = "medium"
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+
+[profiles.ship]
+model = "gpt-5-codex"
+model_reasoning_effort = "high"
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+
+[profiles.fast]
+model = "gpt-5"
+model_reasoning_effort = "low"
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+
+# MCP integrations
+[mcp.exa]
+transport = "http"
+host = "https://api.exa.ai"
+api_key_env = "EXA_API_KEY"
+
+[features]
+voice_transcription = true
+
+[projects."/Users/phaedrus/Development/adminifi/web"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/chrondle"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/scry"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/brainrot"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/sploot"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/captioner"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/codex"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/gitpulse"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/hmm"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/ponder"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/volume"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/powder"]
+trust_level = "trusted"
+
+[projects."/Users/phaedrus/Development/noesis"]
+trust_level = "trusted"

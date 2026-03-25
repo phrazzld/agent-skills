@@ -1,0 +1,19 @@
+{
+  "lastChangelogVersion": "0.55.0",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.3-codex",
+  "theme": "dark",
+  "defaultThinkingLevel": "high",
+  "hideThinkingBlock": false,
+  "skills": [
+    "!/Users/phaedrus/.agents/skills/**",
+    "!skills/**",
+    "+skills/llm-communication",
+    "+skills/organic-reflection",
+    "+skills/skill-builder",
+    "+skills/prompt-context-engineering",
+    "+skills/web-search",
+    "+skills/github-cli-hygiene",
+    "+skills/agentic-bootstrap"
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "mcp__pencil",
+      "WebSearch",
+      "Bash(find:*)",
+      "Bash(done)",
+      "Bash(grep:*)",
+      "Bash(chmod:*)",
+      "WebFetch(domain:publish.obsidian.md)",
+      "Bash(du:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(gh:*)",
+      "Bash(vercel --version:*)",
+      "Bash(stripe --version:*)",
+      "Bash(stripe --help:*)",
+      "Bash(cat:*)",
+      "Bash(vercel env list --help:*)",
+      "Bash(vercel projects:*)",
+      "Bash(stripe customers list:*)",
+      "Bash(stripe invoices list:*)",
+      "Bash(stripe subscriptions list:*)",
+      "Bash(stripe charges list:*)",
+      "Bash(stripe products list:*)",
+      "Bash(vercel whoami:*)",
+      "WebFetch(domain:help.obsidian.md)",
+      "WebFetch(domain:blacksmithgu.github.io)",
+      "Bash(head:*)",
+      "Bash(crontab -l:*)",
+      "Bash(launchctl list:*)",
+      "Bash(./scripts/install-automations.sh:*)",
+      "Bash(/Users/phaedrus/Documents/daybook/scripts/morning-brief.sh:*)",
+      "Bash(tree:*)",
+      "Bash(topydo:*)",
+      "Bash(thinktank:*)",
+      "Bash(gemini:*)",
+      "Bash(curl -s https://api.x.ai/:*)",
+      "Bash(curl -s https://api.exa.ai/:*)"
+    ],
+    "defaultMode": "default"
+  },
+  "enabledMcpjsonServers": [],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Glob|Grep|LS|Task|WebFetch|WebSearch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/permission-auto-approve.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/destructive-command-guard.py",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/env-var-newline-guard.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/github-cli-guard.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/portable-code-guard.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/disk-space-guard.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/block-master-push.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/fix-what-you-touch.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/merge-review-guard.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "WebSearch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/exa-research-reminder.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/exclusion-guard.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/portable-code-guard.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/codex-post-feedback.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/shaping-ripple.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/time-context.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/codex-session-init.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/session-health-check.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "code-review@claude-code-plugins": true,
+    "commit-commands@claude-code-plugins": true,
+    "compounding-engineering@every-marketplace": true,
+    "feature-dev@claude-code-plugins": true,
+    "pr-review-toolkit@claude-code-plugins": true,
+    "code-simplifier@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "design-and-refine@design-plugins": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "frontend-design@claude-code-plugins": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-code-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-code"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true
+}
