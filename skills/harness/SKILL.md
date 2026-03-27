@@ -149,6 +149,18 @@ When encoding knowledge, target the highest-leverage mechanism:
 Type system > Lint rule > Hook > Test > CI > Skill > AGENTS.md > Memory
 ```
 
+### The Design Test (Norman Principle)
+
+For any harness component, apply the Norman test:
+
+1. **Can an agent make this error?** → The harness allows it. Add prevention.
+2. **Does the harness make this error likely?** → The harness induces it. Fix urgently.
+3. **After an error, does the response fix the system?** → If not, you're teaching
+   burner mappings. Redesign the stove.
+
+Prevention hierarchy: Type system > Hook > Lint > Test > Skill > Prose.
+Prose is the burner label. Hooks are the redesigned stove.
+
 ### Hooks are the highest-leverage investment
 
 Hooks run on every tool use. CLAUDE.md is read once. A hook that blocks

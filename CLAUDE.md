@@ -27,7 +27,7 @@ backlog.d/ → /groom → /shape (planner) → /autopilot (builder) → /code-re
 
 ## Principles
 
-See `harnesses/shared/principles.md` for engineering doctrine.
+See `harnesses/shared/AGENTS.md` — one file, symlinked to every harness.
 
 - **Focused set of skills and agents** — resist bloat, justify additions
 - **Harness is the product** — models are commodities

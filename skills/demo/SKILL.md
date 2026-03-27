@@ -26,131 +26,150 @@ Turn evidence into artifacts. From raw QA screenshots to polished launch videos.
 | Narration, voiceover, TTS, music | `references/tts-narration.md` |
 | Quick evidence (default) | This file |
 
-## Three Tiers of Demo Output
+## Workflow: Three Distinct Subagents
 
-### Tier 1: Quick Evidence (default)
+Each phase is a **separate subagent** launched via the Agent tool. The lead
+orchestrates but does NOT do the work itself. This prevents self-grading —
+the critic must be a fresh agent that challenges the implementer's output.
 
-Screenshots + GIFs from QA artifacts. Minimal processing. Done in minutes.
+### Phase 1: Planner (subagent_type: Plan)
 
-1. Collect evidence from `/tmp/qa-{slug}/`
-2. Convert WebM → GIF via ffmpeg (if needed)
-3. Upload to draft GitHub release
-4. Embed in PR comment
+Launch a Plan agent with this prompt structure:
 
-This is the default when invoked as part of `/autopilot` or when the user
-says "upload evidence" or "PR evidence."
+> I need to capture demo evidence for [feature]. Research the codebase to
+> produce a complete shot list.
+>
+> 1. Identify the feature delta — what visible state changes?
+> 2. `grep` for ALL call sites across ALL relevant apps. List every
+>    page/route where the feature renders something visible.
+> 3. Build a shot list table:
+>    `| # | App | Route | State | What to capture | Expected text/element |`
+>    Every "after" MUST have a paired "before" at the same route.
+> 4. Identify auth/env prerequisites (ports, slugs, tokens, login flows).
+> 5. Choose capture method per app (Playwright video, Chrome MCP, etc.).
+> 6. Write the plan to `/tmp/demo-plan.md`.
 
-### Tier 2: Walkthrough Video
+**Wait for the plan.** Review it. Present to user if non-trivial.
+Do NOT proceed until the shot list is complete and reviewed.
 
-Assemble captures into a composed video with title cards, captions, and
-transitions. No narration.
+### Phase 2: Implementer (subagent_type: general-purpose)
 
-1. Collect evidence (screenshots, recordings)
-2. Create a Remotion project (or use existing)
-3. Compose: intro card → step-by-step scenes → outro
-4. Render to MP4
-5. Upload or share
+Launch a general-purpose agent with the plan from Phase 1:
 
-See `references/remotion.md` for composition patterns.
+> Execute this demo capture plan: [paste /tmp/demo-plan.md contents]
+>
+> Rules:
+> - Verify all dev servers are running before starting
+> - Use Playwright with `page.video()` for automated captures
+> - Use Chrome MCP `gif_creator` for interactive flows
+> - Capture ALL "before" screenshots first, then apply state change,
+>   then capture ALL "after" screenshots
+> - Every screenshot must have a programmatic text assertion
+>   (verify the expected text is present, log pass/fail)
+> - Record a continuous walkthrough video — NOT a slideshow of PNGs
+> - Post-process: WebM → GIF, target < 5MB, 800px, 8fps
+> - Output everything to `/tmp/demo-evidence/`
+> - Clean up any state changes (reset overrides, etc.) after capture
 
-### Tier 3: Launch Video
+The implementer produces files. It does NOT upload or post.
 
-Full production: narration, background music, motion graphics.
+### Phase 3: Critic (subagent_type: general-purpose)
 
-1. Write a script (or generate from feature description)
-2. Generate voiceover via TTS
-3. Generate or select background music
-4. Compose in Remotion with captures + voiceover + music + captions
-5. Render and deliver
+Launch a **fresh** agent to validate. It has NO context from the implementer
+— it inspects the artifacts cold.
 
-See `references/remotion.md` and `references/tts-narration.md`.
+> Review the demo evidence in `/tmp/demo-evidence/` against the shot list
+> in `/tmp/demo-plan.md`. Run every gate below. Report PASS/FAIL for each.
+> If ANY gate fails, output specific fix instructions — do not upload.
+>
+> Gates:
+> 1. **Source validation**: Read each screenshot. Does it show the correct
+>    app? Check URL bar, app chrome, page content.
+> 2. **Before/after pairing**: Every "after" has a "before" from the same
+>    route. List any unpaired screenshots.
+> 3. **Text delta**: Before and after for the same route are visibly
+>    different. Read both images, confirm the expected text changed.
+> 4. **Coverage**: Compare shot list to captured files. For each shot list
+>    row, is there a corresponding file? List uncovered rows.
+> 5. **GIF quality**: Walkthrough has > 10 frames, > 2fps. Not a slideshow.
+>    `ffmpeg -i walkthrough.gif -f null - 2>&1 | grep frame=`
+> 6. **File sizes**: GIFs < 5MB, PNGs < 500KB. `ls -lh`
+>
+> Output: PASS (all gates green) or FAIL (list failures + fix instructions).
 
-## FFmpeg Essentials
+**If critic says FAIL**: fix the specific issues, re-run implementer for
+the failed items only, then re-run critic. Loop until PASS.
 
-These are the patterns you'll use constantly for post-processing.
+**If critic says PASS**: proceed to upload and post.
 
-### WebM → GIF (for inline PR rendering)
+### Upload & Post (lead does this, not a subagent)
+
+After critic PASS:
+1. Upload to draft release: `gh release create qa-evidence-pr-{N} --draft ...`
+2. Compose PR comment using the template below
+3. Post via `gh pr comment`
+
+## PR Comment Template
+
+```markdown
+## Demo: [Feature Name] — [Delta Description]
+
+### Walkthrough
+![walkthrough](URL/walkthrough.gif)
+
+### [App 1] — Before vs After
+
+| Page | Before | After |
+|------|--------|-------|
+| [Route] | ![](URL/before.png) | ![](URL/after.png) |
+
+### [App 2] — Before vs After
+
+| Page | Before | After |
+|------|--------|-------|
+| [Route] | ![](URL/before.png) | ![](URL/after.png) |
+
+### Override Flow
+| Step | Screenshot |
+|------|-----------|
+| 1. [Action] | ![](URL/step.png) |
+```
+
+## Three Tiers
+
+| Tier | Output | Subagent depth |
+|------|--------|---------------|
+| **1. Quick Evidence** (default) | Screenshots + GIF | Full triad |
+| **2. Walkthrough Video** | Composed MP4 with title cards | Full triad + Remotion |
+| **3. Launch Video** | Narration + music + motion | Full triad + TTS + Remotion |
+
+See `references/remotion.md` and `references/tts-narration.md` for tiers 2-3.
+
+## FFmpeg Quick Reference
 
 ```bash
+# WebM → GIF
 ffmpeg -y -i input.webm \
   -vf "fps=8,scale=800:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer" \
   -loop 0 output.gif
-```
-GitHub renders GIFs inline but not WebM. Always convert for PRs.
 
-### Concatenate clips
-
-```bash
-# Create file list
-echo "file 'clip1.mp4'" > /tmp/concat.txt
-echo "file 'clip2.mp4'" >> /tmp/concat.txt
-
-ffmpeg -y -f concat -safe 0 -i /tmp/concat.txt -c copy output.mp4
+# Concatenate clips
+ffmpeg -y -f concat -safe 0 -i list.txt -c copy output.mp4
 ```
 
-### Add audio track
+## PR Evidence Upload
 
-```bash
-ffmpeg -y -i video.mp4 -i narration.mp3 \
-  -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 \
-  -shortest output.mp4
-```
-
-### Burn subtitles/captions
-
-```bash
-ffmpeg -y -i video.mp4 \
-  -vf "subtitles=captions.srt:force_style='FontSize=24'" \
-  output.mp4
-```
-
-### Resize for platforms
-
-```bash
-# 16:9 for YouTube/web
-ffmpeg -y -i input.mp4 -vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" output-16x9.mp4
-
-# 1:1 for social
-ffmpeg -y -i input.mp4 -vf "crop=min(iw\,ih):min(iw\,ih),scale=1080:1080" output-square.mp4
-
-# 9:16 for mobile/stories
-ffmpeg -y -i input.mp4 -vf "crop=ih*9/16:ih,scale=1080:1920" output-vertical.mp4
-```
-
-## PR Evidence Upload (Quick Reference)
-
-For the full protocol, see `references/pr-evidence-upload.md`.
-
-```bash
-# Upload to draft release
-gh release create qa-evidence-pr-{NUMBER} \
-  --title "QA Evidence: PR #{NUMBER}" \
-  --notes "Visual QA evidence" \
-  --draft \
-  /tmp/qa-{slug}/*.gif \
-  /tmp/qa-{slug}/*.png
-
-# Get asset URLs and embed in PR comment
-RELEASE_TAG=$(gh release list --json tagName,isDraft \
-  --jq '.[] | select(.isDraft) | .tagName' \
-  | grep "qa-evidence-pr-{NUMBER}" | head -1)
-```
+See `references/pr-evidence-upload.md`.
 
 ## Gotchas
 
-- **WebM in PR comments doesn't render.** Always convert to GIF for inline
-  display. Link to the full WebM/MP4 for higher quality.
-- **GIFs over 10MB** load slowly in PR comments. Target 800px width, 8fps,
-  128-color palette. Trim to the essential flow.
-- **Screenshots of static state don't need GIFs.** Use GIF only for flows
-  with visible state changes.
-- **Remotion requires Node.** Check the project has Node before starting
-  video composition. Consider `npx create-video --yes --blank --tmp` for
-  one-off renders.
-- **TTS costs money.** OpenAI TTS is $0.015/1K chars. ElevenLabs is more
-  expensive but higher quality. Don't generate narration for internal QA
-  evidence — save it for launch videos.
-- **Draft releases cost nothing** but accumulate. Clean up after PR merge
-  if the repo has many PRs.
-- **Committing binary artifacts to the repo** is always wrong. Use draft
-  releases, external hosting, or `/tmp`.
+- **Default-state evidence proves nothing.** Show the delta, not just defaults.
+- **Self-grading is worthless.** The implementer must NOT critique its own work.
+  The critic subagent inspects artifacts cold — no shared context.
+- **Wrong-app screenshots are silent failures.** The critic reads each image.
+- **ffmpeg slideshows are not GIFs.** Real GIFs need browser recording or
+  Playwright video. The critic checks frame count.
+- **Unpaired "after" is noise.** The critic checks pairing.
+- **WebM doesn't render in PR comments.** Convert to GIF.
+- **GIFs over 5MB** are too slow. Target 800px, 8fps, 128 colors.
+- **Never commit binary artifacts.** Use draft releases or `/tmp`.

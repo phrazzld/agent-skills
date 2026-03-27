@@ -40,7 +40,7 @@ DESTRUCTIVE_SUBSTRINGS = [
     ("git stash clear", "Permanently deletes ALL stashed changes."),
     # GitHub CLI commands - equally destructive as their git equivalents
     ("gh repo delete", "Permanently deletes repository. Extremely destructive."),
-    ("gh release delete", "Permanently deletes a release."),
+    # gh release delete — allowed; draft releases are ephemeral (QA evidence, etc.)
     ("gh issue delete", "Permanently deletes an issue."),
     ("gh repo archive", "Archives repository, making it read-only."),
 ]

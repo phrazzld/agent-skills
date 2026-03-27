@@ -380,7 +380,7 @@ link_local() {
     info "  Linking harness config..."
     case "$harness" in
       claude)
-        link_file_if_present "$harness_config/CLAUDE.md" "$harness_dir/CLAUDE.md" "CLAUDE.md"
+        link_file_if_present "$SPELLBOOK/harnesses/shared/AGENTS.md" "$harness_dir/CLAUDE.md" "CLAUDE.md (← shared AGENTS.md)"
         link_dir_entries_if_present "$harness_config/hooks" "$harness_dir/hooks" "hooks/"
         copy_claude_settings_if_present "$harness_config/settings.json" "$harness_dir/settings.json"
         remove_path_if_symlink_to_prefix "$harness_dir/.claude/settings.local.json" "$SPELLBOOK" ".claude/settings.local.json"
@@ -388,10 +388,11 @@ link_local() {
       codex)
         cleanup_symlinks_under_prefix "$harness_dir/config" "$harness_config" "config.toml"
         link_file_if_present "$harness_config/config.toml" "$harness_dir/config/config.toml" "config.toml"
-        remove_path_if_symlink_to_prefix "$harness_dir/AGENTS.md" "$SPELLBOOK" "AGENTS.md"
+        link_file_if_present "$SPELLBOOK/harnesses/shared/AGENTS.md" "$harness_dir/AGENTS.md" "AGENTS.md (← shared)"
         ;;
       pi)
-        link_dir_entries_if_present "$harness_config/context/global" "$harness_dir/agent" "context/global/*.md"
+        link_file_if_present "$SPELLBOOK/harnesses/shared/AGENTS.md" "$harness_dir/agent/AGENTS.md" "AGENTS.md (← shared)"
+        remove_path_if_symlink_to_prefix "$harness_dir/agent/APPEND_SYSTEM.md" "$SPELLBOOK" "agent/APPEND_SYSTEM.md"
         link_file_if_present "$harness_config/settings.json" "$harness_dir/settings.json" "settings.json"
         cleanup_symlinks_under_prefix "$harness_dir/prompts" "$SPELLBOOK"
         remove_path_if_symlink_to_prefix "$harness_dir/persona.md" "$SPELLBOOK" "persona.md"

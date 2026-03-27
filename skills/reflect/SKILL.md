@@ -44,14 +44,22 @@ Default: codify. Exception: justify not codifying.
 
 When the agent makes a wrong decision mid-session:
 
+**The Norman Principle applies here.** The agent didn't fail — the harness did.
+"I knew better" is not a valid analysis. If the system let the agent make the
+error, the system is badly designed. If the system's own instructions induced
+the error, it's really badly designed.
+
 1. **What went wrong?** — Describe the incorrect decision
 2. **Why?** — Root cause in the harness (missing context, wrong instruction, stale rule)
-3. **Fix the harness** — Update the source of the problem:
+3. **Induction check** — Did the harness *cause* the error? Conflicting instructions,
+   stale context, misleading skill descriptions, missing hooks that would have
+   prevented it? Induction errors are the highest-priority fixes.
+5. **Fix the harness** — Update the source of the problem:
    - Wrong AGENTS.md instruction → fix AGENTS.md
    - Missing hook → add hook
    - Stale skill reference → update skill
    - Missing test → add test
-4. **Then fix the code** — The code fix should be trivial now
+6. **Then fix the code** — The code fix should be trivial now
 
 The harness fix is the real deliverable, not the code fix.
 

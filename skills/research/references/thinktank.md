@@ -12,12 +12,11 @@ Answer `$ARGUMENTS` with diverse AI perspectives, synthesized into actionable re
 
 ## Workflow
 
-1. **Frame** — Write clear instructions to `/tmp/thinktank-query.md`
-2. **Context** — Include specified files or branch diff as target paths.
-   For pure questions without code, create a stub: `echo "No code context" > /tmp/thinktank-ctx.md`
-3. **Run** — `thinktank /tmp/thinktank-query.md $FILES --synthesis --quiet --output-dir /tmp/thinktank-out`
-   Note: target path is required. `--output-dir` prevents dumping in CWD.
-4. **Read** — Synthesis is at `$OUTPUT_DIR/*-synthesis.md`
+1. **Frame** — Write a clear prompt.
+2. **Context** — Add `--paths` for relevant files, directories, or a branch diff file list.
+3. **Run** — `thinktank research "$ARGUMENTS" --output /tmp/thinktank-out --json`
+   Add `--paths ./src/auth --paths ./lib` as needed.
+4. **Read** — Synthesis is at `/tmp/thinktank-out/synthesis.md`
 5. **Synthesize** — Report consensus, divergent views, recommendations
 
 ## Usage

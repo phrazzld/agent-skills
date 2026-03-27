@@ -45,9 +45,9 @@ multi-source triangulation.
 
 1. **Exa search** — Bash: `curl -s https://api.exa.ai/search -H "x-api-key: $EXA_API_KEY" ...`
    See `references/exa-tools.md` for request format. WebSearch is fallback ONLY if curl fails.
-2. **Thinktank** — Write question to `/tmp/research-q.md`, create stub `/tmp/research-ctx.md`, then:
-   Bash: `thinktank /tmp/research-q.md /tmp/research-ctx.md --synthesis --quiet --output-dir /tmp/thinktank-out`
-   Note: thinktank requires a target path (use stub for pure questions). Always set `--output-dir /tmp/...` to avoid dumping in CWD.
+2. **Thinktank** — Run the native research workflow:
+   Bash: `thinktank research "$QUERY" --output /tmp/thinktank-out --json`
+   Add `--paths ...` when local files or directories should be included as context.
 3. **xAI / social pulse** — Bash: `curl -s https://api.x.ai/v1/responses -H "Authorization: Bearer $XAI_API_KEY" ...`
    Model MUST be `grok-4.20-beta-latest-non-reasoning` (only grok-4 supports tool use).
    See `references/xai-search.md` for request format. Skip ONLY for purely technical/code queries.
