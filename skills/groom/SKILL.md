@@ -2,25 +2,25 @@
 name: groom
 description: |
   Backlog management, brainstorming, architectural exploration, project bootstrapping.
-  File-driven backlog via backlog.d/. Explore, brainstorm, research, synthesize,
-  prioritize. Includes divergent thinking and architectural rethinking.
+  File-driven backlog via backlog.d/. Parallel investigation bench, synthesis protocol,
+  themed recommendations. Product vision + technical excellence.
   Use when: backlog session, "groom", "what should we build", "rethink this",
   "biggest opportunity", "backlog", "prioritize", "tidy", "scaffold".
   Trigger: /groom, /backlog, /rethink, /moonshot, /scaffold, /tidy.
-argument-hint: "[explore|brainstorm|rethink|scaffold|tidy] [context]"
+argument-hint: "[explore|rethink|moonshot|scaffold|tidy] [context]"
 ---
 
 # /groom
 
-Backlog management and strategic thinking. File-driven via `backlog.d/`.
+Strategic backlog management. Parallel investigation, synthesis, themed recommendations.
 
 ## Modes
 
 | Mode | Intent |
 |------|--------|
-| **explore** (default) | Interactive brainstorming → prioritized backlog items |
-| **rethink** | Deep architectural exploration — understand deeply, research alternatives, recommend simpler path |
-| **moonshot** | Divergent thinking — what's the single highest-leverage thing we're not building? |
+| **explore** (default) | Parallel investigation → synthesized themes → prioritized backlog items |
+| **rethink** | Deep architectural exploration of a target system → one clear recommendation |
+| **moonshot** | Explore variant — Strategist thinks from first principles, ignoring current backlog |
 | **scaffold** | Project bootstrapping — quality gates, test infrastructure, CI, linting |
 | **tidy** | Prune, reorder, archive completed items |
 
@@ -49,44 +49,129 @@ Estimate: S | M | L | XL
 - <what NOT to do>
 
 ## Oracle
-- [ ] <mechanically verifiable criterion>
+- [ ] <mechanically verifiable criterion — prefer executable commands over prose>
+- [ ] <"How will we know this is done?" — even rough oracles make items buildable>
 
 ## Notes
 <context, constraints, prior art>
 ```
 
+## Context Loading (all modes except tidy)
+
+Before investigation, the orchestrator gathers baseline context:
+
+1. Read `project.md` if it exists — store as project context for investigator prompts
+2. Read `backlog.d/` — note existing items, their status, and any gaps
+3. Read `.groom/retro/` if it exists — extract effort calibration and blocker patterns
+4. **Cap check:** if >30 backlog items open, declare a reduction session (no new items until under cap)
+5. Ask the user: "Anything on your mind? Bugs, friction, missing features?"
+
+This takes <2 minutes. Do not block on missing artifacts — note their absence and proceed.
+
+## Investigation Bench
+
+Three named investigators per mode, all launched **in parallel** via the Agent tool
+in a single message. See `references/investigation-bench.md` for full prompt templates.
+
+**MANDATORY PARALLEL FANOUT.** All three investigators must launch simultaneously.
+A grooming session that only runs one investigator has failed the investigation goal.
+
+### Explore Investigators
+
+| Investigator | Lens | Mandate | Agent Type |
+|---|---|---|---|
+| **Archaeologist** | Codebase health | Complexity hotspots, test gaps, coupling smells, dead code. "What's fragile?" | Explore |
+| **Strategist** | Product opportunity | User journey friction, missing capabilities, competitive gaps. "What would users pay more for?" | Explore |
+| **Velocity** | Effort patterns | Fix-to-feature ratio, churn hotspots, stalled work. "Where is effort not producing value?" | Explore |
+
+For **moonshot** mode: the Strategist gets a modified prompt — "Forget the current backlog.
+What's the single highest-leverage thing we're not building?"
+
+### Rethink Investigators
+
+| Investigator | Lens | Mandate | Agent Type |
+|---|---|---|---|
+| **Mapper** | System topology | Deep dependency trace, data flows, coupling points. "What breaks if you pull any thread?" | Explore |
+| **Simplifier** | Radical simplicity | From-scratch rebuild perspective. "What layers can be deleted?" | Plan |
+| **Scout** | External perspectives | Invokes `/research thinktank`. "What has the industry learned that this codebase hasn't?" | general-purpose |
+
+### Investigator Output Format (shared)
+
+Every investigator returns this exact shape:
+
+```markdown
+## [Name] Report
+### Top 3 Findings
+1. [finding] — Evidence: [file:line / commit / metric]. Impact: high/med/low.
+2. ...
+3. ...
+### Strategic Theme
+[One sentence: the overarching theme these findings point to]
+### Single Recommendation
+[One concrete action. Not a list. Not "consider." A specific thing to do.]
+```
+
+## Synthesis Protocol
+
+After all investigators return, the **orchestrator** (you) synthesizes. Do NOT present
+raw findings. Do NOT delegate synthesis to a sub-agent — this requires product judgment.
+
+1. **Cross-reference** — Which findings appear across 2+ investigators? (highest signal)
+2. **Theme extraction** — Group findings into 2-4 strategic themes. A theme is a cluster
+   of findings that share a root cause or a shared solution. Not individual items — themes.
+3. **Dependency map** — Do any themes depend on others? (e.g., "test infrastructure" enables
+   "safe refactoring")
+4. **Rank** — Order by: (impact on product vision) × (feasibility) / (effort)
+5. **Present** — One theme at a time. For each: evidence from investigators, recommended
+   action, rough effort (S/M/L). Ask the user: explore deeper, write backlog item, or skip?
+
+Output format:
+
+```markdown
+## Grooming Synthesis
+
+### Investigator Convergence
+[Findings that appeared from 2+ investigators — these are highest signal]
+
+### Theme 1: [Name]
+**Evidence:** Archaeologist found X, Strategist found Y, Velocity confirms Z.
+**Recommendation:** [one concrete action]
+**Effort:** S/M/L
+**Impact:** [why this matters for the product vision]
+
+### Theme 2: ...
+
+### Dependency Order
+Theme A enables Theme B. Recommend executing A first.
+```
+
 ## Workflow: Explore
 
-1. **Gather context** — Spawn parallel sub-agents to read the landscape fast.
-   One maps the codebase (architecture, tech debt, recent velocity, opportunities).
-   Another reads backlog.d/ and recent git history (what's done, stalled, missing).
-2. **Brainstorm** — Generate 3-5 candidate items with tradeoffs
-3. **Research** — Use `/research` for prior art, reference architectures
-4. **Discuss** — One question at a time. Recommend, don't just list.
-5. **Write** — Create backlog.d/ files for approved items
-6. **Prioritize** — Reorder by value/effort ratio
+Phase-gated. Each phase must complete before the next begins.
+
+### 1. CONTEXT — Load baseline (see Context Loading above)
+### 2. INVESTIGATE — Launch all three explore investigators in parallel
+Gate: all three returned structured reports.
+### 3. SYNTHESIZE — Cross-reference, theme, rank (see Synthesis Protocol)
+Gate: themes extracted with evidence and recommendations. Not raw findings.
+### 4. DISCUSS — Present one theme at a time. Recommend, don't list.
+Gate: user decides per theme (explore deeper / write item / skip).
+### 5. WRITE — Create backlog.d/ files for approved themes
+Gate: every item has Goal + Non-Goals + Oracle.
+Use `references/agent-issue-writing.md` for issue quality standards.
+### 6. PRIORITIZE — Reorder backlog.d/ by value/effort ratio
 
 ## Workflow: Rethink
 
-1. **Understand deeply** — Spawn a sub-agent to map the target system: all
-   dependencies, pain points, complexity hotspots. What would it redesign?
-2. **Research alternatives** — Invoke `/research thinktank` for multi-perspective
-   analysis. This dispatches to multiple external models for independent opinions.
-3. **Synthesize options** — 2-3 approaches with honest tradeoffs
-4. **Recommend** — One clear recommendation with reasoning
-5. **Capture** — Write backlog.d/ item for the recommended change
-
-Anti-patterns: listing options without recommending, proposing rewrites when
-the real problem is one leaky abstraction, ignoring the "do nothing" option.
-
-## Workflow: Moonshot
-
-Force divergent thinking. Spawn a planner sub-agent and ask it to forget the
-current backlog and think from first principles: what's the single highest-leverage
-addition? What would a competitor build? What's the user's biggest unmet need?
-One answer, fully argued, with goal + oracle + rough effort estimate.
-
-Review the planner's output. If compelling, write as backlog.d/ item.
+### 1. CONTEXT — Load baseline + user specifies the target system
+### 2. INVESTIGATE — Launch all three rethink investigators in parallel
+Gate: all three returned structured reports.
+### 3. SYNTHESIZE — Distill into 2-3 architectural options with honest tradeoffs
+Always include "do nothing" as a viable option.
+### 4. RECOMMEND — Pick one option. Argue for it. Be opinionated.
+Gate: one clear recommendation with reasoning.
+### 5. DISCUSS — User approves, modifies, or rejects
+### 6. WRITE — One backlog.d/ item for the recommended change
 
 ## Workflow: Scaffold
 
@@ -95,27 +180,34 @@ Bootstrap a new project with quality gates:
 2. Linting (ESLint/Biome/clippy with strict rules)
 3. Type checking
 4. Pre-commit hooks
-5. CI pipeline (if applicable)
-6. CLAUDE.md / AGENTS.md with project-specific instructions
+5. CI pipeline
+6. CLAUDE.md with project-specific instructions
 
 ## Workflow: Tidy
 
-1. Archive completed items to `backlog.d/_done/`
-2. Reorder remaining by priority
+1. **Backlog audit** — count open items, check against 30-item cap
+2. Archive completed items to `backlog.d/_done/`
 3. Delete stale items (>30 days untouched, no longer relevant)
-4. Verify each remaining item has goal + oracle
+4. Verify each remaining item has Goal + Oracle
+5. Reorder remaining by priority
+6. If BACKLOG.md / icebox exists, review it — promote, archive, or leave
 
 ## Gotchas
 
-- **Items without oracles:** If you can't write a "definition of done" with checkable criteria, the item isn't scoped. Go back and scope it.
-- **Listing without recommending:** "Here are 5 options" is a menu, not grooming. Pick one and argue for it.
-- **Scope creep during rethink:** Rethink mode explores, but it must end with one concrete recommendation, not a wish list.
-- **Backlog as graveyard:** Items >30 days old with no progress are dead. Archive or delete during tidy.
-- **Over-decomposing:** An agent-hour of work is one item, not three. Agent compression ratios make most splits unnecessary.
+- **Investigators returning "everything is fine"** — Red flag. Push harder. Every codebase has findings; an investigator that found none didn't look.
+- **Synthesis that lists findings without theming** — That's a report, not synthesis. Group into themes before presenting.
+- **Themes without recommendations** — That's a menu, not grooming. Pick one action per theme and argue for it.
+- **Running one investigator and calling it done** — Mandatory parallel fanout. All three, every time.
+- **Items without oracles** — If you can't write a "definition of done" with checkable criteria, the item isn't scoped. Go back and scope it.
+- **Over-decomposing** — An agent-hour of work is one item, not three. Compression ratios make most splits unnecessary.
+- **Backlog as graveyard** — Items >30 days old with no progress are dead. Archive or delete during tidy.
 
 ## Principles
 
-- Recommend, don't just list — always have an opinion
-- File-driven — backlog.d/ is the source of truth, not GitHub Issues
-- One question at a time — don't overwhelm
-- Every item needs an oracle — if you can't verify done, the item isn't ready
+- **Investigate before opining** — parallel investigation first, opinions after evidence
+- **Theme, don't itemize** — strategic themes, not feature laundry lists
+- **Recommend, don't list** — always have an opinion, argue for it
+- **One theme at a time** — don't overwhelm during discussion
+- **Product vision is the ranking function** — rank by impact on the user, not technical elegance
+- **Every item needs an oracle** — if you can't verify done, the item isn't ready
+- **File-driven** — backlog.d/ is the source of truth

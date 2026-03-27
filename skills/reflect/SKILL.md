@@ -63,6 +63,21 @@ the error, it's really badly designed.
 
 The harness fix is the real deliverable, not the code fix.
 
+## Workflow: Tune-Repo
+
+Refresh context artifacts for a target repo. Run proactively or after
+noticing drift between docs and code.
+
+1. **Scan** — Read AGENTS.md, CLAUDE.md, and any skill references. Compare
+   against actual codebase state (do referenced files/functions still exist?).
+2. **Flag drift** — List stale entries, broken references, missing sections.
+3. **Check essentials** — Does AGENTS.md include:
+   - After Compaction recovery instruction? (If not, add one.)
+   - "Plausible ≠ correct" red line? (If not, add one.)
+   - Build/test/lint commands? (If not, add from package.json/Makefile.)
+4. **Fix** — Update stale content. Delete what's wrong. Add what's missing.
+5. **Report** — What was updated, what was deleted, what was added.
+
 ## Codification Hierarchy
 
 When encoding knowledge, always target the highest-leverage mechanism:

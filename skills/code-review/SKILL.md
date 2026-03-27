@@ -86,6 +86,16 @@ The critic applies structured grading (adapt per project):
 Weight correctness and depth higher — models score well on craft by default
 but underperform on architectural depth and actual correctness.
 
+### Plausible-but-Wrong Patterns
+
+LLMs optimize for plausibility, not correctness. Reviewers must actively
+hunt for code that *looks right* but isn't:
+- Wrong algorithm complexity (O(n²) where O(log n) is needed)
+- Unnecessary abstractions (82K lines vs 1-line solution)
+- Stub implementations that pass tests but don't actually work
+- "Specification-shaped" code — right module names, wrong behavior
+- Missing invariant checks that only matter at scale
+
 ## Simplification Pass
 
 After review passes, if diff > 200 LOC net:

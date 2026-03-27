@@ -91,7 +91,8 @@ If you can't write an oracle, the goal isn't clear enough. Go back to Phase 2.
 
 ## Gotchas
 
-- **Vague oracles:** "It should work" is not an oracle. "These 3 tests pass and this endpoint returns 200" is.
+- **Vague oracles:** "It should work" is not an oracle. "These 3 tests pass and this endpoint returns 200" is. See `references/executable-oracles.md`.
+- **Checkbox oracles:** Prose checklists drift. Write oracles as commands that return pass/fail, not prose that requires interpretation.
 - **Speccing after building:** A context packet written after implementation is documentation, not specification. Spec first.
 - **50 repo anchors:** If everything is an anchor, nothing is. Pick 3-10 files whose patterns MUST be followed.
 - **Skipping non-goals:** Agents drift toward scope expansion. Non-goals are load-bearing constraints. Write them.

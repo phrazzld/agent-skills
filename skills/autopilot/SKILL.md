@@ -34,9 +34,25 @@ prior art — you review and approve the spec before building.
 
 If the item already has a complete context packet (goal + oracle + sequence), skip.
 
-### 3. Build
+### 3. Contract
 
-Spawn **builder** sub-agent(s) with the approved context packet.
+Before building, negotiate what "done" looks like concretely.
+
+The **builder** proposes executable acceptance criteria: specific tests to write,
+commands to run, observable outcomes. The **critic** reviews the proposal — are
+the criteria testable? Do they cover the oracle from the context packet?
+Iterate until both agree. This prevents the builder from declaring victory
+prematurely and the critic from moving goalposts during review.
+
+The contract is a short list of commands that must all exit 0, plus any
+observable outcomes for /qa to verify. See `skills/shape/references/executable-oracles.md`.
+
+If the context packet already has executable oracle commands (not just prose
+checkboxes), the contract is already done — skip.
+
+### 4. Build
+
+Spawn **builder** sub-agent(s) with the approved context packet and contract.
 
 For single-chunk work, spawn one builder with the full spec.
 
@@ -45,13 +61,13 @@ own worktree, each with disjoint file ownership and a subset of the oracle
 criteria. Tell each builder exactly which files it owns and which criteria
 it's responsible for. TDD: RED → GREEN → REFACTOR → COMMIT.
 
-### 4. Review
+### 5. Review
 
 Invoke `/code-review`. This spawns the full reviewer bench in parallel
 (critic + ousterhout + carmack + grug + beck). If blocking issues are found,
 spawn a builder sub-agent to fix each concern, then re-review. Loop max 3.
 
-### 5. QA
+### 6. QA
 
 Invoke `/qa` on the running application. Pass the affected routes/features
 and the oracle criteria from the context packet.
@@ -63,7 +79,7 @@ and the oracle criteria from the context packet.
 If `/qa` finds P0/P1 issues, spawn a builder sub-agent to fix, then re-run `/qa`.
 Document P2 issues in the PR body.
 
-### 6. Demo Artifacts
+### 7. Demo Artifacts
 
 Invoke `/demo` on the QA evidence. Every shipped unit of work produces evidence.
 
@@ -76,7 +92,7 @@ Then `/demo upload` to attach evidence to the PR via draft GitHub release.
 
 If you can't demonstrate it worked, you can't prove it worked.
 
-### 7. Observability
+### 8. Observability
 
 Instrument new code paths for production monitoring. Every significant change gets
 a monitor — detect everything, notify selectively (the Ramp pattern).
@@ -89,7 +105,7 @@ a monitor — detect everything, notify selectively (the Ramp pattern).
 - **Logging:** Ensure new code paths have the signal that would tell you something
   is wrong in production. Not verbose — targeted.
 
-### 8. Ship
+### 9. Ship
 
 Once review, QA, demo, and observability all pass:
 - Squash or create semantic commits
@@ -97,7 +113,7 @@ Once review, QA, demo, and observability all pass:
 - Or commit directly if solo project
 - Run quality gates (lint, typecheck, test) before push
 
-### 9. Retro (optional)
+### 10. Retro (optional)
 
 If the build surfaced learnings, invoke `/reflect`.
 

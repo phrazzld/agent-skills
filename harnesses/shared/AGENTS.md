@@ -44,12 +44,21 @@ Test behavior, not implementation. One behavior per test.
 - **NEVER lower quality gates.** Thresholds, lint rules, strictness are load-bearing walls.
 - **NEVER assert model facts from memory.** Research first, always.
 - **CLI-first.** Never say "configure in dashboard."
+- **Plausible ≠ correct.** Code that compiles and passes tests can be
+  fundamentally wrong. Define acceptance criteria before generating code.
+  Benchmark performance-sensitive paths. If you can't explain why approach
+  X over Y, investigate before shipping.
 
 ## Orchestration
 
 Non-trivial work: planner → builder → critic pipeline.
 Workers propose; the lead decides. Serial only for tiny edits.
 For delegated work: surface progress delta and stall detection.
+
+## After Compaction
+
+Re-read: (1) current task/plan, (2) files being actively modified,
+(3) the spec/contract being implemented against. Look, don't guess.
 
 ## Continuous Learning
 

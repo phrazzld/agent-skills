@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-03-27T16:06:01Z
+# Generated: 2026-03-27T18:56:07Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -19,8 +19,8 @@ skills:
     description: "Generate demo artifacts: screenshots, GIF walkthroughs, video recordings, polished launch videos with narration and music. From raw evidence to shipped media. Also handles PR evidence upload via draft"
     tags: [also,artifacts,demo,draft,evidence,generate,gif,handles,launch,media]
   - name: groom
-    description: "Backlog management, brainstorming, architectural exploration, project bootstrapping. File-driven backlog via backlog.d/. Explore, brainstorm, research, synthesize, prioritize. Includes divergent think"
-    tags: [architectural,backlog,bootstrapping,brainstorm,brainstorming,d,divergent,exploration,explore,file-driven]
+    description: "Backlog management, brainstorming, architectural exploration, project bootstrapping. File-driven backlog via backlog.d/. Parallel investigation bench, synthesis protocol, themed recommendations. Produ"
+    tags: [architectural,backlog,bench,bootstrapping,brainstorming,d,exploration,file-driven,investigation,management]
   - name: harness
     description: "Build, maintain, evaluate, and optimize the agent harness — skills, agents, hooks, CLAUDE.md, AGENTS.md, and enforcement infrastructure. Use when: \"create a skill\", \"update skill\", \"improve the harnes"
     tags: [a,agent,agents,build,claude,create,enforcement,evaluate,harnes,harness]

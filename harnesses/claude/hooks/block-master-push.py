@@ -38,8 +38,13 @@ if re.search(r"\bgit\s+push\b.*\s(--delete|-d)\s", cmd):
     sys.exit(0)
 
 # Explicit destination: git push origin master / git push origin main
-if re.search(r"\bgit\s+push\b.*\b(master|main)\b", cmd):
-    deny("Direct push to master/main is prohibited.")
+# Match only when master/main appears as a standalone refspec argument,
+# not embedded in a branch name like "cx/hotfix-master-compile"
+if re.search(r"\bgit\s+push\b[^|;]*\s(master|main)(\s|$)", cmd):
+    # Verify it's not a substring of a longer branch name
+    parts = cmd.split()
+    if "master" in parts or "main" in parts:
+        deny("Direct push to master/main is prohibited.")
 
 # Ambiguous destination (git push / git push origin / git push origin HEAD):
 # resolve via current branch, respecting -C <dir> if present in the command
