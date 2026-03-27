@@ -44,8 +44,8 @@ spellbook/
 ├── agents/        # 7 agent definitions
 ├── harnesses/     # Per-harness configs (claude/, codex/, pi/)
 │   └── shared/    # Common engineering principles
-├── registry.yaml  # Single source of truth
-└── bootstrap.sh   # Symlinks spellbook → harness dirs
+├── registry.yaml  # External skill sources (for embeddings)
+└── bootstrap.sh   # Discovers skills/agents from filesystem, symlinks to harness dirs
 ```
 
 ## Adding a Skill
@@ -53,7 +53,7 @@ spellbook/
 1. Create `skills/{name}/SKILL.md` with frontmatter
 2. Keep it < 500 lines. Encode judgment, not procedures.
 3. Run `/harness lint` to validate quality gates
-4. Commit — pre-commit hook regenerates index.yaml
+4. Run `bootstrap.sh` — it discovers skills from the filesystem automatically
 
 ## Principles
 

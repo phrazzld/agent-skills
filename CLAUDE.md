@@ -15,8 +15,8 @@ spellbook/
 ├── agents/        # 7 agents: planner, builder, critic,
 │                  #   ousterhout, carmack, grug, beck
 ├── harnesses/     # Per-harness configs, hooks, shared principles
-├── registry.yaml  # Single source of truth for globals
-└── bootstrap.sh   # Symlinks spellbook → harness dirs
+├── registry.yaml  # External skill sources (for embeddings)
+└── bootstrap.sh   # Discovers skills/agents from filesystem, symlinks to harness dirs
 ```
 
 ## Workflow

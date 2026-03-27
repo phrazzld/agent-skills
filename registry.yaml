@@ -1,32 +1,9 @@
-# Spellbook Registry — single source of truth for primitive metadata.
+# Spellbook Registry — external skill sources for embeddings and on-demand pull.
 #
-# Consumed by: bootstrap.sh, /harness, generate-embeddings.py
-# Do NOT duplicate this metadata elsewhere.
-
-global:
-  # Workflow skills: installed by bootstrap.sh, always available.
-  skills:
-    custom_install:
-      - research
-    standard:
-      - autopilot
-      - code-review
-      - debug
-      - groom
-      - harness
-      - reflect
-      - shape
-
-  # Agent bench: installed by bootstrap.sh, always available.
-  # GAN triad (planner/builder/critic) + design philosophy reviewers.
-  agents:
-    - planner
-    - builder
-    - critic
-    - beck
-    - carmack
-    - grug
-    - ousterhout
+# Skills and agents are discovered from the filesystem (skills/*/SKILL.md,
+# agents/*.md). This file only lists third-party sources.
+#
+# Consumed by: generate-embeddings.py
 
 # External skill sources for domain skills (pulled on demand, not managed by us).
 sources:

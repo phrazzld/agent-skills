@@ -22,7 +22,7 @@ err()   { printf '\033[0;31m%s\033[0m\n' "$*" >&2; }
 
 is_spellbook_checkout() {
   local dir="$1"
-  [ -d "$dir/skills" ] && [ -d "$dir/agents" ] && [ -d "$dir/harnesses" ] && [ -f "$dir/registry.yaml" ]
+  [ -d "$dir/skills" ] && [ -d "$dir/agents" ] && [ -d "$dir/harnesses" ]
 }
 
 resolve_spellbook_dir() {
@@ -243,88 +243,57 @@ verify_no_broken_spellbook_symlinks() {
   return "$broken"
 }
 
-parse_registry_file() {
-  local registry_file="$1"
-  local output_file="$2"
+discover_local() {
+  local skill agent
+  GLOBAL_SKILLS=()
+  GLOBAL_AGENTS=()
 
-  python3 - "$registry_file" > "$output_file" <<'PY'
-import re
-import sys
-from pathlib import Path
+  for skill in "$SPELLBOOK"/skills/*/SKILL.md; do
+    [ -f "$skill" ] || continue
+    GLOBAL_SKILLS+=("$(basename "$(dirname "$skill")")")
+  done
 
-lines = Path(sys.argv[1]).read_text().splitlines()
+  for agent in "$SPELLBOOK"/agents/*.md; do
+    [ -f "$agent" ] || continue
+    GLOBAL_AGENTS+=("$(basename "$agent" .md)")
+  done
+}
 
-def extract(lines, path):
-    depth = 0
-    target_indent = [None] * len(path)
-    items = []
-    capturing = False
+discover_remote() {
+  GLOBAL_SKILLS=()
+  GLOBAL_AGENTS=()
 
-    for line in lines:
-        if not line.strip() or line.lstrip().startswith('#'):
-            continue
+  local names
+  names=$(curl -sf "https://api.github.com/repos/$REPO/contents/skills" | \
+    python3 -c "import sys,json; [print(d['name']) for d in json.load(sys.stdin) if d['type']=='dir']" 2>/dev/null) \
+    || { err "Failed to list remote skills"; exit 1; }
+  while IFS= read -r name; do
+    [ -n "$name" ] && GLOBAL_SKILLS+=("$name")
+  done <<< "$names"
 
-        indent = len(line) - len(line.lstrip())
-        stripped = line.strip()
-
-        if depth < len(path):
-            if stripped.startswith(path[depth] + ':'):
-                target_indent[depth] = indent
-                depth += 1
-                if depth == len(path):
-                    capturing = True
-                    rest = stripped[len(path[-1]) + 1:].strip()
-                    if rest.startswith('[') and rest.endswith(']'):
-                        items = [value.strip() for value in rest[1:-1].split(',') if value.strip()]
-                        break
-                continue
-        elif capturing:
-            if indent <= target_indent[-1]:
-                break
-            if stripped.startswith('- '):
-                items.append(stripped[2:].strip())
-
-    return items
-
-custom = extract(lines, ['global', 'skills', 'custom_install'])
-standard = extract(lines, ['global', 'skills', 'standard'])
-agents = extract(lines, ['global', 'agents'])
-
-safe = re.compile(r'^[a-z0-9-]+$')
-for name in custom + standard + agents:
-    if not safe.match(name):
-        print(f"INVALID: {name}", file=sys.stderr)
-        sys.exit(1)
-
-print('CUSTOM_INSTALL=(' + ' '.join(custom) + ')')
-print('GLOBAL_SKILLS=(' + ' '.join(standard) + ')')
-print('GLOBAL_AGENTS=(' + ' '.join(agents) + ')')
-PY
+  names=$(curl -sf "https://api.github.com/repos/$REPO/contents/agents" | \
+    python3 -c "import sys,json; [print(f['name'].removesuffix('.md')) for f in json.load(sys.stdin) if f['name'].endswith('.md')]" 2>/dev/null) \
+    || { err "Failed to list remote agents"; exit 1; }
+  while IFS= read -r name; do
+    [ -n "$name" ] && GLOBAL_AGENTS+=("$name")
+  done <<< "$names"
 }
 
 SPELLBOOK="$(resolve_spellbook_dir || true)"
-TEMP_REGISTRY=""
-PARSED="$(mktemp)"
-trap 'rm -f "$PARSED" ${TEMP_REGISTRY:+"$TEMP_REGISTRY"}' EXIT
 
 if [ -n "$SPELLBOOK" ]; then
-  REGISTRY_FILE="$SPELLBOOK/registry.yaml"
+  discover_local
 else
-  TEMP_REGISTRY="$(mktemp)"
-  curl -sfL "$RAW/registry.yaml" -o "$TEMP_REGISTRY" || { err "Failed to fetch registry.yaml"; exit 1; }
-  REGISTRY_FILE="$TEMP_REGISTRY"
+  discover_remote
 fi
 
-parse_registry_file "$REGISTRY_FILE" "$PARSED" || { err "Failed to parse registry.yaml"; exit 1; }
-source "$PARSED"
-
-if [ ${#GLOBAL_SKILLS[@]} -eq 0 ] && [ ${#CUSTOM_INSTALL[@]} -eq 0 ]; then
-  err "No global skills found in registry.yaml"
+if [ ${#GLOBAL_SKILLS[@]} -eq 0 ]; then
+  err "No skills found"
   exit 1
 fi
 
 if [ ${#GLOBAL_AGENTS[@]} -eq 0 ]; then
-  err "No global agents found in registry.yaml"
+  err "No agents found"
   exit 1
 fi
 
@@ -333,7 +302,7 @@ link_local() {
   local harness_dir="$2"    # e.g. "$HOME/.claude"
   local skills_dir="$harness_dir/skills"
   local agents_dir="$harness_dir/agents"
-  local skill_names=("${CUSTOM_INSTALL[@]}" "${GLOBAL_SKILLS[@]}")
+  local skill_names=("${GLOBAL_SKILLS[@]}")
   local agent_files=()
   local skill agent src
 
@@ -430,7 +399,7 @@ install_remote() {
   local skills_dir="$1"
   local agents_dir="$2"
 
-  for skill in "${CUSTOM_INSTALL[@]}" "${GLOBAL_SKILLS[@]}"; do
+  for skill in "${GLOBAL_SKILLS[@]}"; do
     download_skill "$skills_dir" "$skill"
   done
 
@@ -490,8 +459,8 @@ fi
 
 ok "Done. Installed to $installed harness(es)."
 echo
-info "Global skills (${#CUSTOM_INSTALL[@]} + ${#GLOBAL_SKILLS[@]}): ${CUSTOM_INSTALL[*]} ${GLOBAL_SKILLS[*]}"
-info "Global agents (${#GLOBAL_AGENTS[@]}): ${GLOBAL_AGENTS[*]}"
+info "Skills (${#GLOBAL_SKILLS[@]}): ${GLOBAL_SKILLS[*]}"
+info "Agents (${#GLOBAL_AGENTS[@]}): ${GLOBAL_AGENTS[*]}"
 echo
 if [ -n "$SPELLBOOK" ]; then
   info "Mode: symlink (edits in $SPELLBOOK propagate instantly)"
