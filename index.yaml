@@ -1,8 +1,11 @@
 # Spellbook Index
-# Generated: 2026-03-27T00:29:16Z
+# Generated: 2026-03-27T15:14:26Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
+  - name: agent-readiness
+    description: "Assess and improve codebase readiness for AI coding agents. Dispatches parallel subagents to evaluate style, testing, docs, architecture, CI, observability, security, and dev environment. Produces a s"
+    tags: [a,agents,ai,architecture,assess,ci,codebase,coding,dev,dispatches]
   - name: autopilot
     description: "Full delivery pipeline: plan→build→review→ship. Reads highest-priority backlog item, shapes it, builds it via TDD, runs parallel code review, iterates until clean, ships. Use when: shipping features, "
     tags: [backlog,build,builds,clean,code,delivery,features,full,highest-priority,it]
@@ -12,18 +15,27 @@ skills:
   - name: debug
     description: "Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle, domain auditing, and issue logging. Four-phase protocol: root cause → pattern analysis → hypothesis test → fix. Use for: "
     tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
+  - name: demo
+    description: "Generate demo artifacts: screenshots, GIF walkthroughs, video recordings, polished launch videos with narration and music. From raw evidence to shipped media. Also handles PR evidence upload via draft"
+    tags: [also,artifacts,demo,draft,evidence,generate,gif,handles,launch,media]
   - name: groom
     description: "Backlog management, brainstorming, architectural exploration, project bootstrapping. File-driven backlog via backlog.d/. Explore, brainstorm, research, synthesize, prioritize. Includes divergent think"
     tags: [architectural,backlog,bootstrapping,brainstorm,brainstorming,d,divergent,exploration,explore,file-driven]
   - name: harness
     description: "Build, maintain, evaluate, and optimize the agent harness — skills, agents, hooks, CLAUDE.md, AGENTS.md, and enforcement infrastructure. Use when: \"create a skill\", \"update skill\", \"improve the harnes"
     tags: [a,agent,agents,build,claude,create,enforcement,evaluate,harnes,harness]
+  - name: qa
+    description: "Browser-based QA, exploratory testing, evidence capture, and bug reporting. Drive running applications and verify they work — not just that tests pass. Use when: \"run QA\", \"test this\", \"verify the fea"
+    tags: [applications,browser-based,bug,capture,drive,evidence,exploratory,fea,just,pass]
   - name: reflect
     description: "Session retrospective, learning extraction, harness postmortem, codification. Distill learnings into hooks/rules/skills. Fix the system, not the instance. Use when: \"done\", \"wrap up\", \"what did we lea"
     tags: [codification,did,distill,done,extraction,fix,harness,hooks,instance,lea]
   - name: research
     description: "Web research, multi-AI delegation, and multi-perspective validation. /research [query], /research delegate [task], /research thinktank [topic]. Triggers: \"search for\", \"look up\", \"research\", \"delegate"
     tags: [delegate,delegation,look,multi-ai,multi-perspective,query,research,search,task,thinktank]
+  - name: settle
+    description: "Unblock, polish, and simplify a PR until it's genuinely merge-ready. Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs), simplify (complexity reduction). Runs all three in sequ"
+    tags: [a,architecture,ci,complexity,conflicts,docs,fix,genuinely,in,it]
   - name: shape
     description: "Shape a raw idea into something buildable. Product + technical exploration. Spec, design, critique, plan. Output is a context packet. Use when: \"shape this\", \"write a spec\", \"design this feature\", \"pl"
     tags: [a,buildable,context,critique,design,exploration,feature,idea,is,output]

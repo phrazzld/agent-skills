@@ -2,17 +2,17 @@
 
 ## What This Repo Is
 
-**Spellbook** — 8 workflow skills, 7 agents, and harness configs for
-AI-assisted development. One repo, all harnesses, symlinked to
-~/.claude, ~/.codex, ~/.pi via bootstrap.sh.
+**Spellbook** — focused workflow skills, specialized agents, and harness
+configs for AI-assisted development. One repo, all harnesses, symlinked
+to ~/.claude, ~/.codex, ~/.pi via bootstrap.sh.
 
 ## Structure
 
 ```
 spellbook/
-├── skills/        # 8 skills: autopilot, code-review, debug, groom,
-│                  #   harness, reflect, research, shape
-├── agents/        # 7 agents: planner, builder, critic,
+├── skills/        # Leaf skills (qa, demo, debug, research, ...) and
+│                  #   orchestrators (autopilot, code-review, settle, ...)
+├── agents/        # Specialized agents: planner, builder, critic,
 │                  #   ousterhout, carmack, grug, beck
 ├── harnesses/     # Per-harness configs, hooks, shared principles
 ├── registry.yaml  # External skill sources (for embeddings)
@@ -29,7 +29,7 @@ backlog.d/ → /groom → /shape (planner) → /autopilot (builder) → /code-re
 
 See `harnesses/shared/principles.md` for engineering doctrine.
 
-- **8 skills, 7 agents** — resist expansion
+- **Focused set of skills and agents** — resist bloat, justify additions
 - **Harness is the product** — models are commodities
 - **Gotchas > instructions** — enumerate what goes wrong
 - **Description is the trigger** — write it assertively

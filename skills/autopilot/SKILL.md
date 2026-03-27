@@ -53,31 +53,26 @@ spawn a builder sub-agent to fix each concern, then re-review. Loop max 3.
 
 ### 5. QA
 
-If the change has user-facing components, spawn a sub-agent to exercise the
-running application and verify it actually works — not just that tests pass.
+Invoke `/qa` on the running application. Pass the affected routes/features
+and the oracle criteria from the context packet.
 
-- **Web apps:** Use browser tools (Playwright MCP, claude-in-chrome) to navigate
-  to affected pages, exercise the feature, check for console errors and broken UI.
-- **CLIs:** Run the commands with representative inputs, verify output is correct.
-- **APIs:** Curl the endpoints, verify response shape and status codes.
+- **User-facing components:** `/qa` exercises the app with browser tools,
+  captures evidence, classifies findings.
 - **No user-facing components:** Skip (pure refactor, library, config work).
 
-Test the happy path and key edge cases from the oracle criteria. Fix P0/P1 issues
-and re-run QA. Document P2 issues in the PR body.
-
-See `references/qa-and-demo.md` for detailed patterns.
+If `/qa` finds P0/P1 issues, spawn a builder sub-agent to fix, then re-run `/qa`.
+Document P2 issues in the PR body.
 
 ### 6. Demo Artifacts
 
-Every shipped unit of work produces evidence of completion. No exceptions.
+Invoke `/demo` on the QA evidence. Every shipped unit of work produces evidence.
 
-- **Web UI:** GIF walkthrough via chrome MCP's gif_creator showing the feature working.
-- **CLI:** GIF of terminal session showing command execution and output.
-- **API:** Screenshot or captured output of curl request/response.
-- **Library/refactor:** Before/after test output diff.
+- **Web UI:** `/demo --format gif` for walkthrough GIF
+- **CLI:** `/demo --format gif` for terminal session GIF
+- **API:** Screenshot or captured output (may not need `/demo`)
+- **Library/refactor:** Before/after test output diff
 
-Write artifacts to `/tmp/demo-{slug}/`. Reference from PR body or commit message.
-GIFs are the default for anything visual.
+Then `/demo upload` to attach evidence to the PR via draft GitHub release.
 
 If you can't demonstrate it worked, you can't prove it worked.
 

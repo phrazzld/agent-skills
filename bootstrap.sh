@@ -297,44 +297,82 @@ if [ ${#GLOBAL_AGENTS[@]} -eq 0 ]; then
   exit 1
 fi
 
+link_parent_dir() {
+  local src="$1"
+  local dest="$2"
+  local label="$3"
+
+  if [ -L "$dest" ]; then
+    local current
+    current="$(readlink "$dest")"
+    if [ "$current" = "$src" ]; then
+      ok "    $label (already linked)"
+      return 0
+    fi
+    # Stale symlink to different location — replace
+    rm -f "$dest"
+  elif [ -d "$dest" ]; then
+    # Migrate from per-entry symlinks to parent symlink.
+    # Remove spellbook-managed symlinks; warn about non-symlink entries.
+    local has_non_symlink=0
+    local entry target
+    for entry in "$dest"/*; do
+      [ -e "$entry" ] || [ -L "$entry" ] || continue
+      if [ -L "$entry" ]; then
+        target="$(readlink "$entry" || true)"
+        case "$target" in
+          "$src"/*|"$SPELLBOOK"/*) rm -f "$entry" ;;
+          *) has_non_symlink=1 ;;
+        esac
+      else
+        has_non_symlink=1
+      fi
+    done
+    if [ "$has_non_symlink" -eq 1 ]; then
+      warn "    $label: non-spellbook entries exist, keeping per-entry links"
+      return 1
+    fi
+    rmdir "$dest" 2>/dev/null || { warn "    $label: dir not empty after cleanup"; return 1; }
+  fi
+
+  ln -sfn "$src" "$dest"
+  ok "    $label → $src"
+}
+
 link_local() {
   local harness="$1"        # e.g. "claude"
   local harness_dir="$2"    # e.g. "$HOME/.claude"
   local skills_dir="$harness_dir/skills"
   local agents_dir="$harness_dir/agents"
-  local skill_names=("${GLOBAL_SKILLS[@]}")
-  local agent_files=()
-  local skill agent src
-
-  for agent in "${GLOBAL_AGENTS[@]}"; do
-    agent_files+=("$agent.md")
-  done
 
   info "  Linking skills..."
-  cleanup_symlinks_under_prefix "$skills_dir" "$SPELLBOOK/skills" "${skill_names[@]}"
-  mkdir -p "$skills_dir"
-  for skill in "${skill_names[@]}"; do
-    src="$SPELLBOOK/skills/$skill"
-    if [ ! -d "$src" ]; then
-      warn "    missing local skill: $skill"
-      continue
-    fi
-    ln -sfn "$src" "$skills_dir/$skill"
-    ok "    $skill"
-  done
+  if ! link_parent_dir "$SPELLBOOK/skills" "$skills_dir" "skills/"; then
+    # Fallback: per-skill symlinks (when non-spellbook entries exist)
+    local skill src
+    local skill_names=("${GLOBAL_SKILLS[@]}")
+    cleanup_symlinks_under_prefix "$skills_dir" "$SPELLBOOK/skills" "${skill_names[@]}"
+    for skill in "${skill_names[@]}"; do
+      src="$SPELLBOOK/skills/$skill"
+      [ -d "$src" ] || { warn "    missing local skill: $skill"; continue; }
+      ln -sfn "$src" "$skills_dir/$skill"
+      ok "    $skill"
+    done
+  fi
 
   info "  Linking agents..."
-  cleanup_symlinks_under_prefix "$agents_dir" "$SPELLBOOK/agents" "${agent_files[@]}"
-  mkdir -p "$agents_dir"
-  for agent in "${GLOBAL_AGENTS[@]}"; do
-    src="$SPELLBOOK/agents/$agent.md"
-    if [ ! -f "$src" ]; then
-      warn "    missing local agent: $agent"
-      continue
-    fi
-    ln -sfn "$src" "$agents_dir/$agent.md"
-    ok "    $agent"
-  done
+  if ! link_parent_dir "$SPELLBOOK/agents" "$agents_dir" "agents/"; then
+    # Fallback: per-agent symlinks
+    local agent src
+    local agent_files=()
+    for agent in "${GLOBAL_AGENTS[@]}"; do agent_files+=("$agent.md"); done
+    cleanup_symlinks_under_prefix "$agents_dir" "$SPELLBOOK/agents" "${agent_files[@]}"
+    for agent in "${GLOBAL_AGENTS[@]}"; do
+      src="$SPELLBOOK/agents/$agent.md"
+      [ -f "$src" ] || { warn "    missing local agent: $agent"; continue; }
+      ln -sfn "$src" "$agents_dir/$agent.md"
+      ok "    $agent"
+    done
+  fi
 
   # Link harness-specific configs if they exist
   local harness_config="$SPELLBOOK/harnesses/$harness"

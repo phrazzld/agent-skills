@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Re-link skills/agents after commit when skill content changes.
+# Covers the "create new skill, commit, it should appear" case.
+# Bootstrap is fast (<1s) and idempotent.
+
+skill_changed() {
+  git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -q 'skills/\|agents/'
+}
+
+skill_changed || exit 0
+
+echo "[post-commit] Skill/agent content changed — re-linking"
+./bootstrap.sh

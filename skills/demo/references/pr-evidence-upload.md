@@ -17,10 +17,7 @@ up later.
 ```bash
 # 1. Capture evidence (screenshots, GIFs, videos)
 mkdir -p /tmp/pr-evidence
-agent-browser --session qa screenshot /tmp/pr-evidence/feature-demo.png
-agent-browser --session qa record start /tmp/pr-evidence/walkthrough.webm
-# ... do things ...
-agent-browser --session qa record stop
+# Evidence comes from /qa — screenshots, GIFs, videos in /tmp/qa-{slug}/
 
 # 2. Convert video to GIF for inline rendering (GitHub doesn't embed webm)
 ffmpeg -y -i /tmp/pr-evidence/walkthrough.webm \
