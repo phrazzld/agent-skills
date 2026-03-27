@@ -51,15 +51,58 @@ Invoke `/code-review`. This spawns the full reviewer bench in parallel
 (critic + ousterhout + carmack + grug + beck). If blocking issues are found,
 spawn a builder sub-agent to fix each concern, then re-review. Loop max 3.
 
-### 5. Ship
+### 5. QA
 
-Once review passes:
+If the change has user-facing components, spawn a sub-agent to exercise the
+running application and verify it actually works — not just that tests pass.
+
+- **Web apps:** Use browser tools (Playwright MCP, claude-in-chrome) to navigate
+  to affected pages, exercise the feature, check for console errors and broken UI.
+- **CLIs:** Run the commands with representative inputs, verify output is correct.
+- **APIs:** Curl the endpoints, verify response shape and status codes.
+- **No user-facing components:** Skip (pure refactor, library, config work).
+
+Test the happy path and key edge cases from the oracle criteria. Fix P0/P1 issues
+and re-run QA. Document P2 issues in the PR body.
+
+See `references/qa-and-demo.md` for detailed patterns.
+
+### 6. Demo Artifacts
+
+Every shipped unit of work produces evidence of completion. No exceptions.
+
+- **Web UI:** GIF walkthrough via chrome MCP's gif_creator showing the feature working.
+- **CLI:** GIF of terminal session showing command execution and output.
+- **API:** Screenshot or captured output of curl request/response.
+- **Library/refactor:** Before/after test output diff.
+
+Write artifacts to `/tmp/demo-{slug}/`. Reference from PR body or commit message.
+GIFs are the default for anything visual.
+
+If you can't demonstrate it worked, you can't prove it worked.
+
+### 7. Observability
+
+Instrument new code paths for production monitoring. Every significant change gets
+a monitor — detect everything, notify selectively (the Ramp pattern).
+
+- **Canary integration:** If the project uses Canary, register monitors for new
+  code paths (error rates, latency, health probes).
+- **Sentry:** Verify error boundaries exist for new code paths. Check that
+  exceptions will surface, not silently swallow.
+- **PostHog:** Verify analytics events fire for new user flows.
+- **Logging:** Ensure new code paths have the signal that would tell you something
+  is wrong in production. Not verbose — targeted.
+
+### 8. Ship
+
+Once review, QA, demo, and observability all pass:
 - Squash or create semantic commits
-- Open PR if collaborating (context packet in body)
+- Open PR if collaborating (context packet + demo artifacts in body)
 - Or commit directly if solo project
 - Run quality gates (lint, typecheck, test) before push
 
-### 6. Retro (optional)
+### 9. Retro (optional)
 
 If the build surfaced learnings, invoke `/reflect`.
 
@@ -99,6 +142,9 @@ When invoked with `--overnight` or for autonomous multi-hour sessions:
 - **Parallelizing coupled work:** Multiple builders on files that import each other. Parallelize only when file ownership is disjoint.
 - **Force-pushing:** Never. No exceptions. Create new commits.
 - **Shipping with red tests:** "They were red before" is not an excuse. Fix what you touch.
+- **Skipping QA:** "Tests pass" is not QA. Drive the running app and verify it works for real.
+- **Skipping demo artifacts:** No GIF/screenshot = no proof it works. If you can't demo it, you can't ship it.
+- **Silent failure paths:** New code that catches exceptions and returns fallbacks is hiding bugs. Fail loud, monitor everything.
 
 ## Stopping Conditions
 

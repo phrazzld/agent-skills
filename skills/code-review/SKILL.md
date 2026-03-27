@@ -47,14 +47,27 @@ philosophy agents in parallel, or run all sequentially as a fallback.
 
 Collect all verdicts. Deduplicate overlapping concerns. Rank by severity.
 
-### 4. Gate
+### 4. Live Verification
+
+If the change has user-facing components, the critic should verify the
+implementation actually works — not just that it reads well.
+
+- **Web:** Navigate to affected pages, exercise the feature, check for
+  console errors and broken UI.
+- **API:** Hit the changed endpoints, verify responses match the spec.
+- **CLI:** Run the commands, verify output matches expectations.
+
+If live verification fails, it's a blocking issue — treat as Don't Ship.
+Skip for pure refactors, config changes, or library work with no runtime.
+
+### 5. Gate
 
 - **All Ship** → approve, proceed to merge
 - **Any Don't Ship** → spawn a builder sub-agent for each blocking concern,
   giving it the specific file:line and fix instruction. Builder fixes, runs
   tests. Then re-review (return to step 2). Max 3 iterations.
 
-### 5. Escalate
+### 6. Escalate
 
 If still blocked after 3 iterations, report all findings to the user.
 The issue needs human judgment.
