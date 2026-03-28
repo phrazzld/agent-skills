@@ -30,7 +30,7 @@ backlog.d/ → /groom → /shape (planner) → /autopilot (builder) → /code-re
 See `harnesses/shared/AGENTS.md` — one file, symlinked to every harness.
 
 - **Focused set of skills and agents** — resist bloat, justify additions
-- **Harness is the product** — models are commodities
+- **Thin harness, strong models** — don't compensate for weak models with scaffold
 - **Gotchas > instructions** — enumerate what goes wrong
 - **Description is the trigger** — write it assertively
 - **Strip non-load-bearing scaffold** — stress-test after model upgrades
@@ -40,6 +40,7 @@ See `harnesses/shared/AGENTS.md` — one file, symlinked to every harness.
 
 - Skills encode judgment, not procedures. If the model already knows how, delete the skill.
 - SKILL.md must be < 500 lines. Extract deep content to references/.
+- Regexes over agent prose and semantic workflow DSLs are strong smells.
 - Run `/harness lint` on any skill you create or modify.
 - Run `/harness eval` to verify the skill actually improves output vs baseline.
 - The pre-commit hook regenerates index.yaml — don't edit it manually.

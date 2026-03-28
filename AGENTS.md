@@ -34,3 +34,12 @@ Never assert model facts from memory — `/research` first.
 
 When encoding a learning: type system > lint rule > hook > test > CI > skill > AGENTS.md > memory.
 This file is near the bottom. Prefer mechanical enforcement.
+
+## Harness Doctrine
+
+Prefer thin harnesses over semantic orchestration.
+
+- Launch agents, bound them, and record artifacts
+- Let agents explore repos and reason for themselves
+- If you're adding regexes over agent prose or inventing semantic workflow phases,
+  you're probably compensating in the wrong layer

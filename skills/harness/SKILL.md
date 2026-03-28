@@ -181,6 +181,19 @@ Every harness component encodes an assumption about model limitations.
 When a new model drops, audit: is this skill still needed? Is this hook
 still catching real problems? Strip what's not load-bearing.
 
+### Thin harness default
+
+Default to a thin harness:
+
+- define agents, tools, prompts, and boundaries
+- launch them
+- capture raw artifacts
+- optionally synthesize with another agent
+
+Do not default to semantic workflow engines, regex recovery of agent structure,
+or heavy handoff machinery. If the harness is reasoning about the repo or
+recovering meaning from free-form agent prose, that is a strong smell.
+
 ## Sync (/harness sync)
 
 Reads `.spellbook.yaml`, pulls declared skills/agents from GitHub into
@@ -198,3 +211,4 @@ Managed primitives have a `.spellbook` marker file.
 - Hooks that reference deleted skills will silently break
 - Stale AGENTS.md instructions cause more harm than missing ones
 - After any model upgrade, re-eval your skills — some become dead weight
+- Regexes over agent prose are usually proof the boundary is wrong

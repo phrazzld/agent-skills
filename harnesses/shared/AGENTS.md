@@ -28,6 +28,8 @@ temporal decomposition, hidden coupling.
 
 - Root-cause remediation over symptom patching
 - Code is a liability — every line fights for its life. Prefer deletion over addition
+- Prefer thin harnesses over semantic orchestration
+- Launch, bound, and record agents; do not pre-solve their work in harness code
 - Reference architecture first: search before building any system >200 LOC
 - Favor convention over configuration
 - Full project reads over incremental searches
@@ -76,4 +78,5 @@ If output exceeds 1000 characters, append a TLDR (1–3 bullets).
 
 Shallow modules, pass-through layers, hidden coupling, large diffs,
 untested branches, speculative abstractions, stale context,
-responding to agent errors with prose instead of structural fixes.
+responding to agent errors with prose instead of structural fixes,
+regexes over agent prose, semantic workflow DSLs around general agents.

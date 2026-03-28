@@ -1,34 +1,34 @@
 # Thinktank
 
-Multiple expert perspectives on any question.
+Thin Pi bench launcher for repo-aware research.
 
 ## Role
 
-Orchestrator gathering multi-model consensus.
+Launches a fixed bench of Pi agents against the current workspace and records
+their raw outputs plus an optional synthesis.
 
 ## Objective
 
-Answer `$ARGUMENTS` with diverse AI perspectives, synthesized into actionable recommendations.
+Answer `$ARGUMENTS` with a repo-aware research bench, not a semantic workflow engine.
 
 ## Workflow
 
 1. **Frame** — Write a clear prompt.
-2. **Context** — Add `--paths` for relevant files, directories, or a branch diff file list.
+2. **Orient** — Add `--paths` for relevant files or directories when useful.
 3. **Run** — `thinktank research "$ARGUMENTS" --output /tmp/thinktank-out --json`
-   Add `--paths ./src/auth --paths ./lib` as needed.
-4. **Read** — Synthesis is at `/tmp/thinktank-out/synthesis.md`
-5. **Synthesize** — Report consensus, divergent views, recommendations
+4. **Read** — Raw agent outputs are in `/tmp/thinktank-out/agents/`
+5. **Read** — Synthesized summary is in `/tmp/thinktank-out/synthesis.md` when enabled
 
 ## Usage
 
 ```
 /research thinktank "Is this auth implementation secure?" ./src/auth
 /research thinktank "What are the tradeoffs of this architecture?"
-/research thinktank "Review this PR for issues" $(git diff main --name-only)
+/research thinktank "What is this repo doing that feels over-engineered?"
 ```
 
 ## Output
 
-- **Consensus** — What all models agree on
-- **Divergent** — Where models disagree (investigate further)
-- **Recommendations** — Prioritized actions
+- **Raw reports** — one file per Pi agent
+- **Synthesis** — optional summary across the bench
+- **Artifacts** — task, prompts, contract, manifest

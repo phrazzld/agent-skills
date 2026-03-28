@@ -190,7 +190,7 @@ Bootstrap a new project with quality gates:
 3. Delete stale items (>30 days untouched, no longer relevant)
 4. Verify each remaining item has Goal + Oracle
 5. Reorder remaining by priority
-6. If BACKLOG.md / icebox exists, review it — promote, archive, or leave
+6. If BACKLOG.md / icebox exists, review it once, migrate any still-relevant items, then delete the legacy file so `backlog.d/` remains the only backlog source of truth
 
 ## Gotchas
 
@@ -201,6 +201,7 @@ Bootstrap a new project with quality gates:
 - **Items without oracles** — If you can't write a "definition of done" with checkable criteria, the item isn't scoped. Go back and scope it.
 - **Over-decomposing** — An agent-hour of work is one item, not three. Compression ratios make most splits unnecessary.
 - **Backlog as graveyard** — Items >30 days old with no progress are dead. Archive or delete during tidy.
+- **Backward-compatible backlog artifacts** — Keeping `BACKLOG.md` around "for history" creates split-brain planning. Migrate what matters, then delete the legacy file.
 
 ## Principles
 

@@ -45,9 +45,9 @@ multi-source triangulation.
 
 1. **Exa search** — Bash: `curl -s https://api.exa.ai/search -H "x-api-key: $EXA_API_KEY" ...`
    See `references/exa-tools.md` for request format. WebSearch is fallback ONLY if curl fails.
-2. **Thinktank** — Run the native research workflow:
+2. **Thinktank** — Run the native research bench:
    Bash: `thinktank research "$QUERY" --output /tmp/thinktank-out --json`
-   Add `--paths ...` when local files or directories should be included as context.
+   Add `--paths ...` when local files or directories should be pointed out as starting places.
 3. **xAI / social pulse** — Bash: `curl -s https://api.x.ai/v1/responses -H "Authorization: Bearer $XAI_API_KEY" ...`
    Model MUST be `grok-4.20-beta-latest-non-reasoning` (only grok-4 supports tool use).
    See `references/xai-search.md` for request format. Skip ONLY for purely technical/code queries.
@@ -69,8 +69,8 @@ skipped — and state why it was skipped in the Synthesis section.
 [Findings with citations from response.citations. What did Grok surface?
 For X Search: quotes or paraphrases from X posts, authors, dates.]
 
-## Thinktank (multi-model synthesis)
-[What did the thinktank consensus say? Note any model disagreements.]
+## Thinktank (Pi bench)
+[What did the thinktank bench surface? Note any disagreements between agents.]
 
 ## Codebase
 [What relevant patterns, implementations, or prior art exist locally?
