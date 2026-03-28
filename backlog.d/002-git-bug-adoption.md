@@ -1,7 +1,7 @@
 # git-bug: distributed git-native issue tracking + agent coordination
 
 Priority: high
-Status: ready
+Status: in-progress
 Estimate: M
 
 ## Goal
