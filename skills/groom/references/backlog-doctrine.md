@@ -8,11 +8,11 @@
 | **Raw issues** | git-bug (`git-bug bug`) | Bugs, findings, requests — not yet shaped | 20-30 |
 | **Icebox** | `.groom/BACKLOG.md` | Everything else worth remembering | Unlimited |
 
-GitHub Issues is a **read-only bridge** for human visibility. git-bug syncs to
-GitHub via `git-bug push origin` / `git-bug bridge push`. Agents read/write
-issues via git-bug CLI; humans browse on GitHub.
+GitHub Issues is an **optional sync target** (currently empty across all repos).
+`git-bug push origin` creates issues there for human visibility when desired.
+Agents read/write issues via git-bug CLI; `backlog.d/` is the canonical backlog.
 
-If `git-bug` is not installed, fall back to GitHub Issues as the active issue tier.
+If `git-bug` is not installed, fall back to `backlog.d/` files as the active issue tier.
 
 Ideas flow between tiers during `/groom` sessions:
 - **Shape:** git-bug issue → `backlog.d/` file (issue gets goal + oracle → ready to build)

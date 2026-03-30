@@ -23,7 +23,8 @@ spellbook/
 
 Issues are stored as git objects via **git-bug** (distributed, offline-first).
 `backlog.d/` holds shaped work ready to build; git-bug holds raw issues/bugs.
-GitHub Issues is a read-only bridge synced via `git-bug push origin`.
+GitHub Issues is an optional sync target — `git-bug push origin` creates issues
+there for human visibility when desired. `backlog.d/` is the canonical backlog.
 
 ```bash
 git-bug bug                          # list open issues

@@ -2,9 +2,9 @@
 
 Issue quality tooling. Three subcommands for different needs.
 
-Supports both GitHub Issues (`gh issue`) and git-bug issues (`git-bug bug`).
-**Routing heuristic:** hex prefix (e.g. `abc1234`) → git-bug; `#N` → GitHub Issues.
-If `git-bug` is not installed, fall back to `gh issue` for all operations.
+Supports git-bug issues (`git-bug bug`), `backlog.d/` items, and GitHub Issues (`gh issue`).
+**Routing heuristic:** hex prefix (e.g. `abc1234`) → git-bug; `NNN-slug` → backlog.d/ file; `#N` → GitHub Issues (may be empty on cleared repos).
+**Fallback chain:** git-bug > backlog.d/ > gh issue (last resort, explicit opt-in only).
 
 ## Subcommands
 

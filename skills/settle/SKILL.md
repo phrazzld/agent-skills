@@ -62,7 +62,7 @@ Read `../autopilot/references/pr-fix.md` and follow it completely.
 3. **Self-review** — read the entire diff as a reviewer would
 4. **Review comments** — read every single comment on the PR. For each:
    - **In scope:** fix it, commit, reply confirming the fix
-   - **Valid but out of scope:** create a GitHub issue, reply linking it
+   - **Valid but out of scope:** create a git-bug issue (or `backlog.d/` item), reply linking it
    - **Invalid:** reply with clear reasoning
 5. **Async settlement** — after pushing fixes, invoke `/review-settle` to mechanically
    verify all automated reviews (CI checks, bot reviewers) have completed.

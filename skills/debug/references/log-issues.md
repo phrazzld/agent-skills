@@ -2,7 +2,7 @@
 
 Audit a domain, create issues for every finding.
 Uses git-bug if installed (issues travel with repo, offline-first).
-Falls back to GitHub Issues (`gh issue create`) if git-bug is absent.
+Falls back to `backlog.d/` items if git-bug is absent.
 
 ## Usage
 
@@ -32,12 +32,12 @@ If `--all`, run all applicable domain checklists.
 git-bug bug --label "domain/{domain}" --status open --format json
 ```
 
-**GitHub (fallback):**
+**backlog.d/ (fallback):**
 ```bash
-gh issue list --state open --label "domain/{domain}" --limit 50
+ls backlog.d/  # check existing items by title/filename
 ```
 
-Skip findings that match existing open issues (by title similarity).
+Skip findings that match existing open issues or backlog items (by title similarity).
 
 ### 3. Create Issues
 
@@ -69,28 +69,23 @@ EOF
 git-bug bug label new <bug-id> "priority/p{0-3}" "domain/{domain}" "type/{bug|enhancement|chore}"
 ```
 
-**GitHub (fallback):**
-```bash
-gh issue create \
-  --title "[P{0-3}] {finding description}" \
-  --body "$(cat <<'EOF'
-## Problem
-{What's wrong}
+**backlog.d/ (fallback):**
+Create a file `backlog.d/NNN-{slug}.md` with the standard format:
+```markdown
+# [P{0-3}] {finding description}
 
-## Impact
-{Business/security/user impact}
+Priority: {p0|p1|p2|p3}
+Status: ready
+Estimate: S
 
-## Location
-{File:line if applicable}
+## Goal
+{What's wrong — one sentence}
 
-## Suggested Fix
-{Code snippet or skill to run}
+## Oracle
+- [ ] {mechanically verifiable fix criterion}
 
----
-Created by `/log-issues`
-EOF
-)" \
-  --label "priority/p{0-3},domain/{domain},type/{bug|enhancement|chore}"
+## Notes
+Domain: {domain}. Created by `/log-issues`.
 ```
 
 ### 4. Issue Format

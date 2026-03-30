@@ -33,5 +33,5 @@ claim_release <id>    # release after completion or failure
 
 ## GitHub Bridge
 
-GitHub Issues is a **read-only** bridge for human visibility.
-Sync: `git-bug push origin` pushes bug data + bridge to GitHub.
+GitHub Issues is an **optional sync target** (currently empty across all repos).
+`git-bug push origin` creates issues there for human visibility when desired.

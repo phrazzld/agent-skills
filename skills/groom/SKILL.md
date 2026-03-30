@@ -163,7 +163,8 @@ Gate: user decides per theme (explore deeper / write item / skip).
 Shaped work (goal + oracle + sequence) → `backlog.d/` files.
 Raw bugs/findings (need investigation) → `git-bug bug new -t "..." -m "..." --non-interactive`,
 then label with `git-bug bug label new <id> "priority/pN" "domain/X"`.
-After creating git-bug issues, sync: `git-bug push origin`.
+After creating git-bug issues, sync: `git-bug push origin`
+(best-effort — if push fails, issues are safe locally; log the failure but don't block).
 Gate: every item has Goal + Non-Goals + Oracle.
 Use `references/agent-issue-writing.md` for issue quality standards.
 ### 6. PRIORITIZE — Reorder backlog.d/ by value/effort ratio
