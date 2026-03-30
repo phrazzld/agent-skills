@@ -88,11 +88,6 @@
           },
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/block-master-push.py",
-            "timeout": 5
-          },
-          {
-            "type": "command",
             "command": "python3 ~/.claude/hooks/fix-what-you-touch.py",
             "timeout": 5
           }

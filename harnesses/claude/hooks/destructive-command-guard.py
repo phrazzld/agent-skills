@@ -107,42 +107,11 @@ def check_merge_protection(cmd: str) -> tuple[bool, str]:
 
 
 def check_push_protection(cmd: str) -> tuple[bool, str]:
-    """Block pushes to protected branches. Only PRs can update main/master."""
+    """Check for force-push. Regular pushes to any branch are allowed."""
     push_match = re.match(r"^git\s+push\b(.*)$", cmd)
     if not push_match:
         return False, ""
-
-    push_args = push_match.group(1).strip()
-
-    # Case 1: Explicit target (git push origin main/master)
-    explicit = re.search(r"\b(\w+)\s+(main|master)\s*$", push_args)
-    if explicit:
-        return True, (
-            f"Direct push to {explicit.group(2)} blocked.\n\n"
-            "Use PR workflow:\n"
-            "  git push origin <feature-branch>\n"
-            "  # Create PR on GitHub"
-        )
-
-    # Case 2: Refspec targeting protected (git push origin feature:main)
-    refspec = re.search(r":\s*(main|master)\b", push_args)
-    if refspec:
-        return True, f"Refspec targeting {refspec.group(1)} blocked. Use PR workflow."
-
-    # Case 3: Implicit push while on protected branch
-    current = get_current_branch()
-    if is_protected_branch(current):
-        # Check if there's an explicit branch target
-        # Patterns like "origin feature-branch" or "-u origin feature"
-        has_branch = re.search(r"\b\w+\s+[\w\-/]+\s*$", push_args)
-        if not has_branch:
-            return True, (
-                f"On {current}. Direct push blocked.\n\n"
-                "Switch to feature branch first:\n"
-                "  git checkout -b <feature>\n"
-                "  git push -u origin <feature>"
-            )
-
+    # Force-push is handled by DANGEROUS_FLAGS; regular pushes are fine.
     return False, ""
 
 
