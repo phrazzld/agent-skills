@@ -53,7 +53,7 @@ and final settlement calls.
 
 ### Phase 1: Fix — Unblock the PR
 
-Read `../autopilot/references/pr-fix.md` and follow it completely.
+Read `references/pr-fix.md` and follow it completely.
 
 **Goal:** Get from blocked to green.
 
@@ -83,7 +83,7 @@ If already green and settled, skip to Phase 2.
 
 ### Phase 2: Polish — Elevate quality
 
-Read `../autopilot/references/pr-polish.md` and follow it completely.
+Read `references/pr-polish.md` and follow it completely.
 
 **Goal:** Get from "works" to "exemplary."
 
@@ -111,7 +111,7 @@ If polish generates changes, return to Phase 1 (CI must stay green).
 
 ### Phase 3: Simplify — Reduce complexity
 
-Read `../autopilot/references/simplify.md` and follow it completely.
+Read `references/simplify.md` and follow it completely.
 
 **Goal:** Remove complexity that doesn't earn its keep.
 
