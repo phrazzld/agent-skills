@@ -32,6 +32,7 @@ If first argument matches a keyword, route directly to that reference:
 | `introspect` | `references/introspect.md` |
 | `readwise` | `references/readwise.md` |
 | `xai` | `references/xai-search.md` |
+| `exemplars` | `references/exemplars.md` |
 
 ### No sub-capability (default): MANDATORY PARALLEL FANOUT
 

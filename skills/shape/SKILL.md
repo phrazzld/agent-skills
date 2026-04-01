@@ -25,6 +25,9 @@ codebase area (files, patterns, constraints), another to search for prior art
 (how do other projects solve this? check codebase first, then /research).
 Synthesize their findings before proceeding.
 
+If `exemplars.md` exists at project root, read it. Include relevant exemplar
+techniques in the context packet with specific files to study during build.
+
 ### Phase 2: Product Exploration
 
 **GATE: Do NOT write code until product direction is locked.**
@@ -73,6 +76,9 @@ tests > type system > code > docs > lore
 
 ## Prior Art
 - `src/payments/middleware.ts` — similar pattern
+
+## Exemplar Techniques
+- <technique from exemplars.md> — <specific file to study during build>
 
 ## Oracle (Definition of Done)
 - [ ] All existing auth tests pass

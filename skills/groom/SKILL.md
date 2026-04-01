@@ -67,8 +67,9 @@ Before investigation, the orchestrator gathers baseline context:
    or `claimed:*` labels).
 4. Read `.groom/retro/` if it exists — extract effort calibration and blocker patterns
 5. Read `.groom/review-scores.ndjson` if it exists — pass summary statistics (average scores, verdict distribution, trend direction) to investigator prompts as baseline context
-6. **Cap check:** if >30 backlog items open, declare a reduction session (no new items until under cap)
-7. Ask the user: "Anything on your mind? Bugs, friction, missing features?"
+6. Read `exemplars.md` if it exists — note existing exemplars and pass to investigators as baseline context
+7. **Cap check:** if >30 backlog items open, declare a reduction session (no new items until under cap)
+8. Ask the user: "Anything on your mind? Bugs, friction, missing features?"
 
 This takes <2 minutes. Do not block on missing artifacts — note their absence and proceed.
 
@@ -126,7 +127,12 @@ raw findings. Do NOT delegate synthesis to a sub-agent — this requires product
 3. **Dependency map** — Do any themes depend on others? (e.g., "test infrastructure" enables
    "safe refactoring")
 4. **Rank** — Order by: (impact on product vision) × (feasibility) / (effort)
-5. **Present** — One theme at a time. For each: evidence from investigators, recommended
+5. **Exemplar check** — For the highest-impact theme, check whether reference
+   implementations would inform the recommendation. If so, invoke
+   `/research exemplars` for that domain. If `exemplars.md` doesn't exist yet
+   and worthy exemplars are found, offer to create it. Include discovered
+   exemplars in theme presentation.
+6. **Present** — One theme at a time. For each: evidence from investigators, recommended
    action, rough effort (S/M/L). Ask the user: explore deeper, write backlog item, or skip?
 
 Output format:
@@ -193,6 +199,7 @@ Bootstrap a new project with quality gates:
    See spellbook's own `ci/` for reference. Prefer Dagger over GitHub Actions for the inner loop.
 6. CLAUDE.md with project-specific instructions
 7. `backlog.d/` directory for file-driven backlog
+8. `exemplars.md` — invoke `/research exemplars` for the project's domain to seed initial reference implementations
 
 ## Workflow: Tidy
 

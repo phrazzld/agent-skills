@@ -64,6 +64,7 @@ Every investigator returns this exact shape:
 > - **Friction points**: where does the UX require unnecessary steps or workarounds?
 > - **Missing capabilities**: what would make this 10x more valuable to the target user?
 > - **Things to stop doing**: features that add complexity without proportional value
+> - **Exemplary implementations**: what best-in-class projects in or adjacent to this domain should inform our approach? (check exemplars.md if it exists)
 >
 > Think like a product owner, not an engineer. What would users pay more for?
 >
@@ -145,6 +146,7 @@ Every investigator returns this exact shape:
 > For the target system, invoke `/research thinktank` with a focused question
 > about the architecture. Also search for:
 > - **Reference implementations**: how do similar open-source projects solve this?
+> - **Exemplar implementations**: invoke `/research exemplars` for the target system's domain — what best-in-class implementations should the team study?
 > - **Industry patterns**: are there well-known patterns this codebase should adopt?
 > - **Cautionary tales**: what do experienced teams warn against in this domain?
 >
