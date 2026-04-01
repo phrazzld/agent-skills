@@ -1,7 +1,7 @@
 # .spellbook.yaml — Spellbook repo
 #
-# Global skills (via bootstrap): autopilot, code-review, debug, groom,
-#   harness, reflect, research, shape
+# Global skills (via bootstrap): autopilot, code-review, groom,
+#   harness, investigate, reflect, research, shape
 # Global agents (via bootstrap): planner, builder, critic, beck, carmack, grug, ousterhout
 #
 # This repo has no project-local primitives beyond the globals.

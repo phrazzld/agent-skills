@@ -8,7 +8,7 @@ Map, not manual. Points to deeper sources of truth.
 
 **Workflow:** `backlog.d/ → /groom → /shape → /autopilot → /code-review → ship`
 
-**Skills:** autopilot, code-review, debug, groom, harness, reflect, research, shape.
+**Skills:** autopilot, code-review, groom, harness, investigate, reflect, research, shape.
 
 **Agents:** planner → builder → critic (GAN triad) + ousterhout, carmack, grug, beck (design review bench).
 

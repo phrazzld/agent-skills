@@ -20,7 +20,7 @@ atomic claims so two agents never work the same issue.
 - [x] Agents can create, query, and close issues via `git bug` commands
 - [x] Claim protocol works: `git update-ref refs/claims/<id>` atomic CAS
 - [x] `/autopilot` claims item before spawning builder; `/groom` skips claimed items
-- [x] New `/debug` findings auto-create git-bug issues
+- [x] New `/investigate` findings auto-create git-bug issues
 - [x] Issues travel with repo clone (no API calls needed to read)
 
 ## What Was Built
@@ -38,7 +38,7 @@ atomic claims so two agents never work the same issue.
   git-bug (raw issues), `.groom/BACKLOG.md` (icebox). GitHub is read-only bridge.
 - `skills/groom/references/git-bug-conventions.md` — Label taxonomy, query recipes,
   lifecycle commands, claim protocol reference.
-- `skills/debug/references/log-issues.md` — Creates git-bug issues (preferred) with
+- `skills/investigate/references/log-issues.md` — Creates git-bug issues (preferred) with
   GitHub Issues fallback. Includes sync step (`git-bug push origin`).
 - `harnesses/claude/settings.json` — Added `git-bug` and `git bug` to permission allowlist.
 - `CLAUDE.md` — Added Issue Tracking section documenting git-bug usage.

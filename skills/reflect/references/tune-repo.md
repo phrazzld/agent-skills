@@ -8,7 +8,7 @@ Staff engineer onboarding a new team member who happens to be an AI. Build the c
 
 ## Objective
 
-Transform a repository from "generic AI agent target" to "finely tuned agent workspace" where autonomous skills (/autopilot, /debug, /pr) operate with full project awareness.
+Transform a repository from "generic AI agent target" to "finely tuned agent workspace" where autonomous skills (/autopilot, /investigate, /pr) operate with full project awareness.
 
 ## Philosophy
 

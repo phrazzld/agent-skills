@@ -1,5 +1,5 @@
 ---
-name: debug
+name: investigate
 description: |
   Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle,
   domain auditing, and issue logging. Four-phase protocol: root cause → pattern
@@ -10,7 +10,7 @@ description: |
 argument-hint: <symptoms or domain> e.g. "error in auth" or "audit stripe"
 ---
 
-# /debug
+# /investigate
 
 Find root cause. Fix it. Prove it works.
 

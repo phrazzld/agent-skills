@@ -10,7 +10,7 @@ to ~/.claude, ~/.codex, ~/.pi via bootstrap.sh.
 
 ```
 spellbook/
-├── skills/        # Leaf skills (qa, demo, debug, research, ...) and
+├── skills/        # Leaf skills (qa, demo, investigate, research, ...) and
 │                  #   orchestrators (autopilot, code-review, settle, ...)
 ├── agents/        # Specialized agents: planner, builder, critic,
 │                  #   ousterhout, carmack, grug, beck

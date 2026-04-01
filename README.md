@@ -17,7 +17,7 @@ curl -sL https://raw.githubusercontent.com/phrazzld/spellbook/master/bootstrap.s
 |-------|---------|
 | `/autopilot` | Full delivery: plan→build→review→ship |
 | `/code-review` | Parallel multi-agent review, auto-fix loop |
-| `/debug` | Investigate, triage, fix |
+| `/investigate` | Investigate, triage, fix |
 | `/groom` | Backlog management, brainstorming, rethink, scaffold |
 | `/harness` | Skill engineering, primitive management, context lifecycle |
 | `/reflect` | Session retrospective, learning extraction, harness postmortem |

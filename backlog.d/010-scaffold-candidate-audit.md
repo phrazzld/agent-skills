@@ -12,7 +12,7 @@ Review all global skills for repo-specificity. Classify each as: stays global, b
 
 | Skill | Generic | Repo-specific | Decision | Rationale |
 |-------|---------|---------------|----------|-----------|
-| debug | 70% | 30% | Global + config | Methodology (4-phase protocol, iron law, flaky test taxonomy) is universal. Monitoring tooling (Sentry, Vercel, Convex CLI) and domain fix guides (Bitcoin, Stripe) are hardcoded in triage.md and fix.md. Config file for tooling; excise domain guides. |
+| investigate | 70% | 30% | Global + config | Methodology (4-phase protocol, iron law, flaky test taxonomy) is universal. Monitoring tooling (Sentry, Vercel, Convex CLI) and domain fix guides (Bitcoin, Stripe) are hardcoded in triage.md and fix.md. Config file for tooling; excise domain guides. |
 | agent-readiness | 90% | 10% | Global | Pillar checks are already polyglot (enumerate alternatives per ecosystem). Fixes use runtime detection, not hardcoded tools. Optional config for threshold overrides only. |
 | deps | 95% | 5% | Global | Ecosystem routing via lockfile detection is universal. Reachability analysis and behavioral diff are per-ecosystem, not per-repo. No changes needed. |
 | code-review | 70% | 30% | Global + config | Reviewer bench and synthesis workflow are universal. Live verification trigger patterns (`.tsx`, `pages/`, `routes/`) are Next.js-specific. Config for file patterns and dev command. |
@@ -27,14 +27,14 @@ Review all global skills for repo-specificity. Classify each as: stays global, b
 
 ### Config-driven skills (create backlog items if pursued)
 
-- **debug**: Add `.debug.yaml` schema (monitoring tool, log commands, health endpoints, required env vars). Extract hardcoded Sentry/Vercel/Convex from `triage.md` and `investigation-protocol.md`. Excise domain fix guides from `fix.md` (Bitcoin, Lightning, Stripe, etc.) — they belong in project-local audit checklists.
+- **investigate**: Add `.investigate.yaml` schema (monitoring tool, log commands, health endpoints, required env vars). Extract hardcoded Sentry/Vercel/Convex from `triage.md` and `investigation-protocol.md`. Excise domain fix guides from `fix.md` (Bitcoin, Lightning, Stripe, etc.) — they belong in project-local audit checklists.
 - **code-review**: Add config for live verification trigger patterns and dev command. Current hardcoded patterns only work for JS/TS web apps.
 - **autopilot**: Add config for backlog source and CI runner detection. Observability block in `references/qa-and-demo.md` could become a scaffold sub-template.
 
 ### Tech debt discovered
 
-- `debug/references/triage.md` references 3 non-existent files: `verify-fix-protocol.md`, `postmortem-template.md`, `incident-response-workflow.md`.
-- `debug/references/fix.md` lines 48-80 contain project-domain checklists (Bitcoin, Lightning, Stripe, Docs, Observability, Bun) that belong in project-local references, not a global skill.
+- `investigate/references/triage.md` references 3 non-existent files: `verify-fix-protocol.md`, `postmortem-template.md`, `incident-response-workflow.md`.
+- `investigate/references/fix.md` lines 48-80 contain project-domain checklists (Bitcoin, Lightning, Stripe, Docs, Observability, Bun) that belong in project-local references, not a global skill.
 
 ## Oracle
 - [x] Classification table complete: each skill marked as global / scaffold / config-driven
