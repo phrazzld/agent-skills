@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-01T16:13:51Z
+# Generated: 2026-04-01T16:19:20Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -15,9 +15,6 @@ skills:
   - name: code-review
     description: "Parallel multi-agent code review. Launch reviewer team, synthesize findings, auto-fix blocking issues, loop until clean. Use when: \"review this\", \"code review\", \"is this ready to ship\", \"check this co"
     tags: [auto-fix,blocking,check,clean,co,code,findings,is,issues,launch]
-  - name: debug
-    description: "Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle, domain auditing, and issue logging. Four-phase protocol: root cause → pattern analysis → hypothesis test → fix. Use"
-    tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
   - name: demo
     description: "Generate demo artifacts: screenshots, GIF walkthroughs, video recordings, polished launch videos with narration and music. From raw evidence to shipped media. Also handles PR evidence upload via draft"
     tags: [also,artifacts,demo,draft,evidence,generate,gif,handles,launch,media]
@@ -30,6 +27,9 @@ skills:
   - name: harness
     description: "Build, maintain, evaluate, and optimize the agent harness — skills, agents, hooks, CLAUDE.md, AGENTS.md, and enforcement infrastructure. Use when: \"create a skill\", \"update skill\", \"improve the harn"
     tags: [a,agent,agents,build,claude,create,enforcement,evaluate,harn,harness]
+  - name: investigate
+    description: "Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle, domain auditing, and issue logging. Four-phase protocol: root cause → pattern analysis → hypothesis test → fix. Use"
+    tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
   - name: qa
     description: "Browser-based QA, exploratory testing, evidence capture, and bug reporting. Drive running applications and verify they work — not just that tests pass. Use when: \"run QA\", \"test this\", \"verify the f"
     tags: [applications,browser-based,bug,capture,drive,evidence,exploratory,f,just,pass]

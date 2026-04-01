@@ -45,7 +45,7 @@ If all clean: "All systems nominal. No action required."
 - **Builder sub-agent**: Stack trace analysis, code archaeology
 - **/research**: Prior art, known issues, similar incidents
 - **/research thinktank**: Validate proposed fix before implementing
-- **Parallel investigators**: When >2 plausible root causes (see `/debug`)
+- **Parallel investigators**: When >2 plausible root causes (see `/investigate`)
 
 ### Multi-Hypothesis Mode
 
@@ -211,5 +211,5 @@ VERCEL_TOKEN        # Optional for vercel logs
 
 - `/check-production` -- The audit primitive (read-only)
 - `/log-production-issues` -- Create GitHub issues from findings
-- `/debug` -- Systematic debugging protocol
+- `/investigate` -- Systematic debugging protocol
 - `/done` -- Session retrospective and codification
