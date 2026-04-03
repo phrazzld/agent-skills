@@ -146,6 +146,15 @@ machine-readable findings that complement human review.
 All `fail` findings from assess-* tools must be addressed before exiting Phase 2.
 `warn` findings are advisory — fix or note, but don't block on them.
 
+## Feature Evidence
+
+If the PR introduces new workflows, skills, or user-facing features:
+produce visual evidence (screenshots, GIFs) demonstrating them in action.
+Text logs are raw data, not reviewer-facing proof.
+
+Upload to a draft release, embed in a PR comment. See
+`skills/harness/references/pr-evidence-upload.md` for the recipe.
+
 ## Exit Criteria
 
 Phase 2 is complete when:
@@ -154,5 +163,6 @@ Phase 2 is complete when:
 - [ ] Confidence assessment stated with evidence
 - [ ] All assess-* `fail` findings resolved
 - [ ] Docs current with changes
+- [ ] Feature evidence captured (screenshots/GIFs) if PR introduces new workflows
 
 If this phase produced commits, return to Phase 1 — CI must stay green.
