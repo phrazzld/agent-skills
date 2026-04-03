@@ -1,11 +1,6 @@
 ---
 name: reflect
-description: |
-  Session retrospective, learning extraction, harness postmortem, codification.
-  Distill learnings into hooks/rules/skills. Fix the system, not the instance.
-  Use when: "done", "wrap up", "what did we learn", "retro", "reflect",
-  "calibrate", "why did you do that", "fix your instructions".
-  Trigger: /reflect, /retro, /calibrate.
+description: "Reviews session outcomes, extracts key learnings, and updates skill files, rules, or hooks to improve future behavior. Distill mode runs conversation archaeology to find workflow failures and codifies fixes at the highest-leverage layer (type system > lint > hook > test > CI > skill > AGENTS.md). Calibrate mode diagnoses mid-session wrong decisions by walking the Swiss Cheese control layers. Tune-repo mode refreshes stale AGENTS.md/CLAUDE.md content. Use when: 'done', 'wrap up', 'what did we learn', 'retro', 'reflect', 'calibrate', 'why did you do that', 'fix your instructions'. Trigger: /reflect, /retro, /calibrate."
 argument-hint: "[distill|calibrate|tune-repo] [context]"
 ---
 
@@ -124,27 +119,13 @@ Default: codify. Exception: justify not codifying.
 
 ## Workflow: Calibrate
 
-When the agent makes a wrong decision mid-session:
-
-**The Norman Principle applies here.** The agent didn't fail — the harness did.
-"I knew better" is not a valid analysis. If the system let the agent make the
-error, the system is badly designed. If the system's own instructions induced
-the error, it's really badly designed.
+Mid-session harness postmortem. The agent didn't fail — the harness did.
 
 1. **What went wrong?** — Describe the incorrect decision
-2. **How did it make sense?** — Not "why" (converges on blame) but "how" (reveals
-   systemic conditions). Given what the agent saw, what made this the rational choice?
-3. **Walk the Swiss Cheese layers** — Which layers had holes?
-   - Instructions missing/wrong? → fix CLAUDE.md/AGENTS.md
-   - Skill missing/didn't fire? → fix skill description or create skill
-   - Hook missing? → add hook
-   - Tool broken/missing? → fix tool or add MCP
-   - Environment undocumented? → document in CLAUDE.md
-4. **Induction check** — Did the harness *cause* the error? Conflicting instructions,
-   stale context, misleading skill descriptions? Induction errors are highest-priority.
-5. **Fix the harness** — Then fix the code (the code fix should be trivial now)
-
-The harness fix is the real deliverable, not the code fix.
+2. **How did it make sense?** — Given what the agent saw, what made this the rational choice? (Reveals systemic conditions, not blame.)
+3. **Walk the Swiss Cheese layers** (same table as Distill step 2) — which layers had holes? Fix: Instructions → Skill description → Hook → Tool → Environment docs
+4. **Induction check** — Did the harness *cause* the error? Conflicting instructions, stale context, misleading descriptions? Highest priority.
+5. **Fix the harness first** — the code fix should be trivial after.
 
 ## Workflow: Tune-Repo
 

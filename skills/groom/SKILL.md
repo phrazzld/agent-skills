@@ -1,12 +1,6 @@
 ---
 name: groom
-description: |
-  Backlog management, brainstorming, architectural exploration, project bootstrapping.
-  File-driven backlog via backlog.d/. Parallel investigation bench, synthesis protocol,
-  themed recommendations. Product vision + technical excellence.
-  Use when: backlog session, "groom", "what should we build", "rethink this",
-  "biggest opportunity", "backlog", "prioritize", "tidy", "scaffold".
-  Trigger: /groom, /backlog, /rethink, /moonshot, /scaffold, /tidy.
+description: "Creates and prioritizes backlog items in backlog.d/ files. Launches parallel investigation bench (Archaeologist, Strategist, Velocity) to find codebase health issues, product opportunities, and effort patterns, then synthesizes findings into ranked strategic themes with concrete recommendations. Modes: explore (investigate → synthesize → backlog), rethink (deep architectural analysis → one recommendation), moonshot (first-principles ideation), scaffold (bootstrap project quality gates), tidy (prune stale items). Use when: 'groom', 'what should we build', 'rethink this', 'biggest opportunity', 'backlog', 'prioritize', 'tidy', 'scaffold'. Trigger: /groom, /backlog, /rethink, /moonshot, /scaffold, /tidy."
 argument-hint: "[explore|rethink|moonshot|scaffold|tidy] [context]"
 ---
 
@@ -218,21 +212,11 @@ Bootstrap a new project with quality gates:
 
 ## Gotchas
 
-- **Investigators returning "everything is fine"** — Red flag. Push harder. Every codebase has findings; an investigator that found none didn't look.
-- **Synthesis that lists findings without theming** — That's a report, not synthesis. Group into themes before presenting.
-- **Themes without recommendations** — That's a menu, not grooming. Pick one action per theme and argue for it.
+- **Investigators returning "everything is fine"** — Red flag. Push harder. Every codebase has findings.
+- **Synthesis that lists findings without theming** — Group into themes before presenting.
+- **Themes without recommendations** — Pick one action per theme and argue for it.
 - **Running one investigator and calling it done** — Mandatory parallel fanout. All three, every time.
-- **Items without oracles** — If you can't write a "definition of done" with checkable criteria, the item isn't scoped. Go back and scope it.
-- **Over-decomposing** — An agent-hour of work is one item, not three. Compression ratios make most splits unnecessary.
-- **Backlog as graveyard** — Items >30 days old with no progress are dead. Archive or delete during tidy.
-- **Backward-compatible backlog artifacts** — Keeping `BACKLOG.md` around "for history" creates split-brain planning. Migrate what matters, then delete the legacy file.
-
-## Principles
-
-- **Investigate before opining** — parallel investigation first, opinions after evidence
-- **Theme, don't itemize** — strategic themes, not feature laundry lists
-- **Recommend, don't list** — always have an opinion, argue for it
-- **One theme at a time** — don't overwhelm during discussion
-- **Product vision is the ranking function** — rank by impact on the user, not technical elegance
-- **Every item needs an oracle** — if you can't verify done, the item isn't ready
-- **File-driven** — backlog.d/ is the source of truth
+- **Items without oracles** — No checkable "definition of done" = not scoped. Go back.
+- **Over-decomposing** — An agent-hour of work is one item, not three.
+- **Backlog as graveyard** — Items >30 days untouched are dead. Archive or delete during tidy.
+- **Split-brain planning** — If `BACKLOG.md` exists alongside `backlog.d/`, migrate and delete the legacy file.

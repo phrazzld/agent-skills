@@ -1,81 +1,88 @@
 ---
 name: code-review
-description: |
-  Parallel multi-agent code review. Launch reviewer team, synthesize findings,
-  auto-fix blocking issues, loop until clean.
-  Use when: "review this", "code review", "is this ready to ship",
-  "check this code", "review my changes".
-  Trigger: /code-review, /review, /critique.
+description: "Parallel multi-agent code review. Launches 3-5 reviewer subagents (Ousterhout, Grug, Carmack, or repo-specific), synthesizes findings into a single verdict, auto-fixes blocking issues via builder agents, and loops until clean or escalates. Use when: 'review this', 'code review', 'is this ready to ship', 'check this code', 'review my changes', 'is this mergeable'. Trigger: /code-review, /review, /critique."
 argument-hint: "[branch|diff|files]"
 ---
 
 # /code-review
 
-Launch a parallel team of reviewers. Synthesize findings. Fix blocking issues
-automatically. Loop until clean or escalate to human.
+Parallel reviewer bench → synthesized verdict → auto-fix loop → ship or escalate.
 
-## Workflow
+## Step-by-Step Workflow
 
-Launch 3-5 subagents to review changes from distinct perspectives. Ousterhout,
-Grug, and Carmack are great choices, generally. You may want to pick others,
-or define your own ad-hoc, that are more specifically focused on the current
-repo and the changes being reviewed. All reviewers run as **Explore type**
-(read-only). For blocking fixes, dispatch **builder** (general-purpose type).
+### 1. Scope the diff
 
-Collect all verdicts. Deduplicate overlapping concerns. Rank by severity.
+```bash
+git diff main...HEAD --stat
+git diff main...HEAD
+```
 
-**Any Don't Ship** → spawn a builder sub-agent for each blocking concern, giving it the specific file:line and fix instruction. Builder fixes, runs tests. Then re-review (return to step 2). Max 3 iterations.
+### 2. Launch reviewer bench (parallel)
 
-## Live Verification
+Launch 3-5 subagents in a **single message** — all as **Explore type** (read-only):
 
-**Trigger:** the diff touches files matching user-facing patterns — `.tsx`, `.jsx`,
-`pages/`, `app/`, `routes/`, `api/`, `endpoints/`, or component directories.
-Determine this by scanning the diff file list.
+| Reviewer | Lens | Example prompt snippet |
+|----------|------|----------------------|
+| Ousterhout | Depth, abstractions | "Review for unnecessary complexity, leaky abstractions, deep vs shallow modules" |
+| Grug | Simplicity | "Review for over-engineering, premature abstraction, unnecessary indirection" |
+| Carmack | Correctness, performance | "Review for bugs, edge cases, performance pitfalls, unsafe patterns" |
+| (Ad-hoc) | Repo-specific | Tailor to the domain — e.g., security reviewer for auth changes |
 
-**Rule:** when triggered, at least one reviewer must exercise the affected
-routes/components (run the app, hit the endpoint, render the component).
-"Ship" verdict is **blocked** until live verification passes.
+Each reviewer returns:
 
-**Skip:** pure refactors, config-only changes, test-only changes, and
-backend-only changes with no user-facing surface skip live verification.
+```markdown
+## [Name] Verdict: Ship | Conditional | Don't Ship
+### Blocking Issues (if any)
+- [file:line] — [issue] — [fix instruction]
+### Non-Blocking Notes
+- [observation]
+```
 
-**Failure:** if live verification fails or cannot be performed, verdict is
-"Don't Ship" with reason: "live verification not performed/failed."
+### 3. Synthesize
 
-### Plausible-but-Wrong Patterns
+Collect all verdicts. Deduplicate overlapping concerns. Rank by severity:
+- **Blocking** (correctness, security, data loss) → gates shipping
+- **Non-blocking** (style, naming, minor improvements) → logged, not gated
 
-LLMs optimize for plausibility, not correctness. Reviewers must actively hunt for code that *looks right* but isn't:
-- Wrong algorithm complexity (O(n²) where O(log n) is needed)
-- Unnecessary abstractions (82K lines vs 1-line solution)
-- Stub implementations that pass tests but don't actually work
-- "Specification-shaped" code — right module names, wrong behavior
-- Missing invariant checks that only matter at scale
+### 4. Fix blocking issues
 
-## Simplification Pass
+For each blocking issue, spawn a **builder** sub-agent (general-purpose type) with the specific `file:line` and fix instruction. Builder fixes, runs tests.
 
-After review passes, if diff > 200 LOC net:
-- Look for code that can be deleted
-- Collapse unnecessary abstractions
-- Simplify complex conditionals
-- Remove compatibility shims with no real users
+### 5. Re-review (loop)
 
-## Review Scoring
+Return to step 2. **Max 3 iterations.** If blocking issues remain after 3 rounds, escalate to human with:
+- List of unresolved blocking issues
+- What was attempted
+- Why the fix didn't hold
 
-After the final verdict, append one JSON line to `.groom/review-scores.ndjson`
-in the target project root (create `.groom/` if needed):
+### 6. Live verification (conditional)
+
+**Trigger:** diff touches user-facing files (`.tsx`, `.jsx`, `pages/`, `app/`, `routes/`, `api/`, `endpoints/`, component directories).
+
+When triggered, at least one reviewer must exercise the affected routes/components. "Ship" verdict is **blocked** until live verification passes.
+
+**Skip:** pure refactors, config-only, test-only, backend-only with no user-facing surface.
+
+### 7. Simplification pass
+
+If diff > 200 LOC net after review passes:
+- Delete dead code, collapse unnecessary abstractions, simplify conditionals, remove compatibility shims with no users.
+
+### 8. Score and record
+
+Append one JSON line to `.groom/review-scores.ndjson` (create `.groom/` if needed):
 
 ```json
 {"date":"2026-03-30","pr":42,"correctness":8,"depth":7,"simplicity":9,"craft":8,"verdict":"ship"}
 ```
 
-- Scores (1-10) reflect bench consensus, not any single reviewer.
-- `pr` is the PR number, or `null` when reviewing a branch without a PR.
-- `verdict`: `"ship"`, `"conditional"`, or `"dont-ship"`.
-- This file is committed to git (not gitignored). `/groom` reads it for quality trends.
+- Scores (1-10) reflect bench consensus. `pr`: PR number or `null`. `verdict`: `"ship"`, `"conditional"`, `"dont-ship"`.
+- Committed to git (not gitignored). `/groom` reads it for quality trends.
 
 ## Gotchas
 
-- **Self-review leniency:** Models consistently overrate their own work. Reviewers must be separate sub-agents, not the builder evaluating itself.
-- **Reviewing the whole codebase:** Review the diff, not the repo. `git diff main...HEAD` is the scope.
+- **Self-review leniency:** Reviewers must be separate sub-agents, not the builder evaluating itself.
+- **Scope is the diff:** `git diff main...HEAD`, not the whole repo.
 - **Skipping the bench:** Running only the critic misses structural issues. The philosophy agents add perspectives the critic doesn't cover.
-- **Treating all concerns equally:** Blocking issues (correctness, security) gate shipping. Style preferences don't.
+- **Blocking vs style:** Correctness and security gate shipping. Style preferences don't.
+- **Plausible-but-wrong patterns:** Watch for wrong algorithm complexity, stub implementations that pass tests but don't work, "specification-shaped" code with right names but wrong behavior, and missing invariant checks.
