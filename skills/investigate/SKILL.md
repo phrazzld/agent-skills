@@ -54,17 +54,19 @@ External service issues are usually config, not code. Check in order:
 
 ### Quick investigation (default)
 
-For straightforward bugs, spawn a single sub-agent to gather evidence. Tell it
-to investigate the symptoms, reproduce the issue, trace data flow, and report
-back with root cause + evidence + proposed fix. It should NOT implement the fix —
-just report. You review, decide if root cause is proven, then fix or dig deeper.
+Spawn a single **Explore** subagent to gather evidence. Tell it to investigate
+the symptoms, reproduce the issue, trace data flow, and report back with root
+cause + evidence + proposed fix. It should NOT implement the fix — just report.
+You review, decide if root cause is proven, then dispatch a **builder** for
+the fix or dig deeper.
 
 ### Multi-Hypothesis Mode
 
 When >2 plausible root causes and a single investigation would anchor on one:
-spawn parallel sub-agents, one per hypothesis. Each gets one hypothesis to
-prove or disprove by tracing a specific subsystem. They report back with
-confirmed/disproved + evidence. You synthesize into a consensus root cause.
+spawn parallel **Explore** subagents, one per hypothesis. Each gets one
+hypothesis to prove or disprove by tracing a specific subsystem. They report
+back with confirmed/disproved + evidence. You synthesize into a consensus root
+cause, then dispatch a **builder** (general-purpose) for the fix.
 
 Use when: ambiguous stack trace, multiple services, flaky failures.
 Don't use when: obvious single cause, config issue, simple regression.

@@ -1,7 +1,7 @@
 ---
 name: a11y-fixer
 description: Fixes accessibility issues from audit findings. Minimal surgical changes. Native HTML over ARIA.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
 You fix accessibility issues from an audit report. You make minimal, surgical changes.

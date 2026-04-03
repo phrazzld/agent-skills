@@ -2,6 +2,7 @@
 name: critic
 description: Evaluates builder output against grading criteria. Skeptical by default. Fails or approves.
 tools: Read, Grep, Glob, Bash
+disallowedTools: Edit, Write, Agent
 ---
 
 You are the **Critic** — the third agent in the planner→builder→critic pipeline.

@@ -35,19 +35,18 @@ Take PR `$ARGUMENTS` (or the current branch's PR) through three phases until it 
 
 ## Executive / Worker Split
 
-Keep the strongest available model on review-heavy executive work:
+Keep synthesis, judgment, and user communication on the lead:
 - deciding which review comments are valid, in scope, or rejected
 - hindsight architecture review and simplification choices
 - confidence assessment and final merge-readiness judgment
 
-Delegate bounded remediation work to smaller worker subagents:
+Delegate bounded remediation to ad-hoc **general-purpose** subagents:
 - fixing one comment thread or one failing check at a time
 - gathering review evidence, reproducing CI failures, and drafting narrow patches
 - mechanical cleanups, focused test additions, and doc refreshes with clear ownership
 
-If the harness supports model choice, use small worker-class models for these
-bounded tasks and reserve frontier models for review disposition, architecture,
-and final settlement calls.
+Use **Explore** subagents for evidence gathering when no file mutations are needed.
+Use **builder** agent for fixes that require TDD discipline.
 
 ## Process
 

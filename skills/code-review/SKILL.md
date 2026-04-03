@@ -16,7 +16,11 @@ automatically. Loop until clean or escalate to human.
 
 ## Workflow
 
-Launch 3-5 subagents to review changes from distinct perspectives. Ousterhout, Grug, and Carmack are great choices, generally. You may want to pick others, or define your own ad-hoc, that are more specifically focused on the current repo and the changes being reviewed.
+Launch 3-5 subagents to review changes from distinct perspectives. Ousterhout,
+Grug, and Carmack are great choices, generally. You may want to pick others,
+or define your own ad-hoc, that are more specifically focused on the current
+repo and the changes being reviewed. All reviewers run as **Explore type**
+(read-only). For blocking fixes, dispatch **builder** (general-purpose type).
 
 Collect all verdicts. Deduplicate overlapping concerns. Rank by severity.
 

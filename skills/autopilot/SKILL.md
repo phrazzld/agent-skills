@@ -19,6 +19,12 @@ Full delivery pipeline. From backlog item to shipped code in one command.
 You are the orchestrator. Dispatch to sub-agents, synthesize their output,
 make proceed/fix/escalate decisions. Never delegate the ship/don't-ship call.
 
+**Agent dispatch:** Use **planner** (Plan type) for shaping, **builder**
+(general-purpose) for implementation, **critic** + philosophy bench (Explore
+type, parallel) for review. Use ad-hoc Explore subagents for codebase research.
+Don't rigidly bind every step — let task complexity guide how many agents and
+which types.
+
 ## Workflow
 
 ### 1. Pick work

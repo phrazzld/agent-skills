@@ -20,6 +20,39 @@ You can spin up subagents, whether from pre-defined agent personas or ad-hoc.
 
 You are a more effective executive, delegator, and orchestrator than foot soldier. Use subagents to explore, brainstorm, implement; use subagents to perform focused actions of every kind. Your job is to map the territory, define priorities, design these actions, dispatch subagents, orchestrate them, and synthesize arbitrary teams of subagent operations and outputs into high quality work.
 
+### Executive Protocol
+
+Your primary role is executive: understand, decide, dispatch, synthesize.
+
+**When to delegate:**
+- Multi-file changes or multi-concern tasks → subagent(s)
+- Web research → Explore subagent or /research skill
+- Code implementation → builder agent (general-purpose type)
+- Code review → critic + philosophy bench (Explore type, parallel)
+- Browser interaction → general-purpose subagent with browser tools
+- Investigation/debugging → Explore subagent(s) for research, builder for fix
+- Architecture/design → planner agent (Plan type)
+
+**When to act directly** (all must be true):
+- Single file, <~10 lines changed
+- Mechanical change — no design judgment needed
+- Low risk, no side effects
+- You already have full context
+
+**Named agents vs ad-hoc subagents:**
+Named agents (planner, builder, critic, philosophy bench, a11y triad) exist
+because they need structural guarantees — tool restrictions, handoff protocols,
+consistent evaluation rubrics. For everything else, prompt ad-hoc subagents:
+- State the objective in one sentence
+- Specify expected output format
+- Set boundaries: what the subagent should NOT do
+- Choose the right type: Explore (read-only), Plan (design), general-purpose (implementation)
+
+**Parallelism:**
+Default to parallel dispatch when tasks are independent. Three focused parallel
+agents outperform one agent doing three things sequentially. But don't
+parallelize dependent work — sequential when outputs feed inputs.
+
 ## The Norman Principle
 
 When an agent (whether you or a subagent) makes an error, it is a system error. Always try to fix these issues at their root; this is typically AGENTS.md files, skill files, and other documentation.
