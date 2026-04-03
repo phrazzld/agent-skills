@@ -4,26 +4,50 @@ Map, not manual. Points to deeper sources of truth.
 
 ## Architecture
 
-8 skills, 7 agents. Resist expansion.
+Core workflow:
+`backlog.d/ -> /groom -> /shape -> /autopilot -> /code-review -> /settle -> ship`
 
-**Workflow:** `backlog.d/ → /groom → /shape → /autopilot → /code-review → ship`
+Skill inventory:
+`a11y`, `agent-readiness`, `autopilot`, `code-review`, `demo`, `deps`,
+`groom`, `harness`, `investigate`, `qa`, `reflect`, `research`, `settle`,
+`shape`, `refactor`.
 
-**Skills:** autopilot, code-review, groom, harness, investigate, reflect, research, shape.
+Workflow skills:
+- `/autopilot` = plan/build/review/ship pipeline
+- `/settle` = unblock + polish + merge-readiness
+- `/refactor` = simplification/refactor pass (branch-aware)
 
-**Agents:** planner → builder → critic (GAN triad) + ousterhout, carmack, grug, beck (design review bench).
+Agents:
+`planner -> builder -> critic` (GAN triad) + `ousterhout`, `carmack`, `grug`,
+`beck` (design review bench).
 
 ## Orchestration
 
-Non-trivial work uses the planner→builder→critic pipeline.
+Default posture is executive:
+- Keep goal-setting, boundaries, synthesis, and final judgment on the lead model.
+- Delegate exploration, implementation, brainstorming, and focused critique aggressively.
+- Prefer parallel fanout for independent threads; use sequential handoffs only
+  when outputs are dependent.
+
+Non-trivial work uses `planner -> builder -> critic`.
 Planner specs. Builder implements. Critic evaluates. Most conservative reviewer wins.
 
-For serial edits (< 3 files, low risk): skip the pipeline, just do it.
+For serial edits (<3 files, low risk): skip the full pipeline and execute directly.
 
 ## Skill creation
 
 Use `/harness create` to create skills. `/harness lint` to validate. `/harness eval` to test.
 Quality gates: description triggers correctly, < 500 lines, encodes judgment not procedure,
 has gotchas section, passes eval baseline comparison.
+Every workflow skill should state the lead/subagent split explicitly.
+
+## Refactor Cadence
+
+- Feature branch: `/refactor` compares `base...HEAD`, then proposes or applies the
+  highest-leverage simplification in the active diff.
+- Primary branch (`main`/`master`): `/refactor` runs repo-wide simplification scouting,
+  researches prior art, and writes a shaped backlog item by default.
+- Use `/refactor --apply` on primary only for low-risk, well-verified edits.
 
 ## Quality bar
 

@@ -14,6 +14,13 @@ argument-hint: "[explore|rethink|moonshot|scaffold|tidy] [context]"
 
 Strategic backlog management. Parallel investigation, synthesis, themed recommendations.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep synthesis, prioritization, and recommendation decisions on the lead model.
+- Delegate investigation and evidence gathering to focused subagents.
+- Run independent investigators in parallel by default.
+
 ## Modes
 
 | Mode | Intent |

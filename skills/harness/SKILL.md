@@ -15,6 +15,13 @@ argument-hint: "[create|eval|lint|convert|sync|scaffold|engineer] [target]"
 
 Build and maintain the infrastructure that makes agents effective.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep skill/agent design decisions, quality gates, and final acceptance on the lead model.
+- Delegate targeted investigations, prototype edits, and comparisons to focused subagents.
+- Prefer parallel fanout when tasks are independent.
+
 ## Modes
 
 | Mode | Intent |

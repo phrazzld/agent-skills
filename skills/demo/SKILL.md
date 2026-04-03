@@ -17,6 +17,13 @@ Demo effectiveness depends on project-specific context: features to capture,
 artifact types, capture methods, upload targets. This global fallback exists
 only to redirect you.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep shot selection, evidence sufficiency, and final artifact approval on the lead model.
+- Delegate planning, capture, and critique to separate focused subagents.
+- Use a cold reviewer for final quality judgment.
+
 ## If this project has no scaffolded demo skill
 
 Run `/harness scaffold demo` to generate one. The scaffold investigates the

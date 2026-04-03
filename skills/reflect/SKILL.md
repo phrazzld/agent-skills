@@ -16,6 +16,13 @@ a codified artifact or gets explicitly justified as not worth codifying.
 
 Absorbs `/calibrate` — mid-session harness postmortem is now a mode of reflect.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep severity ranking, codification target selection, and final recommendations on the lead model.
+- Delegate evidence collection and drift scanning to focused subagents.
+- Run evidence-gathering subagents in parallel by default.
+
 ## Modes
 
 | Mode | Intent |

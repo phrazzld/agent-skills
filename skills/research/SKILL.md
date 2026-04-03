@@ -14,6 +14,13 @@ argument-hint: "[query] or [web-search|web-deep|web-news|web-docs|delegate|think
 
 Retrieval-first research, multi-AI orchestration, and expert validation.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep query framing, source weighting, and final synthesis on the lead model.
+- Delegate source retrieval and specialized analysis to focused subagents/tools.
+- Run multi-source fanout in parallel for independent evidence streams.
+
 ## Absorbed Skills
 
 This skill consolidates: `web-search`, `delegate`, `thinktank`, `introspect`.

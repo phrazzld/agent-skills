@@ -14,6 +14,13 @@ argument-hint: "[idea|issue|backlog-item] [--spec-only] [--design-only]"
 Shape a raw idea into something buildable. Output is a **context packet** —
 the unit of specification that precedes implementation.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep direction lock, tradeoff decisions, and context-packet acceptance on the lead model.
+- Delegate investigation, prior-art search, and design critiques to focused subagents.
+- Use parallel fanout for exploration before synthesis.
+
 ## Workflow
 
 ### Phase 1: Understand

@@ -40,3 +40,9 @@ Phase 3 methodology: survey-imagine-simplify protocol, deletion-first hierarchy 
   protocol, deletion-first hierarchy, complexity metrics (LOC, nesting, fan-in/out, cyclomatic),
   Chesterton's fence check, diminishing returns signal.
 - `skills/settle/SKILL.md` — Updated 3 paths from `../autopilot/references/` to `references/`.
+
+## Subsequent Evolution
+
+- Phase 3 was later extracted into `skills/refactor/`.
+- `skills/settle/references/simplify.md` is now a shim pointing to the `refactor` reference.
+- `/settle` now invokes `/refactor` instead of owning the simplification workflow inline.

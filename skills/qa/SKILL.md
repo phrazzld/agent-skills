@@ -14,6 +14,13 @@ argument-hint: "[url|route|feature]"
 QA effectiveness depends on project-specific context: routes, personas, dev
 commands, evidence strategy. This global fallback exists only to redirect you.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep test scope, severity classification, and final pass/fail call on the lead model.
+- Delegate route execution and evidence capture to focused subagents.
+- Use independent verification when the same agent captured the evidence.
+
 ## If this project has no scaffolded QA skill
 
 Run `/harness scaffold qa` to generate one. The scaffold investigates the

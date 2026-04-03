@@ -16,6 +16,13 @@ Analyze, test, and upgrade dependencies. One curated PR, not 47 version bumps.
 
 **Target:** $ARGUMENTS
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep upgrade policy, risk acceptance, and final merge-readiness judgment on the lead model.
+- Delegate package analysis and bounded upgrade work to focused subagents.
+- Parallelize across disjoint packages/ecosystems where safe.
+
 ## Routing
 
 | Mode | Intent |

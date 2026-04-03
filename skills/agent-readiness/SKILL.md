@@ -19,6 +19,13 @@ Then fix the highest-impact gaps.
 
 **Target:** $ARGUMENTS
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep prioritization, remediation approval, and final readiness judgment on the lead model.
+- Delegate pillar assessments and bounded fixes to focused subagents.
+- Use parallel fanout by default for independent pillars.
+
 ## Core Insight
 
 The agent is not broken. The environment is. A codebase with fast feedback

@@ -14,6 +14,13 @@ argument-hint: "[branch|diff|files]"
 Launch a parallel team of reviewers. Synthesize findings. Fix blocking issues
 automatically. Loop until clean or escalate to human.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep severity ranking, ship/no-ship judgment, and review synthesis on the lead model.
+- Delegate independent reviews and bounded fixes to focused subagents.
+- Prefer parallel reviewer fanout; serialize only for fix-and-recheck loops.
+
 ## Workflow
 
 Launch 3-5 subagents to review changes from distinct perspectives. Ousterhout,

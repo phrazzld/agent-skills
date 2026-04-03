@@ -1,25 +1,32 @@
 ---
 name: settle
 description: |
-  Unblock, polish, and simplify a PR until it's genuinely merge-ready.
+  Unblock, polish, and refactor a PR until it's genuinely merge-ready.
   Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs),
-  simplify (complexity reduction). Runs all three in sequence — stop only
+  refactor (complexity reduction). Runs all three in sequence — stop only
   when everything is green, landed, and clean.
   Use when: PR is blocked, CI red, review comments open, "land this PR",
   "get this mergeable", "fix and polish", "unblock PR", "clean up this PR",
   "make this merge-ready", "address reviews", "fix CI".
-  Trigger: /settle, /land (alias), /pr-fix, /pr-polish, /simplify.
+  Trigger: /settle, /land (alias), /pr-fix, /pr-polish.
 argument-hint: "[PR-number]"
 ---
 
 # /settle
 
-Take a PR from blocked to merge-ready. Fix everything, polish everything, simplify everything.
+Take a PR from blocked to merge-ready. Fix everything, polish everything, refactor everything.
 
 ## Role
 
 Senior engineer who owns the lane end-to-end. Not done until the PR is genuinely
 clean — not just "CI green" but architecturally sound, well-tested, and simple.
+
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep review-comment disposition, risk tradeoffs, and merge-readiness judgment on the lead model.
+- Delegate bounded evidence gathering and implementation to focused subagents.
+- Use parallel fanout for independent fixes; serialize when fixes share files or checks.
 
 ## Objective
 
@@ -98,7 +105,7 @@ Read `references/pr-polish.md` and follow it completely.
 3. **Architecture edits** — fix what the hindsight review and assess-* checks find. Commit.
 4. **Test audit** — coverage gaps, brittle tests, missing edge cases. Fix.
 5. **Docs** — update any docs/comments that are stale after the changes.
-5. **Confidence assessment** — how confident are we this won't break anything?
+6. **Confidence assessment** — how confident are we this won't break anything?
    Treat confidence as an explicit deliverable with evidence.
 
 Use the strongest available model for hindsight review and confidence judgment.
@@ -108,19 +115,17 @@ Use smaller workers for narrow polish follow-through once the direction is clear
 
 If polish generates changes, return to Phase 1 (CI must stay green).
 
-### Phase 3: Simplify — Reduce complexity
+### Phase 3: Refactor — Reduce complexity
 
-Read `references/simplify.md` and follow it completely.
+Invoke `/refactor` for this branch and use it as the simplification engine.
 
 **Goal:** Remove complexity that doesn't earn its keep.
 
-1. **Survey** — what does this code actually do? Why is it shaped this way?
-2. **Imagine the clean rebuild** — if starting today, what's the simplest design?
-3. **Find the highest-leverage simplification** — deletion > consolidation > abstraction
-4. **Implement** — one refactor, verify behavior preserved, commit
-5. **Verify simplification** — run `assess-simplify` (strong tier) to produce
-   measurable proof that complexity was genuinely reduced, not just redistributed.
-   The `complexity_moved_not_removed` flag must be false to exit this phase.
+1. **Run refactor pass** — detect the actual PR base branch, then run `/refactor` with that base only if auto-detection is ambiguous.
+2. **Select one bounded change** — deletion > consolidation > state reduction > naming clarity > abstraction.
+3. **Implement + verify** — preserve behavior, run tests, commit.
+4. **Validate simplification** — run `assess-simplify` (strong tier) when available.
+   `complexity_moved_not_removed` must be false to exit this phase.
 
 **Mandatory when diff >200 LOC net.** For smaller diffs, manual module-depth
 review using Ousterhout checks: shallow modules, information leakage,
@@ -128,12 +133,12 @@ pass-throughs, compatibility shims with no active contract.
 
 **Exit gate:** No obvious complexity to remove, or explicit justification for keeping it.
 
-If simplification generates changes, return to Phase 1 (CI must stay green).
+If refactor generates changes, return to Phase 1 (CI must stay green).
 
 ## Loop Until Done
 
 ```
-Phase 1 (fix) → Phase 2 (polish) → Phase 3 (simplify)
+Phase 1 (fix) → Phase 2 (polish) → Phase 3 (refactor)
        ↑                                      │
        └──────── if changes pushed ───────────┘
 ```
@@ -166,8 +171,8 @@ When settlement needs screenshots, videos, logs, or walkthrough proof:
 - **Reflexive dismissal** — rejecting automated reviewer comments with "by design" or "established pattern" without steelmanning the argument. See disposition criteria in `references/pr-fix.md`.
 - **Batch reply without fixing** — replying to all comments in one PR comment instead of addressing each inline. This encourages bulk dismissal.
 - Polish without re-running CI afterward
-- Simplifying without verifying behavior is preserved
-- Skipping simplify because "it works"
+- Refactoring without verifying behavior is preserved
+- Skipping refactor because "it works"
 - Posting "PR Unblocked" while async reviewers can still add findings
 - Merging the PR yourself — your job ends at merge-ready. Never call `gh pr merge`. The human decides when to merge.
 
@@ -176,5 +181,5 @@ When settlement needs screenshots, videos, logs, or walkthrough proof:
 Report per phase:
 - **Fix:** conflicts resolved, CI failures fixed, review comments addressed (count + dispositions)
 - **Polish:** architecture changes made, test gaps filled, confidence level + evidence
-- **Simplify:** complexity removed (LOC delta, modules consolidated, abstractions deleted)
+- **Refactor:** complexity removed (LOC delta, modules consolidated, abstractions deleted)
 - **Final:** PR URL, merge readiness assessment, any remaining risks

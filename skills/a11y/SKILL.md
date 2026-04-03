@@ -16,6 +16,13 @@ Audit, fix, and verify accessibility. WCAG 2.2 AA.
 
 **Target:** $ARGUMENTS
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep severity decisions, scope tradeoffs, and final PASS/FAIL judgment on the lead model.
+- Delegate audit, remediation, and critique to separate focused subagents.
+- Prefer parallel exploration for independent checks; keep remediation sequential when fixes interact.
+
 ## Routing
 
 | Intent | Action |

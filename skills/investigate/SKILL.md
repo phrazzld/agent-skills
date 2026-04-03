@@ -14,6 +14,13 @@ argument-hint: <symptoms or domain> e.g. "error in auth" or "audit stripe"
 
 Find root cause. Fix it. Prove it works.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep hypothesis ranking, root-cause proof, and fix selection on the lead model.
+- Delegate bounded evidence gathering and implementation to focused subagents.
+- Run parallel hypothesis probes when multiple plausible causes exist.
+
 ## Routing
 
 | Intent | Sub-capability |

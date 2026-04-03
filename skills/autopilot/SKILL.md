@@ -14,6 +14,13 @@ argument-hint: "[backlog-item|issue-id]"
 
 Full delivery pipeline. From backlog item to shipped code in one command.
 
+## Execution Stance
+
+You are the executive orchestrator.
+- Keep work selection, scope control, and ship/no-ship judgment on the lead model.
+- Delegate shaping, implementation, and critique to focused subagents.
+- Use parallel fanout for disjoint workstreams.
+
 ## Architecture: Planner → Builder → Critic
 
 You are the orchestrator. Dispatch to sub-agents, synthesize their output,

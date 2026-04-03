@@ -33,6 +33,9 @@ skills:
   - name: qa
     description: "Browser-based QA, exploratory testing, evidence capture, and bug reporting. Drive running applications and verify they work — not just that tests pass. Use when: \"run QA\", \"test this\", \"verify the f"
     tags: [applications,browser-based,bug,capture,drive,evidence,exploratory,f,just,pass]
+  - name: refactor
+    description: "Branch-aware simplification and refactoring workflow. On feature branches, compare against base and simplify the diff before merge. On primary branch, scan the full codebase, research prior art, and i"
+    tags: [against,art,base,before,branch,branch-aware,branches,codebase,compare,diff]
   - name: reflect
     description: "Session retrospective, learning extraction, harness postmortem, codification. Distill learnings into hooks/rules/skills. Fix the system, not the instance. Use when: \"done\", \"wrap up\", \"what did we lea"
     tags: [codification,did,distill,done,extraction,fix,harness,hooks,instance,lea]
@@ -40,7 +43,7 @@ skills:
     description: "Web research, multi-AI delegation, and multi-perspective validation. /research [query], /research delegate [task], /research thinktank [topic]. Triggers: \"search for\", \"look up\", \"research\", \"delegate"
     tags: [delegate,delegation,look,multi-ai,multi-perspective,query,research,search,task,thinktank]
   - name: settle
-    description: "Unblock, polish, and simplify a PR until it's genuinely merge-ready. Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs), simplify (complexity reduction). Runs all three in sequ"
+    description: "Unblock, polish, and refactor a PR until it's genuinely merge-ready. Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs), refactor (complexity reduction). Runs all three in sequ"
     tags: [a,architecture,ci,complexity,conflicts,docs,fix,genuinely,in,it]
   - name: shape
     description: "Shape a raw idea into something buildable. Product + technical exploration. Spec, design, critique, plan. Output is a context packet. Use when: \"shape this\", \"write a spec\", \"design this feature\", \"pl"
