@@ -10,8 +10,6 @@ from dagger import DefaultPath, Doc, Ignore, dag, function, object_type
 from .heal_support import (
     GateFailure,
     parse_check_failures,
-    repair_branch_name,
-    repair_commit_message,
     select_healable_failure,
 )
 
@@ -94,82 +92,6 @@ def _repair_container(source: dagger.Directory) -> dagger.Container:
         .with_directory("/src", source)
         .with_workdir("/src")
     )
-
-
-async def _ensure_standard_clone(source: dagger.Directory) -> None:
-    """Require `.git` to be a directory so commit metadata survives export."""
-    try:
-        dot_git = (await source.file(".git").contents()).strip()
-    except Exception:
-        return
-
-    if dot_git.startswith("gitdir: "):
-        raise ValueError(
-            "heal currently requires a standard clone with a `.git` directory; git worktrees are not supported"
-        )
-
-    raise ValueError("heal requires `.git` to be a directory")
-
-
-async def _stage_changed_paths(
-    container: dagger.Container,
-    *,
-    added: list[str],
-    modified: list[str],
-    removed: list[str],
-) -> dagger.Container:
-    """Stage only the files changed by the repair."""
-    changed = sorted(set(added + modified))
-    if removed:
-        container = await container.with_exec(["git", "rm", "--ignore-unmatch", "--", *removed]).sync()
-    if changed:
-        container = await container.with_exec(["git", "add", "--", *changed]).sync()
-    return container
-
-
-async def _commit_repair(
-    source: dagger.Directory,
-    repaired: dagger.Directory,
-    *,
-    branch_name: str,
-    commit_message: str,
-) -> dagger.Directory:
-    """Commit the repaired working tree on a new branch and return the full repo directory."""
-    base_source = source.without_directory(".git")
-    changes = repaired.changes(base_source)
-    added = [path for path in await changes.added_paths() if path != ".git"]
-    modified = [path for path in await changes.modified_paths() if path != ".git"]
-    removed = [path for path in await changes.removed_paths() if path != ".git"]
-
-    if not added and not modified and not removed:
-        raise ValueError("heal produced no file changes to commit.")
-
-    commit_container = (
-        dag.container()
-        .from_("alpine/git:2.49.1")
-        .with_directory("/repo", source)
-        .with_workdir("/repo")
-        .with_exec(["git", "config", "--global", "--add", "safe.directory", "/repo"])
-        .with_exec(["git", "config", "user.name", "dagger-heal"])
-        .with_exec(["git", "config", "user.email", "dagger-heal@example.com"])
-    )
-
-    for path in sorted(set(added + modified)):
-        commit_container = commit_container.with_file(
-            f"/repo/{path}",
-            repaired.file(path),
-        )
-
-    commit_container = await commit_container.with_exec(["git", "switch", "-c", branch_name]).sync()
-    commit_container = await _stage_changed_paths(
-        commit_container,
-        added=added,
-        modified=modified,
-        removed=removed,
-    )
-    commit_container = await commit_container.with_exec(["git", "commit", "-m", commit_message]).sync()
-    return commit_container.directory("/repo")
-
 
 @object_type
 class SpellbookCi:
@@ -479,21 +401,18 @@ print('No hardcoded user paths found.')
         source: Annotated[
             dagger.Directory,
             DefaultPath("/"),
-            Ignore(["__pycache__", ".venv", "ci"]),
-            Doc("Repo source directory from a standard clone, including `.git`"),
+            Ignore([".git", "__pycache__", ".venv", "ci"]),
+            Doc("Repo source directory"),
         ],
         model: Annotated[str, Doc("LLM model for the repair agent")] = "gpt-4.1",
         attempts: Annotated[int, Doc("Maximum repair attempts before escalation")] = 2,
     ) -> dagger.Directory:
-        """Repair one failing lint-style gate and return a repo directory with a repair commit."""
+        """Repair one failing lint-style gate and return the updated repo directory."""
         if attempts < 1:
             raise ValueError("attempts must be at least 1.")
 
-        await _ensure_standard_clone(source)
-        working_tree = source.without_directory(".git")
-
         try:
-            summary = await self.check(working_tree)
+            summary = await self.check(source)
         except Exception as error:
             summary = str(error)
         else:
@@ -501,7 +420,7 @@ print('No hardcoded user paths found.')
 
         failure = select_healable_failure(parse_check_failures(summary))
         last_error = summary
-        working_source = working_tree
+        working_source = source
 
         for attempt in range(1, attempts + 1):
             repaired_source = working_source
@@ -534,13 +453,7 @@ print('No hardcoded user paths found.')
                 gate_runner = getattr(self, failure.name.replace("-", "_"))
                 await gate_runner(repaired_source)
                 await self.check(repaired_source)
-                branch_name = repair_branch_name(failure.name)
-                return await _commit_repair(
-                    source,
-                    repaired_source,
-                    branch_name=branch_name,
-                    commit_message=repair_commit_message(failure.name),
-                )
+                return repaired_source
             except Exception as error:
                 last_error = str(error)
                 if attempt == attempts:

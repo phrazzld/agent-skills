@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 import re
 
 HEALABLE_GATES = {
@@ -90,3 +91,39 @@ def repair_branch_name(gate_name: str) -> str:
 def repair_commit_message(gate_name: str) -> str:
     """Create the semantic commit message for a successful repair."""
     return f"ci: heal {gate_name}"
+
+
+def snapshot_delta(
+    before_root: Path,
+    after_root: Path,
+    *,
+    excluded_names: frozenset[str] = frozenset({".git", ".env", "__pycache__"}),
+) -> tuple[list[str], list[str]]:
+    """Return paths to stage and remove when comparing two working-tree snapshots."""
+
+    def collect(root: Path) -> dict[str, bytes]:
+        files: dict[str, bytes] = {}
+        for path in root.rglob("*"):
+            rel = path.relative_to(root)
+            if any(part in excluded_names for part in rel.parts):
+                continue
+            if path.is_file():
+                files[rel.as_posix()] = path.read_bytes()
+        return files
+
+    before_files = collect(before_root)
+    after_files = collect(after_root)
+
+    stage: list[str] = []
+    remove: list[str] = []
+    for rel in sorted(set(before_files) | set(after_files)):
+        before = before_files.get(rel)
+        after = after_files.get(rel)
+        if before is None and after is not None:
+            stage.append(rel)
+        elif before is not None and after is None:
+            remove.append(rel)
+        elif before is not None and after is not None and before != after:
+            stage.append(rel)
+
+    return stage, remove

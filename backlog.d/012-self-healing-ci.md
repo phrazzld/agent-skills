@@ -38,17 +38,21 @@ When `dagger call check` fails, auto-spawn a builder sub-agent to diagnose and f
   reads the aggregated `check()` summary, selects exactly one healable lint-style
   failure, creates a writable repair container, prompts Dagger LLM with the actual
   failing gate output, verifies the targeted gate plus full `check()`, and returns
-  the repaired repo directory.
+  the repaired repo directory for host-side export.
 - `ci/src/spellbook_ci/heal_support.py` — Pure helpers for parsing failed gates,
-  enforcing the one-gate-at-a-time contract, and generating repair metadata.
+  enforcing the one-gate-at-a-time contract, generating repair metadata, and
+  computing the delta between pre/post-heal worktree snapshots.
 - `ci/tests/test_heal_support.py` and `ci/tests/test_self_healing.py` — Unit tests
-  covering summary parsing, gate selection, and repair metadata.
+  covering summary parsing, gate selection, repair metadata, and snapshot-delta
+  staging logic for the host wrapper.
 - `scripts/heal-commit.sh` — Host-side wrapper that:
   1. ensures a repo-local `.env` exists for Dagger module loading,
   2. inspects `dagger call check` to find the failing gate,
   3. runs `dagger call --allow-llm all -o . heal`,
   4. re-runs `dagger call check`,
-  5. creates `heal/<gate>-<timestamp>` branch and commits `ci: heal <gate>`.
+  5. creates `heal/<gate>-<timestamp>` branch,
+  6. stages only the post-heal delta (not unrelated pre-existing changes),
+  7. commits `ci: heal <gate>`.
 
 ## Workarounds
 
