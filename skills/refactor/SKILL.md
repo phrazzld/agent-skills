@@ -29,7 +29,8 @@ You are the executive orchestrator.
 
 Detect the current branch and primary branch first:
 1. Current: `git rev-parse --abbrev-ref HEAD`
-2. Primary: `git symbolic-ref refs/remotes/origin/HEAD` (fallback `main`, then `master`)
+2. Primary: `git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##'`
+   (fallback `main`, then `master`)
 
 If current branch != primary branch: run **Feature Branch Mode**.
 If current branch == primary branch: run **Primary Branch Mode**.

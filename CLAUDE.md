@@ -62,5 +62,7 @@ See `harnesses/shared/AGENTS.md` — one file, symlinked to every harness.
 - The pre-commit hook regenerates index.yaml — don't edit it manually.
 - bootstrap.sh has two modes: symlink (local checkout) and download (remote).
   Test both paths if you change it.
+- If you bootstrap from a temporary worktree, prefer pinning `SPELLBOOK_DIR`
+  to a stable checkout. Disposable worktree symlinks make global harness skills disappear later.
 - `harnesses/claude/settings.json` is COPIED by bootstrap (Claude modifies it
   at runtime), not symlinked. Changes there need a re-bootstrap to take effect.

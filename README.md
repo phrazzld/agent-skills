@@ -11,6 +11,10 @@ software development. One repo. All harnesses (Claude Code, Codex, Pi).
 curl -sL https://raw.githubusercontent.com/phrazzld/spellbook/master/bootstrap.sh | bash
 ```
 
+If you're running bootstrap from a temporary git worktree, it now prefers a
+stable checkout like `~/Development/spellbook` automatically. To intentionally
+point your harnesses at a specific checkout, set `SPELLBOOK_DIR=/path/to/spellbook`.
+
 ## The 8 Skills
 
 | Skill | Purpose |

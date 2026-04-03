@@ -25,10 +25,30 @@ is_spellbook_checkout() {
   [ -d "$dir/skills" ] && [ -d "$dir/agents" ] && [ -d "$dir/harnesses" ]
 }
 
+is_worktree_checkout() {
+  local dir="$1"
+  [ -f "$dir/.git" ]
+}
+
 resolve_spellbook_dir() {
   if [ -n "${SPELLBOOK_DIR:-}" ] && is_spellbook_checkout "$SPELLBOOK_DIR"; then
     printf '%s\n' "$SPELLBOOK_DIR"
     return 0
+  fi
+
+  local candidate
+  if is_worktree_checkout "$SCRIPT_DIR"; then
+    for candidate in \
+      "$HOME/Development/spellbook" \
+      "$HOME/dev/spellbook" \
+      "$HOME/src/spellbook" \
+      "$HOME/code/spellbook"
+    do
+      if is_spellbook_checkout "$candidate"; then
+        printf '%s\n' "$candidate"
+        return 0
+      fi
+    done
   fi
 
   if is_spellbook_checkout "$SCRIPT_DIR"; then
@@ -36,7 +56,6 @@ resolve_spellbook_dir() {
     return 0
   fi
 
-  local candidate
   for candidate in \
     "$HOME/Development/spellbook" \
     "$HOME/dev/spellbook" \
