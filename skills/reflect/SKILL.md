@@ -37,6 +37,12 @@ Spawn three sub-agents simultaneously:
 - **Available-but-unused information**: Files, env vars, configs, tools that existed
   and would have prevented friction, but the agent didn't know about or didn't use.
   (e.g., test credentials in `.env`, existing skills that weren't invoked)
+- **Skill invocation log**: Read `~/.claude/skill-invocations.jsonl`, filter to
+  current `session_id`. Report: which skills fired and how many times each.
+  Cross-reference against session activity -- if debugging happened but
+  /investigate never fired, or code was reviewed without /code-review, note the
+  gap. Feed these observations into the Swiss Cheese triage as layer 2 (Skills)
+  findings: "skill that didn't fire" or "skill fired but too late".
 - **Accepted shortcuts**: Assumptions stated as fact without verification.
   (e.g., "structurally identical", "should work the same way", "low risk")
 - **Multi-attempt sequences**: Anything that took >1 try — auth failures, tool

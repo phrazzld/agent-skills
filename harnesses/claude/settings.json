@@ -85,6 +85,18 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/skill-invocation-tracker.py",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
