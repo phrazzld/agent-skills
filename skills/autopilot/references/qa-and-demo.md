@@ -1,8 +1,8 @@
 # QA and Demo Artifacts
 
 These capabilities are scaffold-first: each project generates its own
-project-local `/qa` and `/demo` skills via `/harness scaffold qa` and
-`/harness scaffold demo`. The global skills are thin redirects.
+project-local `/qa` and `/demo` skills via `/qa scaffold` and
+`/demo scaffold`. The global skills are thin redirects.
 
 - **`/qa`** — browser-based QA, exploratory testing, evidence capture, bug reporting
 - **`/demo`** — demo artifact generation, video composition, narration, PR evidence upload
@@ -12,15 +12,15 @@ outside the autopilot pipeline (e.g., after manually shipping, or to iterate
 on demo artifacts for an existing PR).
 
 **If the project has no scaffolded skill:** The global fallback provides minimal
-methodology and a redirect to `/harness scaffold`. For best results, scaffold
-before running autopilot on a new project.
+methodology and a redirect to `/qa scaffold` or `/demo scaffold`. For best
+results, scaffold before running autopilot on a new project.
 
-Reference material for scaffolding lives in `skills/harness/references/`:
-- `browser-tools.md` — browser tool selection and setup
-- `evidence-capture.md` — evidence capture patterns per tool
-- `pr-evidence-upload.md` — uploading evidence to PRs via draft releases
-- `remotion.md` — Remotion video composition
-- `tts-narration.md` — TTS narration and voiceover
+Reference material for scaffolding lives with each domain skill:
+- `skills/qa/references/browser-tools.md` — browser tool selection and setup
+- `skills/qa/references/evidence-capture.md` — evidence capture patterns per tool
+- `skills/demo/references/pr-evidence-upload.md` — uploading evidence to PRs via draft releases
+- `skills/demo/references/remotion.md` — Remotion video composition
+- `skills/demo/references/tts-narration.md` — TTS narration and voiceover
 
 ## Observability Instrumentation
 

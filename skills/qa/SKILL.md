@@ -4,25 +4,28 @@ description: |
   Browser-based QA, exploratory testing, evidence capture, and bug reporting.
   Drive running applications and verify they work — not just that tests pass.
   Use when: "run QA", "test this", "verify the feature", "exploratory test",
-  "check the app", "QA this PR", "capture evidence", "manual testing".
+  "check the app", "QA this PR", "capture evidence", "manual testing",
+  "scaffold qa", "generate qa skill".
   Trigger: /qa.
-argument-hint: "[url|route|feature]"
+argument-hint: "[url|route|feature|scaffold]"
 ---
 
-# /qa — Project-Local Skill Required
+# /qa
 
-QA effectiveness depends on project-specific context: routes, personas, dev
-commands, evidence strategy. This global fallback exists only to redirect you.
+QA effectiveness depends on project-specific context. This skill either runs
+QA (if a project-local skill exists) or scaffolds one.
 
-## If this project has no scaffolded QA skill
+## Routing
 
-Run `/harness scaffold qa` to generate one. The scaffold investigates the
-codebase (routes, framework, auth, browser tools), designs with you, and
-writes a project-local `.claude/skills/qa/SKILL.md` tailored to this app.
+| Intent | Action |
+|--------|--------|
+| "scaffold qa", "generate qa skill" | Read `references/scaffold.md` and follow it |
+| Run QA (project-local skill exists) | Defer to project-local `.claude/skills/qa/SKILL.md` |
+| Quick one-off QA (no scaffold) | Use the quick protocol below |
 
-Once scaffolded, `/qa` will resolve to the project-local skill automatically.
+If first argument is "scaffold" → read `references/scaffold.md`.
 
-## Quick one-off QA (no scaffold)
+## Quick One-Off QA (no scaffold)
 
 If you need to verify something right now without scaffolding:
 
@@ -32,8 +35,8 @@ If you need to verify something right now without scaffolding:
 4. Capture evidence to `/tmp/qa-{slug}/`
 5. Classify findings: P0 (blocks ship), P1 (fix before merge), P2 (log)
 
-For browser tool selection, read `skills/harness/references/browser-tools.md`.
-For evidence capture patterns, read `skills/harness/references/evidence-capture.md`.
+For browser tool selection, read `references/browser-tools.md`.
+For evidence capture patterns, read `references/evidence-capture.md`.
 
 ## Gotchas
 
@@ -41,4 +44,4 @@ For evidence capture patterns, read `skills/harness/references/evidence-capture.
 - **This fallback is intentionally thin.** Generic QA instructions can't encode
   your app's routes, personas, or failure modes. Scaffold for real coverage.
 - **Autopilot expects a scaffolded skill.** If `/autopilot` invokes `/qa` and
-  hits this redirect, scaffold first: `/harness scaffold qa`.
+  hits this redirect, scaffold first: `/qa scaffold`.

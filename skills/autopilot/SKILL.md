@@ -92,7 +92,7 @@ and the oracle criteria from the context packet.
 - **User-facing components:** `/qa` exercises the app with browser tools,
   captures evidence, classifies findings.
 - **No user-facing components:** Skip (pure refactor, library, config work).
-- **No scaffolded `/qa` skill?** Run `/harness scaffold qa` first. The global
+- **No scaffolded `/qa` skill?** Run `/qa scaffold` first. The global
   fallback is intentionally thin — effective QA needs project-local context.
 
 If `/qa` finds P0/P1 issues, spawn a builder sub-agent to fix, then re-run `/qa`.
@@ -106,7 +106,7 @@ Invoke `/demo` on the QA evidence. Every shipped unit of work produces evidence.
 - **CLI:** `/demo --format gif` for terminal session GIF
 - **API:** Screenshot or captured output (may not need `/demo`)
 - **Library/refactor:** Before/after test output diff
-- **No scaffolded `/demo` skill?** Run `/harness scaffold demo` first.
+- **No scaffolded `/demo` skill?** Run `/demo scaffold` first.
 
 Then `/demo upload` to attach evidence to the PR via draft GitHub release.
 

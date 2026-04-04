@@ -1,6 +1,6 @@
 # Demo Scaffold Template
 
-Template for `/harness scaffold demo`. Generates a project-local demo skill
+Template for `/demo scaffold`. Generates a project-local demo skill
 by investigating the codebase and designing capture strategy with the user.
 
 ## Investigation Prompts

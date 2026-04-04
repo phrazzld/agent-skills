@@ -146,7 +146,7 @@ CI and reviews. The loop terminates when a full pass produces no changes.
 When settlement needs screenshots, videos, logs, or walkthrough proof:
 
 - Upload screenshots/GIFs to draft GitHub release assets, embed download URLs
-  in PR comments. See `skills/harness/references/pr-evidence-upload.md` for the recipe.
+  in PR comments. See `skills/demo/references/pr-evidence-upload.md` for the recipe.
 - Convert `.webm` → `.gif` before upload (GitHub renders GIFs inline, not video).
 - Prefer CI artifacts or step summaries for generated verification output.
 - Never commit binary PR evidence into the repo.
@@ -162,9 +162,9 @@ When settlement needs screenshots, videos, logs, or walkthrough proof:
 
 - Declaring "done" while CI is still running
 - Ignoring review comments instead of addressing them
-- **Truncating review comments** — reading 300-char previews instead of full text. Always fetch complete comment bodies before classifying.
+- **Truncating review comments** — reading 300-char previews instead of full text. Run `scripts/fetch-pr-reviews.sh` to get complete bodies.
 - **Reflexive dismissal** — rejecting automated reviewer comments with "by design" or "established pattern" without steelmanning the argument. See disposition criteria in `references/pr-fix.md`.
-- **Batch reply without fixing** — replying to all comments in one PR comment instead of addressing each inline. This encourages bulk dismissal.
+- **Batch reply without fixing** — replying to all comments in one PR comment instead of addressing each inline, one at a time.
 - Polish without re-running CI afterward
 - Simplifying without verifying behavior is preserved
 - Skipping simplify because "it works"

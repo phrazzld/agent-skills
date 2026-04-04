@@ -1,6 +1,6 @@
 # QA Scaffold Template
 
-Template for `/harness scaffold qa`. Generates a project-local QA skill
+Template for `/qa scaffold`. Generates a project-local QA skill
 by investigating the codebase and designing with the user.
 
 ## Investigation Prompts

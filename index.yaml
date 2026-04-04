@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-03T14:55:44Z
+# Generated: 2026-04-04T14:59:25Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -30,6 +30,9 @@ skills:
   - name: investigate
     description: "Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle, domain auditing, and issue logging. Four-phase protocol: root cause → pattern analysis → hypothesis test → fix. Use"
     tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
+  - name: model-research
+    description: "Research, compare, and select LLM models for AI-powered apps and workflows. Finds latest models per family, verifies availability on target platform, compares pricing/benchmarks/tool-calling, produces"
+    tags: [ai-powered,apps,availability,benchmarks,compare,compares,family,finds,latest,llm]
   - name: qa
     description: "Browser-based QA, exploratory testing, evidence capture, and bug reporting. Drive running applications and verify they work — not just that tests pass. Use when: \"run QA\", \"test this\", \"verify the f"
     tags: [applications,browser-based,bug,capture,drive,evidence,exploratory,f,just,pass]
