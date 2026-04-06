@@ -63,6 +63,12 @@ Estimate: S | M | L | XL
 <context, constraints, prior art>
 ```
 
+When grooming Spellbook itself, shape items for downstream-repo usefulness first.
+Spellbook-local work should survive only if it creates reusable primitives,
+scaffolds, references, or policies; validates a proving-ground pattern meant to
+transfer outward; or removes debt that materially blocks downstream adoption or
+trust. See `references/backlog-doctrine.md` under "Spellbook Product Lens."
+
 ## Context Loading (all modes except tidy)
 
 Before investigation, the orchestrator gathers baseline context:
@@ -180,6 +186,7 @@ then label with `git-bug bug label new <id> "priority/pN" "domain/X"`.
 After creating git-bug issues, sync: `git-bug push origin`
 (best-effort — if push fails, issues are safe locally; log the failure but don't block).
 Gate: every item has Goal + Non-Goals + Oracle.
+For Spellbook backlog items, make the downstream leverage or proving-ground rationale explicit.
 Use `references/agent-issue-writing.md` for issue quality standards.
 ### 6. PRIORITIZE — Reorder backlog.d/ by value/effort ratio
 

@@ -121,7 +121,7 @@ Invoke `/refactor` for this branch and use it as the simplification engine.
 
 **Goal:** Remove complexity that doesn't earn its keep.
 
-1. **Run refactor pass** — detect the actual PR base branch, then run `/refactor` with that base only if auto-detection is ambiguous.
+1. **Run refactor pass** — invoke `/refactor` and rely on its built-in base-branch auto-detection; pass `--base <branch>` only if auto-detection fails or is ambiguous.
 2. **Select one bounded change** — deletion > consolidation > state reduction > naming clarity > abstraction.
 3. **Implement + verify** — preserve behavior, run tests, commit.
 4. **Validate simplification** — run `assess-simplify` (strong tier) when available.
@@ -137,7 +137,7 @@ If refactor generates changes, return to Phase 1 (CI must stay green).
 
 ## Loop Until Done
 
-```
+```text
 Phase 1 (fix) → Phase 2 (polish) → Phase 3 (refactor)
        ↑                                      │
        └──────── if changes pushed ───────────┘
@@ -151,7 +151,7 @@ CI and reviews. The loop terminates when a full pass produces no changes.
 When settlement needs screenshots, videos, logs, or walkthrough proof:
 
 - Upload screenshots/GIFs to draft GitHub release assets, embed download URLs
-  in PR comments. See `skills/harness/references/pr-evidence-upload.md` for the recipe.
+  in PR comments. See `skills/demo/references/pr-evidence-upload.md` for the recipe.
 - Convert `.webm` → `.gif` before upload (GitHub renders GIFs inline, not video).
 - Prefer CI artifacts or step summaries for generated verification output.
 - Never commit binary PR evidence into the repo.
@@ -167,8 +167,8 @@ When settlement needs screenshots, videos, logs, or walkthrough proof:
 
 - Declaring "done" while CI is still running
 - Ignoring review comments instead of addressing them
-- **Truncating review comments** — reading 300-char previews instead of full text. Run `scripts/fetch-pr-reviews.sh <PR>` to get complete bodies.
-- **Reflexive dismissal** — rejecting automated reviewer comments with "by design" or "established pattern" without steelmanning. See disposition criteria in `references/pr-fix.md`.
+- **Truncating review comments** — reading 300-char previews instead of full text. Run `skills/settle/scripts/fetch-pr-reviews.sh <PR>` to get complete bodies.
+- **Reflexive dismissal** — rejecting automated reviewer comments with "by design" or "established pattern" without steelmanning the argument. See disposition criteria in `references/pr-fix.md`.
 - **Batch reply without fixing** — replying to all comments in one PR comment instead of addressing each inline, one at a time.
 - Polish without re-running CI afterward
 - Refactoring without verifying behavior is preserved

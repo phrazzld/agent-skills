@@ -7,19 +7,10 @@ Map, not manual. Points to deeper sources of truth.
 Core workflow:
 `backlog.d/ -> /groom -> /shape -> /autopilot -> /code-review -> /settle -> ship`
 
-Skill inventory:
-`a11y`, `agent-readiness`, `autopilot`, `code-review`, `demo`, `deps`,
-`groom`, `harness`, `investigate`, `qa`, `reflect`, `research`, `settle`,
-`shape`, `refactor`.
-
-Workflow skills:
-- `/autopilot` = plan/build/review/ship pipeline
-- `/settle` = unblock + polish + merge-readiness
-- `/refactor` = simplification/refactor pass (branch-aware)
-
-Agents:
-`planner -> builder -> critic` (GAN triad) + `ousterhout`, `carmack`, `grug`,
-`beck` (design review bench).
+Canonical inventory:
+- `index.yaml` is the generated source of truth for skill names and descriptions.
+- `agents/` is the source of truth for agent definitions.
+- Keep this file map-like; do not duplicate inventory lists here.
 
 ## Orchestration
 
@@ -53,6 +44,17 @@ Every workflow skill should state the lead/subagent split explicitly.
 
 TDD default. Fix what you touch. Never lower quality gates.
 Never assert model facts from memory — `/research` first.
+
+## Product Lens
+
+Spellbook is primarily a product for other repositories. Its own repo is the
+proving ground, not the primary customer.
+
+- Prefer reusable primitives, scaffolds, references, and config-driven patterns
+  over spellbook-repo-only convenience.
+- Treat local automation as validation for downstream adoption, not the end goal.
+- If a backlog item only helps this repo, justify the downstream payoff or reshape it.
+- Prioritize work by leverage across downstream repos, then by benefit inside spellbook itself.
 
 ## Codification
 

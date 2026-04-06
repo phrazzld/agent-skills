@@ -6,16 +6,16 @@ description: |
   shipped media. Also handles PR evidence upload via draft releases.
   Use when: "make a demo", "generate demo", "record walkthrough", "launch video",
   "PR evidence", "upload screenshots", "demo artifacts", "make a video",
-  "demo this feature", "create a walkthrough".
+  "demo this feature", "create a walkthrough", "scaffold demo",
+  "generate demo skill".
   Trigger: /demo.
-argument-hint: "[evidence-dir|feature] [--format gif|video|launch] [upload]"
+argument-hint: "[evidence-dir|feature|scaffold] [--format gif|video|launch] [upload]"
 ---
 
-# /demo — Project-Local Skill Required
+# /demo
 
-Demo effectiveness depends on project-specific context: features to capture,
-artifact types, capture methods, upload targets. This global fallback exists
-only to redirect you.
+Demo effectiveness depends on project-specific context. This skill either
+generates demo artifacts or scaffolds a project-local demo skill.
 
 ## Execution Stance
 
@@ -24,15 +24,17 @@ You are the executive orchestrator.
 - Delegate planning, capture, and critique to separate focused subagents.
 - Use a cold reviewer for final quality judgment.
 
-## If this project has no scaffolded demo skill
+## Routing
 
-Run `/harness scaffold demo` to generate one. The scaffold investigates the
-codebase (features, visual deltas, capture tools, upload targets), designs
-with you, and writes a project-local `.claude/skills/demo/SKILL.md`.
+| Intent | Action |
+|--------|--------|
+| "scaffold demo", "generate demo skill" | Read `references/scaffold.md` and follow it |
+| Run demo (project-local skill exists) | Defer to project-local `.claude/skills/demo/SKILL.md` |
+| Quick one-off demo (no scaffold) | Use the quick protocol below |
 
-Once scaffolded, `/demo` will resolve to the project-local skill automatically.
+If first argument is "scaffold" → read `references/scaffold.md`.
 
-## Quick one-off demo (no scaffold)
+## Quick One-Off Demo (no scaffold)
 
 If you need to capture evidence right now without scaffolding:
 
@@ -55,10 +57,10 @@ ffmpeg -y -i input.webm \
   -loop 0 output.gif
 ```
 
-For detailed capture patterns, read `skills/harness/references/evidence-capture.md`.
-For PR evidence upload, read `skills/harness/references/pr-evidence-upload.md`.
-For Remotion video composition, read `skills/harness/references/remotion.md`.
-For TTS narration, read `skills/harness/references/tts-narration.md`.
+For detailed capture patterns, read `skills/qa/references/evidence-capture.md`.
+For PR evidence upload, read `references/pr-evidence-upload.md`.
+For Remotion video composition, read `references/remotion.md`.
+For TTS narration, read `references/tts-narration.md`.
 
 ## Gotchas
 
@@ -67,4 +69,4 @@ For TTS narration, read `skills/harness/references/tts-narration.md`.
 - **This fallback is intentionally thin.** Generic demo instructions can't encode
   your app's features, capture methods, or upload targets. Scaffold for quality.
 - **Autopilot expects a scaffolded skill.** If `/autopilot` invokes `/demo` and
-  hits this redirect, scaffold first: `/harness scaffold demo`.
+  hits this redirect, scaffold first: `/demo scaffold`.

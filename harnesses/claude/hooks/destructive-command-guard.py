@@ -59,6 +59,8 @@ SAFE = [
     "git checkout --orphan",   # orphan branch
     "--force-with-lease",      # safe force push
     "--force-if-includes",     # safe force push variant
+    "git merge --abort",       # abort a failed merge (not a merge)
+    "git reset --hard origin/", # sync local branch to remote (safe)
 ]
 
 def get_current_branch() -> str | None:

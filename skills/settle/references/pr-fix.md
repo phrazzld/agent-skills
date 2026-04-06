@@ -16,7 +16,7 @@ before responding to comments.
 
 ## Conflict Resolution
 
-```
+```text
 fetch origin
   │
   ├─ Few commits, linear history matters, no downstream consumers → rebase
@@ -71,7 +71,7 @@ These are not fixes. They are debt with compound interest.
 
 ### Reading Protocol
 
-**Run `scripts/fetch-pr-reviews.sh <PR>` first.** This script
+**Run `skills/settle/scripts/fetch-pr-reviews.sh <PR>` first.** This script
 deterministically fetches ALL review bodies, inline comments, and PR
 conversation in full. Read the complete output before classifying anything.
 

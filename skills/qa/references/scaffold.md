@@ -1,6 +1,6 @@
 # QA Scaffold Template
 
-Template for `/harness scaffold qa`. Generates a project-local QA skill
+Template for `/qa scaffold`. Generates a project-local QA skill
 by investigating the codebase and designing with the user.
 
 ## Investigation Prompts
@@ -126,7 +126,7 @@ The Deliver phase writes these files to `.claude/skills/qa/` in the target proje
 
 ```markdown
 ---
-name: [project]-qa
+name: qa
 description: |
   QA for [project]. Navigate [app type], verify [key features].
   Use when: "run QA", "test this", "verify the feature", "QA this PR".

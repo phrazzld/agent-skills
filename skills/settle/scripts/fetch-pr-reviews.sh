@@ -11,24 +11,24 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ "${1:-}" = "" ]; then
-  echo "Usage: $0 <pr-number|pr-url|branch>" >&2
-  exit 1
+selector="${1:-}"
+
+if [[ -n "$selector" ]]; then
+  pr_json="$(gh pr view "$selector" --json number,title,url,baseRefName,headRefName)"
+else
+  pr_json="$(gh pr view --json number,title,url,baseRefName,headRefName)"
 fi
 
-selector="$1"
-
-pr_json="$(gh pr view "$selector" --json number,title,url,baseRefName,headRefName)"
 pr_number="$(jq -r '.number' <<<"$pr_json")"
 pr_title="$(jq -r '.title' <<<"$pr_json")"
 pr_url="$(jq -r '.url' <<<"$pr_json")"
 base_ref="$(jq -r '.baseRefName' <<<"$pr_json")"
 head_ref="$(jq -r '.headRefName' <<<"$pr_json")"
-repo="$(sed -E 's#https://github.com/([^/]+/[^/]+)/pull/.*#\1#' <<<"$pr_url")"
+repo="$(jq -r '.url | capture("https?://[^/]*/(?<repo>[^/]+/[^/]+)/pull/") | .repo' <<<"$pr_json")"
 
 fetch_array() {
   local endpoint="$1"
-  gh api --paginate "$endpoint" | jq -s 'add'
+  gh api --paginate "$endpoint" | jq -s 'add // []'
 }
 
 reviews_json="$(fetch_array "/repos/$repo/pulls/$pr_number/reviews?per_page=100")"
