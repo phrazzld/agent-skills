@@ -1,7 +1,7 @@
 # Evolve /settle for git-native workflow
 
 Priority: high
-Status: in-progress
+Status: done
 Estimate: M
 
 ## Goal
@@ -42,6 +42,25 @@ mode. Otherwise, git-native mode.
 - [ ] `/land` refuses without verdict ref (clear error message)
 - [ ] `/land` refuses if HEAD moved since verdict was recorded
 - [ ] Evidence stored without GitHub API calls in git-native mode
+
+## Oracle
+
+- [x] `/settle` on a branch with no GitHub PR uses git-native path
+- [x] `/settle` on a branch with a GitHub PR uses existing GitHub path
+- [x] `/land feat-foo` validates verdict ref, runs Dagger, merges
+- [x] `/land` refuses without verdict ref (clear error message)
+- [x] `/land` refuses if HEAD moved since verdict was recorded
+- [x] Evidence stored without GitHub API calls in git-native mode
+
+## What Was Built
+
+Pure skill instruction changes across 3 files:
+- **SKILL.md**: Mode Detection section (GitHub vs git-native), dual-mode Phase 1,
+  dual-mode Reviewer Artifact Policy, updated description/triggers, `/land` alias
+  always uses git-native mode
+- **pr-fix.md**: Dual-mode CI diagnosis sequence, dual-mode async settlement,
+  dual-mode merge-readiness gate with verdict_validate
+- **pr-polish.md**: Dual-mode evidence storage (GitHub releases vs .evidence/)
 
 ## Non-Goals
 
