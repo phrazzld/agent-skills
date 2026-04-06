@@ -1,7 +1,7 @@
 # Git-native review verdicts — replace PR approval state
 
 Priority: high
-Status: pending
+Status: in-progress
 Estimate: M
 
 ## Goal
@@ -14,35 +14,69 @@ development.
 ## Design
 
 Store verdicts under `refs/verdicts/<branch>`:
+```json
+{
+  "branch": "feat-foo",
+  "base": "master",
+  "verdict": "ship",
+  "reviewers": ["critic", "ousterhout", "carmack", "grug", "beck"],
+  "scores": {"correctness": 8, "depth": 7, "simplicity": 9, "craft": 8},
+  "sha": "abc123",
+  "date": "2026-04-06T15:00:00Z",
+  "evidence": ".evidence/feat-foo/2026-04-06/"
+}
 ```
-refs/verdicts/feat-foo → blob containing:
-  {
-    "branch": "feat-foo",
-    "base": "master",
-    "verdict": "ship",
-    "reviewers": ["critic", "ousterhout", "carmack", "grug", "beck"],
-    "scores": {"correctness": 8, "depth": 7, "simplicity": 9, "craft": 8},
-    "sha": "abc123",  // commit SHA at time of review
-    "date": "2026-04-06T15:00:00Z"
-  }
+
+### Implementation
+
+```bash
+# Write verdict
+echo '<json>' | git hash-object -w --stdin  # → blob SHA
+git update-ref refs/verdicts/feat-foo <blob-sha>
+
+# Read verdict
+git cat-file -p refs/verdicts/feat-foo
+
+# Sync
+git push origin 'refs/verdicts/*'
+git fetch origin 'refs/verdicts/*:refs/verdicts/*'
+
+# Validate before merge
+verdict_sha=$(git cat-file -p refs/verdicts/feat-foo | jq -r .sha)
+head_sha=$(git rev-parse feat-foo)
+[ "$verdict_sha" = "$head_sha" ] || echo "HEAD moved since review"
 ```
+
+### Helper Script
+
+`scripts/lib/verdicts.sh` — thin shell library (like `claims.sh`):
+- `verdict_write <branch> <json>` — create/update verdict ref
+- `verdict_read <branch>` — print verdict JSON
+- `verdict_validate <branch>` — check verdict exists and SHA matches HEAD
+- `verdict_delete <branch>` — clean up after merge
+- `verdict_list` — list all verdict refs
 
 ## Integration Points
 
 - `/code-review` writes verdict ref after synthesizing reviewer scores
-- `/land` (new) reads verdict ref to gate merge
-- `git push origin refs/verdicts/*` syncs verdicts across machines
+- `/settle` git-native mode reads verdict ref to gate merge
+- `.evidence/<branch>/verdict.json` is a copy for browsability (ref is authoritative)
 - Pre-merge hook validates verdict ref exists and SHA matches HEAD
+- `git push origin refs/verdicts/*` syncs verdicts across machines
 
 ## Oracle
 
-- [ ] `/code-review` on a branch produces a `refs/verdicts/<branch>` ref
-- [ ] Verdict is a valid JSON blob with all required fields
-- [ ] `git log --all` shows verdict refs
-- [ ] Verdict refs survive push/pull across remotes
+- [ ] `verdict_write` creates a valid ref under `refs/verdicts/<branch>`
+- [ ] `verdict_read` returns valid JSON with all required fields
+- [ ] `verdict_validate` returns 0 when SHA matches HEAD, non-zero otherwise
+- [ ] `verdict_validate` returns non-zero when no verdict exists
+- [ ] Verdict refs survive `git push`/`git fetch` across remotes
+- [ ] `/code-review` calls `verdict_write` after synthesizing scores
+- [ ] Pre-merge hook calls `verdict_validate` and blocks without valid verdict
 
 ## Non-Goals
 
 - Human dispute resolution (separate item)
 - Multi-repo federation
 - Web UI for verdict browsing
+- Replacing `.groom/review-scores.ndjson` (that's aggregate; verdicts are per-branch)
