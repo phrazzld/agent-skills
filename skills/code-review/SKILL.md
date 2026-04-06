@@ -11,8 +11,9 @@ argument-hint: "[branch|diff|files]"
 
 # /code-review
 
-Launch a parallel team of reviewers. Synthesize findings. Fix blocking issues
-automatically. Loop until clean or escalate to human.
+Multi-provider, multi-harness code review. You are the marshal — read the diff,
+select reviewers, craft prompts, dispatch everything in parallel, synthesize
+results, fix blockers, loop until clean.
 
 ## Execution Stance
 
@@ -21,37 +22,54 @@ You are the executive orchestrator.
 - Delegate independent reviews and bounded fixes to focused subagents.
 - Prefer parallel reviewer fanout; serialize only for fix-and-recheck loops.
 
-## Workflow
+## Marshal Protocol
 
-Launch 3-5 subagents to review changes from distinct perspectives. Ousterhout,
-Grug, and Carmack are great choices, generally. You may want to pick others,
-or define your own ad-hoc, that are more specifically focused on the current
-repo and the changes being reviewed. All reviewers run as **Explore type**
-(read-only). For blocking fixes, dispatch **builder** (general-purpose type).
+1. **Read the diff.** `git diff $BASE...HEAD` (default base: `main` or `master`).
+   Classify: what changed? (API, UI, tests, infra, security, perf, data model, etc.)
 
-Collect all verdicts. Deduplicate overlapping concerns. Rank by severity.
+2. **Select internal reviewers.** Pick 3-5 philosophy agents whose lenses are
+   most relevant to this diff. Read `references/internal-bench.md` for the catalog.
+   Craft a tailored prompt for each — tell them what to focus on.
 
-**Any Don't Ship** → spawn a builder sub-agent for each blocking concern, giving it the specific file:line and fix instruction. Builder fixes, runs tests. Then re-review (return to step 2). Max 3 iterations.
+3. **Dispatch all three tiers in parallel:**
+
+   | Tier | What | How |
+   |------|------|-----|
+   | Internal bench | 3-5 Explore sub-agents with philosophy lenses | Agent tool, tailored prompts |
+   | Thinktank review | 10 agents, 8 model providers | `thinktank review` CLI. See `references/thinktank-review.md` |
+   | Cross-harness | Codex + Gemini CLIs (skip whichever you are) | See `references/cross-harness.md` |
+
+4. **Synthesize.** Collect all outputs. Deduplicate findings across tiers.
+   Rank by severity: blocking (correctness, security) > important (architecture,
+   testing) > advisory (style, naming).
+
+5. **Verdict.** If no blocking findings → **Ship**. If blocking findings exist →
+   fix loop (below).
+
+## Fix Loop
+
+For each blocking finding, spawn a **builder** sub-agent with the specific
+file:line and fix instruction. Builders fix strategically (Ousterhout) and
+simply (grug). Builder fixes, runs tests, commits.
+
+After all fixes land, **re-dispatch all three review tiers.** Full re-review,
+not a spot-check. Loop until no blocking findings remain. Max 3 iterations —
+escalate to human if still blocked.
 
 ## Live Verification
 
-**Trigger:** the diff touches files matching user-facing patterns — `.tsx`, `.jsx`,
-`pages/`, `app/`, `routes/`, `api/`, `endpoints/`, or component directories.
-Determine this by scanning the diff file list.
+**Trigger:** the diff touches user-facing patterns — `.tsx`, `.jsx`, `pages/`,
+`app/`, `routes/`, `api/`, `endpoints/`, or component directories.
 
-**Rule:** when triggered, at least one reviewer must exercise the affected
-routes/components (run the app, hit the endpoint, render the component).
-"Ship" verdict is **blocked** until live verification passes.
+**Rule:** at least one reviewer must exercise the affected routes/components.
+**Ship** verdict is blocked until live verification passes.
 
-**Skip:** pure refactors, config-only changes, test-only changes, and
-backend-only changes with no user-facing surface skip live verification.
+**Skip:** pure refactors, config-only, test-only, backend-only with no
+user-facing surface.
 
-**Failure:** if live verification fails or cannot be performed, verdict is
-"Don't Ship" with reason: "live verification not performed/failed."
+## Plausible-but-Wrong Patterns
 
-### Plausible-but-Wrong Patterns
-
-LLMs optimize for plausibility, not correctness. Reviewers must actively hunt for code that *looks right* but isn't:
+LLMs optimize for plausibility, not correctness. Reviewers must hunt for:
 - Wrong algorithm complexity (O(n²) where O(log n) is needed)
 - Unnecessary abstractions (82K lines vs 1-line solution)
 - Stub implementations that pass tests but don't actually work
@@ -72,17 +90,20 @@ After the final verdict, append one JSON line to `.groom/review-scores.ndjson`
 in the target project root (create `.groom/` if needed):
 
 ```json
-{"date":"2026-03-30","pr":42,"correctness":8,"depth":7,"simplicity":9,"craft":8,"verdict":"ship"}
+{"date":"2026-04-06","pr":42,"correctness":8,"depth":7,"simplicity":9,"craft":8,"verdict":"ship","providers":["claude","thinktank","codex","gemini"]}
 ```
 
-- Scores (1-10) reflect bench consensus, not any single reviewer.
+- Scores (1-10) reflect cross-provider consensus, not any single reviewer.
 - `pr` is the PR number, or `null` when reviewing a branch without a PR.
 - `verdict`: `"ship"`, `"conditional"`, or `"dont-ship"`.
+- `providers`: which review tiers contributed.
 - This file is committed to git (not gitignored). `/groom` reads it for quality trends.
 
 ## Gotchas
 
-- **Self-review leniency:** Models consistently overrate their own work. Reviewers must be separate sub-agents, not the builder evaluating itself.
+- **Self-review leniency:** Models overrate their own work. Reviewers must be separate sub-agents, not the builder evaluating itself.
 - **Reviewing the whole codebase:** Review the diff, not the repo. `git diff main...HEAD` is the scope.
-- **Skipping the bench:** Running only the critic misses structural issues. The philosophy agents add perspectives the critic doesn't cover.
+- **Skipping tiers:** Internal bench alone is same-model groupthink. Thinktank + cross-harness provide genuine model and harness diversity.
 - **Treating all concerns equally:** Blocking issues (correctness, security) gate shipping. Style preferences don't.
+- **Monoculture:** The whole point of three tiers is provider diversity. Don't skip external tiers for speed.
+- **Over-prescribing prompts:** You are the marshal. Craft prompts that fit the diff. The references describe lenses, not scripts.
