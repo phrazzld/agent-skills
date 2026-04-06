@@ -1,7 +1,7 @@
 # Git-native review verdicts — replace PR approval state
 
 Priority: high
-Status: in-progress
+Status: done
 Estimate: M
 
 ## Goal
@@ -66,13 +66,24 @@ head_sha=$(git rev-parse feat-foo)
 
 ## Oracle
 
-- [ ] `verdict_write` creates a valid ref under `refs/verdicts/<branch>`
-- [ ] `verdict_read` returns valid JSON with all required fields
-- [ ] `verdict_validate` returns 0 when SHA matches HEAD, non-zero otherwise
-- [ ] `verdict_validate` returns non-zero when no verdict exists
-- [ ] Verdict refs survive `git push`/`git fetch` across remotes
-- [ ] `/code-review` calls `verdict_write` after synthesizing scores
-- [ ] Pre-merge hook calls `verdict_validate` and blocks without valid verdict
+- [x] `verdict_write` creates a valid ref under `refs/verdicts/<branch>`
+- [x] `verdict_read` returns valid JSON with all required fields
+- [x] `verdict_validate` returns 0 when SHA matches HEAD, non-zero otherwise
+- [x] `verdict_validate` returns non-zero when no verdict exists
+- [ ] Verdict refs survive `git push`/`git fetch` across remotes (needs remote test)
+- [x] `/code-review` calls `verdict_write` after synthesizing scores (skill instruction added)
+- [ ] Pre-merge hook calls `verdict_validate` and blocks without valid verdict (tracked by 022)
+
+## What Was Built
+
+- `scripts/lib/verdicts.sh` — thin shell library (5 functions, ~60 LOC) matching
+  `claims.sh` pattern. Stores verdicts as JSON blobs under `refs/verdicts/<branch>`.
+- `scripts/lib/test_verdicts.sh` — 11 tests covering write, read, validate, delete,
+  list, JSON validation, and required field enforcement.
+- `/code-review` SKILL.md updated with "Verdict Ref" section — records verdict
+  after every review. Gracefully skips if verdicts.sh absent in target project.
+
+Remaining oracle items are tracked by downstream backlog items (022, 026).
 
 ## Non-Goals
 
