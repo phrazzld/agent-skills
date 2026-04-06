@@ -71,11 +71,16 @@ These are not fixes. They are debt with compound interest.
 
 ### Reading Protocol
 
-**Read every comment in full.** Not summaries, not previews, not truncated
-API responses. Fetch the complete body of every review comment before
-classifying any of them. Automated reviewers (Gemini, Codex, CodeRabbit,
-etc.) are treated with the same rigor as human reviewers — their comments
-often contain specific code suggestions that are invisible in truncated views.
+**Run `scripts/fetch-pr-reviews.sh <PR>` first.** This script
+deterministically fetches ALL review bodies, inline comments, and PR
+conversation in full. Read the complete output before classifying anything.
+
+Do NOT use ad-hoc `gh api` calls with jq truncation, python slicing, or
+`head`/`tail` to preview comments. The script exists to prevent this.
+
+Automated reviewers (Gemini, Codex, CodeRabbit, etc.) are treated with
+the same rigor as human reviewers — their comments often contain specific
+code suggestions that are invisible in truncated views.
 
 For each comment:
 1. Read the full text including any code suggestions, diffs, or expandable sections
