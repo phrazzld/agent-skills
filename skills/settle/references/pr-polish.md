@@ -152,8 +152,11 @@ If the PR introduces new workflows, skills, or user-facing features:
 produce visual evidence (screenshots, GIFs) demonstrating them in action.
 Text logs are raw data, not reviewer-facing proof.
 
-Upload to a draft release, embed in a PR comment. See
-`skills/harness/references/pr-evidence-upload.md` for the recipe.
+**GitHub mode:** Upload to a draft release, embed in a PR comment. See
+`skills/demo/references/pr-evidence-upload.md` for the recipe.
+
+**Git-native mode:** Store in `.evidence/<branch>/<date>/`, commit to the branch.
+Evidence becomes part of the auditable git history.
 
 ## Exit Criteria
 

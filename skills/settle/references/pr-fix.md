@@ -52,11 +52,19 @@ Read the actual logs. Don't guess from the check name.
 
 ### Diagnosis Sequence
 
+**GitHub mode:**
 1. `gh run view RUN-ID --log-failed` — read the actual failure
 2. Identify which test/step failed and the error message
 3. Check: does this test pass on the base branch? (`git stash && git checkout main && run test`)
 4. If flaky: re-run once via `gh run rerun RUN-ID --failed`
 5. If real: find the breaking commit, fix the root cause, push
+
+**Git-native mode:**
+1. `dagger call check` — read the actual failure output
+2. Identify which gate failed and the error message
+3. Check: does this pass on the base branch? (`git stash && git checkout main && dagger call check`)
+4. If flaky: re-run `dagger call check` once
+5. If real: find the breaking commit, fix the root cause, commit
 
 ### Never
 
@@ -161,24 +169,33 @@ Address comments **one at a time**, not in batches. Fix → commit → reply
 After pushing fixes, do not declare Phase 1 complete. Automation may
 still be running:
 
+**GitHub mode:**
 1. Wait for all CI checks to reach terminal state (pass/fail, not pending)
 2. Wait for bot reviewers (linters, security scanners, coverage bots) to post
 3. Re-check: `gh pr view --json statusCheckRollup,reviews`
 4. If new findings appeared, triage them — loop back to the relevant section
 
+**Git-native mode:**
+1. Re-run `dagger call check` after all fixes
+2. No async bots to wait for — local CI is synchronous
+
 ### Merge-Readiness Gate
 
 Before exiting Phase 1:
 
+**GitHub mode:**
 ```bash
 gh pr view --json reviews,statusCheckRollup
 ```
+Verify: at least one approving review, all checks passing, no unresolved threads.
 
-Verify:
-- At least one approving review
-- All status checks passing
-- No unresolved review threads
-- No pending bot reviews
+**Git-native mode:**
+```bash
+source scripts/lib/verdicts.sh && verdict_validate <branch>
+dagger call check
+```
+Verify: verdict ref exists with SHA matching HEAD, Dagger CI green.
+If no verdict exists, run `/code-review` first to generate one.
 
 If any condition fails, address the gap or escalate. Do not proceed to Phase 2.
 

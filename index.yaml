@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-06T16:01:40Z
+# Generated: 2026-04-06T18:46:35Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -46,8 +46,8 @@ skills:
     description: "Web research, multi-AI delegation, and multi-perspective validation. /research [query], /research delegate [task], /research thinktank [topic]. Triggers: \"search for\", \"look up\", \"research\", \"delegate"
     tags: [delegate,delegation,look,multi-ai,multi-perspective,query,research,search,task,thinktank]
   - name: settle
-    description: "Unblock, polish, and refactor a PR until it's genuinely merge-ready. Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs), refactor (complexity reduction). Runs all three in sequ"
-    tags: [a,architecture,ci,complexity,conflicts,docs,fix,genuinely,in,it]
+    description: "Unblock, polish, and merge. Works in two modes: GitHub mode (PR exists): fix CI/conflicts/reviews, polish, refactor, land PR. Git-native mode (no PR): use verdict refs, Dagger CI, agent swarm review. "
+    tags: [agent,ci,conflicts,dagger,exists,fix,git-native,github,in,land]
   - name: shape
     description: "Shape a raw idea into something buildable. Product + technical exploration. Spec, design, critique, plan. Output is a context packet. Use when: \"shape this\", \"write a spec\", \"design this feature\", \"pl"
     tags: [a,buildable,context,critique,design,exploration,feature,idea,is,output]

@@ -1,20 +1,21 @@
 ---
 name: settle
 description: |
-  Unblock, polish, and refactor a PR until it's genuinely merge-ready.
-  Three phases: fix (CI/conflicts/reviews), polish (architecture/tests/docs),
-  refactor (complexity reduction). Runs all three in sequence — stop only
-  when everything is green, landed, and clean.
-  Use when: PR is blocked, CI red, review comments open, "land this PR",
-  "get this mergeable", "fix and polish", "unblock PR", "clean up this PR",
-  "make this merge-ready", "address reviews", "fix CI".
+  Unblock, polish, and merge. Works in two modes:
+  GitHub mode (PR exists): fix CI/conflicts/reviews, polish, refactor, land PR.
+  Git-native mode (no PR): use verdict refs, Dagger CI, agent swarm review.
+  /land alias: validate verdict ref, run Dagger, merge branch.
+  Use when: PR is blocked, CI red, review comments open, "land this",
+  "get this mergeable", "fix and polish", "unblock", "clean up",
+  "make this merge-ready", "address reviews", "fix CI", "land this branch".
   Trigger: /settle, /land (alias), /pr-fix, /pr-polish.
-argument-hint: "[PR-number]"
+argument-hint: "[PR-number|branch-name]"
 ---
 
 # /settle
 
-Take a PR from blocked to merge-ready. Fix everything, polish everything, refactor everything.
+Take a branch from blocked to merge-ready. Fix everything, polish everything, refactor everything.
+Dual-mode: works with GitHub PRs or git-native verdict refs.
 
 ## Role
 
@@ -28,13 +29,31 @@ You are the executive orchestrator.
 - Delegate bounded evidence gathering and implementation to focused subagents.
 - Use parallel fanout for independent fixes; serialize when fixes share files or checks.
 
+## Mode Detection
+
+`/settle` operates in two modes based on context:
+
+**GitHub mode** — when `$ARGUMENTS` is a PR number, or `gh pr view` succeeds for
+the current branch. Uses GitHub PR state, review threads, and `gh` CLI.
+
+**Git-native mode** — when no PR exists. Uses verdict refs (`scripts/lib/verdicts.sh`),
+local Dagger CI, and agent swarm review output. No GitHub API calls.
+
+Detection sequence:
+1. If `$ARGUMENTS` matches `^[0-9]+$` → GitHub mode (PR number)
+2. If `gh pr view` for current branch succeeds → GitHub mode
+3. Otherwise → git-native mode
+
+When invoked as `/land <branch>`, always use git-native mode regardless of
+whether a PR exists. `/land` validates the verdict ref, runs Dagger CI, and
+merges.
+
 ## Objective
 
-Take PR `$ARGUMENTS` (or the current branch's PR) through three phases until it reaches:
+Take the current branch through three phases until it reaches:
 - No merge conflicts
-- CI green
-- Every review comment addressed (fixed, deferred with issue, or rejected with reasoning)
-- No open review threads
+- CI green (Dagger local + GitHub checks in GitHub mode)
+- Every review finding addressed
 - Architecture reviewed with hindsight lens
 - Tests audited for coverage and quality
 - Complexity reduced where possible
@@ -57,33 +76,33 @@ Use **builder** agent for fixes that require TDD discipline.
 
 ## Process
 
-### Phase 1: Fix — Unblock the PR
+### Phase 1: Fix — Unblock
 
 Read `references/pr-fix.md` and follow it completely.
 
 **Goal:** Get from blocked to green.
 
 1. **Conflicts** — rebase or merge, resolve all conflicts
-2. **CI** — investigate failures, fix root causes, push, re-verify
+2. **CI** — run `dagger call check` (always). In GitHub mode, also check remote CI.
 3. **Self-review** — read the entire diff as a reviewer would
-4. **Review comments** — read every single comment on the PR. For each:
-   - **In scope:** fix it, commit, reply confirming the fix
-   - **Valid but out of scope:** create a git-bug issue (or `backlog.d/` item), reply linking it
-   - **Invalid:** reply with clear reasoning
-5. **Async settlement** — after pushing fixes, invoke `/review-settle` to mechanically
-   verify all automated reviews (CI checks, bot reviewers) have completed.
-   Do not declare success while automation can still add findings.
+4. **Review findings** —
+   - **GitHub mode:** read every PR comment via `skills/settle/scripts/fetch-pr-reviews.sh`
+   - **Git-native mode:** run `/code-review` if no verdict ref exists, then read
+     `.evidence/<branch>/review-synthesis.md` for findings
+   - For each finding: fix (in scope), defer (out of scope → git-bug/backlog), or reject (with reasoning)
+5. **Async settlement** —
+   - **GitHub mode:** wait for CI checks and bot reviewers; re-check via `gh pr view --json statusCheckRollup,reviews`
+   - **Git-native mode:** re-run `dagger call check` after fixes. No async bots to wait for.
 
-Dispatch the fixes themselves to smaller worker subagents when the scope is
-clear and bounded. Keep comment disposition, reviewer communication, and the
-final "is this settled?" judgment on the lead model.
+Dispatch fixes to smaller worker subagents when scope is clear and bounded.
 
-6. **Merge-readiness verification** — before declaring Phase 1 complete, run:
-   `gh pr view --json reviews,statusCheckRollup` and verify at least one approving
-   review and all checks passing. If either is missing, do not proceed — address
-   the gap or escalate.
+6. **Merge-readiness verification** —
+   - **GitHub mode:** `gh pr view --json reviews,statusCheckRollup` — at least one
+     approving review, all checks passing
+   - **Git-native mode:** `source scripts/lib/verdicts.sh && verdict_validate <branch>`
+     — verdict ref exists and SHA matches HEAD. Plus `dagger call check` passes.
 
-**Exit gate:** CI green, no open review threads, no unresolved comments, merge-readiness verified.
+**Exit gate:** CI green, all review findings addressed, merge-readiness verified.
 
 If already green and settled, skip to Phase 2.
 
@@ -150,13 +169,22 @@ CI and reviews. The loop terminates when a full pass produces no changes.
 
 When settlement needs screenshots, videos, logs, or walkthrough proof:
 
+**GitHub mode:**
 - Upload screenshots/GIFs to draft GitHub release assets, embed download URLs
   in PR comments. See `skills/demo/references/pr-evidence-upload.md` for the recipe.
 - Convert `.webm` → `.gif` before upload (GitHub renders GIFs inline, not video).
-- Prefer CI artifacts or step summaries for generated verification output.
-- Never commit binary PR evidence into the repo.
 - Never use `raw.githubusercontent.com` URLs (breaks for private repos).
 - Link the full release at the bottom of every evidence comment.
+
+**Git-native mode:**
+- Store evidence in `.evidence/<branch>/<date>/` (LFS-tracked for binaries).
+- Write `qa-report.md` and `review-synthesis.md` alongside captures.
+- Commit evidence to the branch. It becomes part of the auditable history.
+- Convert `.webm` → `.gif` before committing (easier to browse).
+
+**Both modes:**
+- Prefer CI artifacts or step summaries for generated verification output.
+- Never commit binary evidence directly to tracked git (use LFS or GitHub releases).
 
 ## Flags
 
@@ -175,6 +203,8 @@ When settlement needs screenshots, videos, logs, or walkthrough proof:
 - Skipping refactor because "it works"
 - Posting "PR Unblocked" while async reviewers can still add findings
 - Merging the PR yourself — your job ends at merge-ready. Never call `gh pr merge`. The human decides when to merge.
+- **Git-native mode: merging without a verdict ref.** Always validate via
+  `verdict_validate` before merging. No verdict = no merge.
 
 ## Output
 
