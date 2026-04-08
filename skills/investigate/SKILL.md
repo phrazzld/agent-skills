@@ -190,7 +190,7 @@ Mark as **UNVERIFIED** until observables confirm.
 | Build failure | Bundler error | Check deps, config |
 | Behavior mismatch | "Does Y, should do X" | Trace code path |
 | Performance | Slow, timeout | Add timing instrumentation |
-| Production incident | Sentry, alerts | Create INCIDENT.md, timeline |
+| Production incident | Incident tracker, alerts | Create INCIDENT.md, timeline |
 
 ## Investigation Work Log (Production Issues)
 
@@ -220,9 +220,9 @@ For non-trivial production issues, create `INCIDENT-{timestamp}.md`:
 
 ## Toolkit
 
-- **Sentry MCP**: `get_issue_details`, `analyze_issue_with_seer`, `get_trace_details`, `search_events`
+- **Incident platform**: Canary timeline/report endpoints, Sentry issue details, or equivalent incident tooling
 - **Git**: bisect, blame, recent deploys
-- **Observability**: platform logs, sentry-cli, monitoring dashboards
+- **Observability**: platform logs, incident tracker signals, monitoring dashboards
 - **Sub-agents**: Parallel hypothesis investigation (see above)
 - **/research thinktank**: Multi-model hypothesis validation
 

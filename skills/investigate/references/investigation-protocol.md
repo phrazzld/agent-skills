@@ -13,7 +13,7 @@ Absorbed from the `investigate` skill.
 
 ### Toolkit
 
-- **Observability**: sentry-cli, npx convex, vercel
+- **Observability**: incident tracker context, npx convex, vercel
 - **Git**: Recent deploys, changes, bisect
 - **/research**: Web-grounded research, hypothesis generation
 - **/research thinktank**: Multi-model validation on hypotheses
@@ -63,10 +63,11 @@ Mark investigation as UNVERIFIED until observables confirm.
 - Follow-ups
 ```
 
-### Sentry Integration
+### Incident Platform Integration
 
-When issue body contains Sentry context:
-- Extract stack trace, file paths, breadcrumbs
-- Use Sentry MCP for full event details
+When issue body contains incident platform context (Canary, Sentry, etc.):
+- Extract stack trace, file paths, breadcrumbs, and correlated service metadata
+- Use the platform's full event, trace, or timeline context for end-to-end details
 - Cross-reference affected files with `git log` for causal commit
-- Include Sentry issue link in PR for auto-resolution on deploy
+- Include the incident link in the PR for traceability or auto-resolution,
+  depending on platform

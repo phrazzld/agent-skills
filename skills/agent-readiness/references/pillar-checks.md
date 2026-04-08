@@ -186,7 +186,7 @@ with evidence.
 
 ### L2 — Documented
 - **Structured logging**: JSON logs or structured log library (winston, pino, structlog)
-- **Error tracking**: Sentry, Bugsnag, or equivalent configured
+- **Error tracking**: Canary, Sentry, Bugsnag, or equivalent configured
 - **Log levels used**: DEBUG/INFO/WARN/ERROR used appropriately
 
 ### L3 — Standardized

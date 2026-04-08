@@ -33,11 +33,12 @@ If the project uses Canary SDK:
 - Add health probes for new endpoints
 - Verify webhook delivery for new event types
 
-### Sentry
+### Error Capture
 
 - Verify error boundaries wrap new components/routes
 - Check that exceptions propagate (no silent catches)
-- Verify source maps are configured for new files
+- Confirm exceptions are captured by Canary or the project's primary tracker on
+  client/server paths
 
 ### PostHog
 

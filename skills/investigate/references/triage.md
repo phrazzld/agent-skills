@@ -6,17 +6,17 @@ Fix production issues. Audit, investigate, fix, verify, postmortem.
 
 ```bash
 /triage                        # Audit and fix highest priority (default)
-/triage investigate VOL-456    # Deep dive on specific Sentry issue
+/triage investigate INC-456    # Deep dive on a specific production incident
 /triage investigate-ci 12345   # Deep dive on specific CI run failure
 /triage fix                    # Create PR for current fix
 /triage verify                 # Verify fix with observable proof
-/triage postmortem VOL-456     # Generate postmortem after merge
+/triage postmortem INC-456     # Generate postmortem after merge
 ```
 
 ## Stage 1: Production Audit
 
-Invoke `/check-production` primitive for parallel checks:
-1. **Sentry** -- Unresolved issues via triage scripts
+Audit these sources in parallel:
+1. **Incident platform** -- unresolved incidents/issues from Canary, Sentry, or equivalent
 2. **Vercel logs** -- Recent errors in stream
 3. **Health endpoints** -- `/api/health` response
 4. **GitHub CI/CD** -- Failed workflow runs
@@ -25,9 +25,9 @@ If all clean: "All systems nominal. No action required."
 
 ## Stage 2: Investigate
 
-### Sentry Issues (`/triage investigate ISSUE-ID`)
+### Incident Issues (`/triage investigate ISSUE-ID`)
 
-1. Fetch full issue context from Sentry (MCP or CLI)
+1. Fetch full incident context from the project's incident platform (API, CLI, or connector)
 2. Parse stack trace, file paths, breadcrumbs, affected users
 3. Create branch: `fix/incident-$(date +%Y%m%d-%H%M)`
 4. Load affected files, check `git log --oneline -10` for causal commit
@@ -61,7 +61,7 @@ Prerequisites: On `fix/` branch with changes.
 
 1. **Write failing test first** -- reproduce the error BEFORE fixing
 2. Run tests to verify fix
-3. Create PR with Sentry issue link (`fixes #<issue>` for auto-resolution)
+3. Create PR with the incident/ticket link for traceability
 4. If fix cannot be verified within 30 min, revert the causal commit:
    ```bash
    git revert <causal-commit> --no-edit
@@ -153,63 +153,55 @@ If systemic issue:
 Issues labeled `auto-detected` + `bug` are created by the observability pipeline.
 Treat as P0 unless evidence suggests otherwise.
 
-## Sentry MCP Integration
+## Incident Platform Integration
 
-When Sentry MCP is configured, use specific tools per triage phase:
+When incident-platform observability is configured, use these sources per phase:
 
 | Phase | Tool | Use |
 |-------|------|-----|
-| Audit | `mcp__sentry__search_issues` | Find unresolved issues by query |
-| Audit | `mcp__sentry__search_events` | Search raw events |
-| Investigate | `mcp__sentry__get_issue_details` | Full context: stack trace, breadcrumbs, tags |
-| Investigate | `mcp__sentry__analyze_issue_with_seer` | AI-powered root cause analysis |
-| Investigate | `mcp__sentry__get_trace_details` | Distributed trace for cross-service issues |
-| Investigate | `mcp__sentry__search_issue_events` | All events for a specific issue |
-| Investigate | `mcp__sentry__get_issue_tag_values` | Filter by environment, browser, user |
-| Verify | `mcp__sentry__search_issues` | Confirm issue stopped after fix deploy |
-| Performance | `mcp__sentry__get_profile` | CPU/memory profiling for performance issues |
-| Manage | `mcp__sentry__update_issue` | Resolve, ignore, or assign issues |
+| Audit | Issue search, timeline API, or alert feed | Find fresh incident classes and regressions |
+| Investigate | Full issue details, traces, webhook payloads | Recover stack trace, breadcrumbs, and correlated context |
+| Verify | Post-deploy issue search plus production smoke checks | Confirm the failing flow is now healthy |
+| Manage | Incident workflow | Resolve, suppress, classify, or assign incidents |
 
-Include Sentry issue link in PR for auto-resolution on deploy.
+Include the incident link in the PR for traceability. If the platform supports
+auto-resolution on deploy, use its canonical closing reference as well.
 
-## Scripts
+## Useful Commands
 
 ```bash
-# Multi-source orchestrator
-~/.claude/skills/triage/scripts/check_all_sources.sh
-
-# Individual checks
-~/.claude/skills/triage/scripts/check_sentry.sh
-~/.claude/skills/triage/scripts/check_vercel_logs.sh
-~/.claude/skills/triage/scripts/check_health_endpoints.sh
-
-# Postmortem generator
-~/.claude/skills/triage/scripts/generate_postmortem.sh ISSUE-ID
-
 # GitHub CI
 gh run list --branch main --status failure --limit 10
 gh run view RUN-ID --log-failed
 gh run rerun RUN-ID --failed
+
+# Health check
+curl -fsS https://<host>/api/health
+
+# Vercel logs
+vercel logs <app> --json
+
+# Convex logs
+npx convex logs --prod
 ```
 
 ## Environment Variables
 
 ```bash
-SENTRY_AUTH_TOKEN   # Required for Sentry
-SENTRY_ORG          # Organization slug
-SENTRY_PROJECT      # From .sentryclirc or .env.local
-VERCEL_TOKEN        # Optional for vercel logs
+INCIDENT_PLATFORM_TOKEN  # Example: CANARY_API_KEY or SENTRY_AUTH_TOKEN
+INCIDENT_PLATFORM_TARGET # Example: project slug, service name, or API endpoint
+INCIDENT_WEBHOOK_SECRET  # Optional when reproducing webhook delivery failures
+VERCEL_TOKEN             # Optional for vercel logs
 ```
 
 ## References
 
-- `references/verify-fix-protocol.md` -- Detailed verification checklist
-- `references/postmortem-template.md` -- Blameless postmortem format
-- `references/incident-response-workflow.md` -- Full incident lifecycle
+- `references/investigation-protocol.md` -- Root-cause workflow and incident work log
+- `references/fix.md` -- How to land and verify the fix once the cause is proven
+- `references/log-issues.md` -- Convert recurring findings into GitHub issues
 
 ## Related
 
-- `/check-production` -- The audit primitive (read-only)
-- `/log-production-issues` -- Create GitHub issues from findings
 - `/investigate` -- Systematic debugging protocol
-- `/done` -- Session retrospective and codification
+- `/log-issues <domain>` -- Create GitHub issues from recurring findings
+- `/reflect` -- Session retrospective and codification

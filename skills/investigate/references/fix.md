@@ -65,8 +65,10 @@ Fix priority order: P0 > P1 > P2 > P3. One fix per invocation.
 - Stale docs: update with current state
 
 #### Observability
-- No Sentry: install SDK, configure client/server/edge
-- Silent error boundaries: add `captureException`
+- No incident platform: install and configure the project's primary tracker
+  (Canary, Sentry, or equivalent)
+- Silent error boundaries: add explicit capture to the project's incident
+  tracker in boundary/handler paths
 - No health endpoint: create `/api/health`
 
 #### Landing

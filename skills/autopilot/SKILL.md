@@ -130,8 +130,9 @@ a monitor — detect everything, notify selectively (the Ramp pattern).
 
 - **Canary integration:** If the project uses Canary, register monitors for new
   code paths (error rates, latency, health probes).
-- **Sentry:** Verify error boundaries exist for new code paths. Check that
-  exceptions will surface, not silently swallow.
+- **Error capture:** Verify error boundaries and handlers report to Canary (or
+  the project's primary tracker) and that exceptions surface instead of being
+  silently swallowed.
 - **PostHog:** Verify analytics events fire for new user flows.
 - **Logging:** Ensure new code paths have the signal that would tell you something
   is wrong in production. Not verbose — targeted.
