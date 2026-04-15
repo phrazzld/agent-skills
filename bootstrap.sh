@@ -263,14 +263,30 @@ verify_no_broken_spellbook_symlinks() {
 }
 
 discover_local() {
-  local skill agent
+  local skill agent name
   GLOBAL_SKILLS=()
+  EXTERNAL_SKILLS=()
   GLOBAL_AGENTS=()
 
   for skill in "$SPELLBOOK"/skills/*/SKILL.md; do
     [ -f "$skill" ] || continue
     GLOBAL_SKILLS+=("$(basename "$(dirname "$skill")")")
   done
+
+  # External skills installed by scripts/sync-external.sh.
+  # First-party wins on collision: externals only load if the name isn't
+  # already in GLOBAL_SKILLS.
+  if [ -d "$SPELLBOOK/skills/.external" ]; then
+    for skill in "$SPELLBOOK"/skills/.external/*/SKILL.md; do
+      [ -f "$skill" ] || continue
+      name="$(basename "$(dirname "$skill")")"
+      if contains "$name" "${GLOBAL_SKILLS[@]}"; then
+        warn "  external skill '$name' shadowed by first-party skill"
+        continue
+      fi
+      EXTERNAL_SKILLS+=("$name")
+    done
+  fi
 
   for agent in "$SPELLBOOK"/agents/*.md; do
     [ -f "$agent" ] || continue
@@ -280,6 +296,7 @@ discover_local() {
 
 discover_remote() {
   GLOBAL_SKILLS=()
+  EXTERNAL_SKILLS=()  # remote mode: externals are local-only (require sync)
   GLOBAL_AGENTS=()
 
   local names
@@ -365,16 +382,38 @@ link_local() {
   local agents_dir="$harness_dir/agents"
 
   info "  Linking skills..."
-  if ! link_parent_dir "$SPELLBOOK/skills" "$skills_dir" "skills/"; then
-    # Fallback: per-skill symlinks (when non-spellbook entries exist)
+  # External skills live in skills/.external/<alias>/ (hidden), so a whole-dir
+  # symlink hides them from harnesses that only glob `*`. Force per-entry mode
+  # whenever externals are present.
+  local force_per_entry=0
+  if [ "${#EXTERNAL_SKILLS[@]}" -gt 0 ]; then
+    force_per_entry=1
+    # Remove any prior whole-dir symlink so we can populate per-entry.
+    if [ -L "$skills_dir" ]; then
+      rm -f "$skills_dir"
+    fi
+  fi
+
+  if [ "$force_per_entry" -eq 0 ] && link_parent_dir "$SPELLBOOK/skills" "$skills_dir" "skills/"; then
+    :  # parent symlink succeeded
+  else
+    # Per-skill symlinks: first-party + external (first-party wins on name).
     local skill src
-    local skill_names=("${GLOBAL_SKILLS[@]}")
+    local skill_names=("${GLOBAL_SKILLS[@]}" "${EXTERNAL_SKILLS[@]}")
     cleanup_symlinks_under_prefix "$skills_dir" "$SPELLBOOK/skills" "${skill_names[@]}"
-    for skill in "${skill_names[@]}"; do
+    mkdir -p "$skills_dir"
+    for skill in "${GLOBAL_SKILLS[@]}"; do
       src="$SPELLBOOK/skills/$skill"
       [ -d "$src" ] || { warn "    missing local skill: $skill"; continue; }
       ln -sfn "$src" "$skills_dir/$skill"
       ok "    $skill"
+    done
+    for skill in "${EXTERNAL_SKILLS[@]:-}"; do
+      [ -z "$skill" ] && continue
+      src="$SPELLBOOK/skills/.external/$skill"
+      [ -d "$src" ] || { warn "    missing external skill: $skill"; continue; }
+      ln -sfn "$src" "$skills_dir/$skill"
+      ok "    $skill (external)"
     done
   fi
 
@@ -527,6 +566,9 @@ fi
 ok "Done. Installed to $installed harness(es)."
 echo
 info "Skills (${#GLOBAL_SKILLS[@]}): ${GLOBAL_SKILLS[*]}"
+if [ "${#EXTERNAL_SKILLS[@]}" -gt 0 ]; then
+  info "External skills (${#EXTERNAL_SKILLS[@]}): ${EXTERNAL_SKILLS[*]}"
+fi
 info "Agents (${#GLOBAL_AGENTS[@]}): ${GLOBAL_AGENTS[*]}"
 echo
 if [ -n "$SPELLBOOK" ]; then

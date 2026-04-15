@@ -1,14 +1,16 @@
 ---
 name: reflect
 description: |
-  Session retrospective, operator coaching, harness postmortem, and codification.
-  Distill learnings into hooks/rules/skills while upgrading the user's prompts,
-  technical specificity, and reusable vocabulary.
+  Session retrospective, operator coaching, harness postmortem, codification,
+  and outer-loop cycle critique. Distills learnings into hooks/rules/skills,
+  mutates the backlog from evidence, and emits harness-tuning suggestions to
+  a branch. Learning engine of the outer loop.
   Use when: "done", "wrap up", "what did we learn", "retro", "reflect",
   "calibrate", "how could I have asked better", "prompt better",
-  "teach me from this session", "what should I learn from this".
-  Trigger: /reflect, /retro, /calibrate.
-argument-hint: "[distill|calibrate|coach|tune-repo|append] [context]"
+  "teach me from this session", "what should I learn from this",
+  "reflect on cycle", "cycle postmortem", post-/iterate critique.
+  Trigger: /reflect, /retro, /calibrate, /reflect cycle <cycle-ulid>.
+argument-hint: "[distill|calibrate|coach|tune-repo|append|cycle] [context]"
 ---
 
 # /reflect
@@ -37,6 +39,7 @@ You are the executive orchestrator.
 | **coach** | Deep dive on prompt quality, technical specificity, and concept building | `references/coach.md` |
 | **tune-repo** | Refresh context artifacts, detect drift, update repo guidance | `references/tune-repo.md` |
 | **append** | Append issue-scoped retro notes for `/groom` to consume later | `references/retro-format.md` |
+| **cycle** | Outer-loop cycle critique — read `backlog.d/_cycles/<ulid>/`, emit `reflect.signals.json`, mutate `backlog.d/`, push harness suggestions to `reflect/<cycle-id>` branch | `references/cycle.md` |
 
 If the first argument matches a mode name, route to that reference.
 If no mode is provided, run `distill`.
@@ -48,6 +51,8 @@ Interpret natural-language requests as:
   -> `calibrate`
 - "tune this repo", "refresh AGENTS", "context drift"
   -> `tune-repo`
+- "reflect on cycle <ulid>", "postmortem this cycle", invocation from `/iterate`
+  -> `cycle`
 
 ## Responsibility Split
 
@@ -82,6 +87,24 @@ When encoding knowledge, always target the highest-leverage mechanism:
 ```
 Type system > Lint rule > Hook > Test > CI > Skill/reference > AGENTS.md > Memory
 ```
+
+## Cycle Mode Authority (outer-loop only)
+
+When invoked as `cycle`, reflect gains two privileges the other modes lack:
+
+1. **Backlog mutation** — may create, edit, consolidate, or delete items in
+   `backlog.d/` (never `backlog.d/_done/`). Every mutation must cite an
+   evidence ref from the cycle (event line, artifact path, diff hunk).
+2. **Harness suggestion branch** — may push skill/agent/hook/AGENTS.md edits
+   to a branch named `reflect/<cycle-id>`, never to the current feature
+   branch and never to main/master. Humans review and merge.
+
+All other modes are read-only against `backlog.d/` and the harness. If
+`cycle` cannot cite evidence for a mutation, downgrade it to a finding and
+let a human decide.
+
+See `references/cycle.md` for the full contract, `reflect.signals.json`
+schema, and judgment rules (consolidate vs split, branch vs memory note).
 
 ## Gotchas
 

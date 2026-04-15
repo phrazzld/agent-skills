@@ -12,23 +12,21 @@ echo "# Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$INDEX"
 echo "# Do not edit manually. Run: ./scripts/generate-index.sh" >> "$INDEX"
 echo "" >> "$INDEX"
 
-# Skills
+# Skills — first-party then external. First-party wins on name collision.
 echo "skills:" >> "$INDEX"
-for skill_dir in "$REPO_ROOT"/skills/*/; do
-  skill_md="$skill_dir/SKILL.md"
-  [ -f "$skill_md" ] || continue
 
-  name=$(basename "$skill_dir")
+# Track emitted names to enforce first-party precedence across both passes.
+emitted_names=" "
+
+emit_skill() {
+  local skill_md="$1" name="$2" source="$3" desc tags
 
   # Extract description from frontmatter
   desc=$(awk '/^---$/{n++; next} n==1 && /^description:/{found=1; sub(/^description: *\|? */, ""); if ($0 != "" && $0 != "|") print; next} found && /^  /{sub(/^  /,""); printf "%s ", $0; next} found && !/^  /{found=0}' "$skill_md" | head -1 | sed 's/ *$//' | LC_ALL=C cut -c1-200)
-
-  # Fallback: single-line description
   if [ -z "$desc" ]; then
     desc=$(awk '/^---$/{n++; next} n==1 && /^description:/{sub(/^description: *"?/,""); sub(/"? *$/,""); print; exit}' "$skill_md")
   fi
 
-  # Extract tags from description keywords
   tags=$(echo "$desc" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]-' '\n' | \
     sed '/^$/d' | \
     grep -v -E '^(the|and|for|use|when|with|this|that|from|into|your|each|are|not|all|can|has|will|been|have|does|its|any|our|you|was)$' | \
@@ -36,8 +34,31 @@ for skill_dir in "$REPO_ROOT"/skills/*/; do
 
   echo "  - name: $name" >> "$INDEX"
   echo "    description: \"$(echo "$desc" | sed 's/"/\\"/g')\"" >> "$INDEX"
+  echo "    source: $source" >> "$INDEX"
   [ -n "$tags" ] && echo "    tags: [$tags]" >> "$INDEX"
+}
+
+for skill_dir in "$REPO_ROOT"/skills/*/; do
+  skill_md="$skill_dir/SKILL.md"
+  [ -f "$skill_md" ] || continue
+  name=$(basename "$skill_dir")
+  emit_skill "$skill_md" "$name" "first-party"
+  emitted_names+="$name "
 done
+
+# External skills — installed by scripts/sync-external.sh (gitignored tree).
+if [ -d "$REPO_ROOT/skills/.external" ]; then
+  for skill_dir in "$REPO_ROOT"/skills/.external/*/; do
+    skill_md="$skill_dir/SKILL.md"
+    [ -f "$skill_md" ] || continue
+    name=$(basename "$skill_dir")
+    case "$emitted_names" in
+      *" $name "*) continue ;;  # first-party wins
+    esac
+    emit_skill "$skill_md" "$name" "external"
+    emitted_names+="$name "
+  done
+fi
 
 echo "" >> "$INDEX"
 

@@ -1,59 +1,96 @@
 # Spellbook Index
-# Generated: 2026-04-15T20:49:34Z
+# Generated: 2026-04-15T21:45:58Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
   - name: a11y
     description: "Accessibility audit, remediation, and verification. WCAG 2.2 AA compliance. Three-agent protocol: audit (find issues) → remediate (fix them) → critique (verify fixes). Use when: \"accessibility aud"
+    source: first-party
     tags: [2,aa,accessibility,aud,audit,compliance,critique,find,fix,fixes]
   - name: agent-readiness
     description: "Assess and improve codebase readiness for AI coding agents. Dispatches parallel subagents to evaluate style, testing, docs, architecture, CI, observability, security, and dev environment. Produces a s"
+    source: first-party
     tags: [a,agents,ai,architecture,assess,ci,codebase,coding,dev,dispatches]
   - name: autopilot
     description: "Full delivery pipeline: plan→build→review→ship. Reads highest-priority backlog item, shapes it, builds it via TDD, runs parallel code review, iterates until clean, ships. Use when: shipping feat"
+    source: first-party
     tags: [backlog,build,builds,clean,code,delivery,feat,full,highest-priority,it]
+  - name: ci
+    description: "Audit a repo's CI gates, strengthen what is weak, then drive the pipeline green. Owns confidence in correctness — lint, types, tests, coverage, secrets. Dagger-first. Never returns red without a str"
+    source: first-party
+    tags: [a,audit,ci,confidence,correctness,coverage,dagger-first,drive,gates,green]
   - name: code-review
     description: "Parallel multi-agent code review. Launch reviewer team, synthesize findings, auto-fix blocking issues, loop until clean. Use when: \"review this\", \"code review\", \"is this ready to ship\", \"check this co"
+    source: first-party
     tags: [auto-fix,blocking,check,clean,co,code,findings,is,issues,launch]
   - name: demo
     description: "Generate demo artifacts: screenshots, GIF walkthroughs, video recordings, polished launch videos with narration and music. From raw evidence to shipped media. Also handles PR evidence upload via draft"
+    source: first-party
     tags: [also,artifacts,demo,draft,evidence,generate,gif,handles,launch,media]
+  - name: deploy
+    description: "Ship merged code to a deploy target. Thin router — detects target from repo config, dispatches to platform-specific recipe, captures a structured receipt (sha, version, URL, rollback handle), stops "
+    source: first-party
+    tags: [a,captures,code,config,deploy,detects,dispatches,handle,merged,platform-specific]
   - name: deps
     description: "Analyze, test, and upgrade dependencies. One curated PR, not 47 version bumps. Reachability analysis, behavioral diffs, risk assessment. Package-manager agnostic. Use when: \"upgrade deps\", \"dependency"
+    source: first-party
     tags: [47,agnostic,analysis,analyze,assessment,behavioral,bumps,curated,dependencies,dependency]
   - name: groom
     description: "Backlog management, brainstorming, architectural exploration, project bootstrapping. File-driven backlog via backlog.d/. Parallel investigation bench, synthesis protocol, themed recommendations. Produ"
+    source: first-party
     tags: [architectural,backlog,bench,bootstrapping,brainstorming,d,exploration,file-driven,investigation,management]
   - name: harness
     description: "Build, maintain, evaluate, and optimize the agent harness — skills, agents, hooks, CLAUDE.md, AGENTS.md, and enforcement infrastructure. Use when: \"create a skill\", \"update skill\", \"improve the harn"
+    source: first-party
     tags: [a,agent,agents,build,claude,create,enforcement,evaluate,harn,harness]
+  - name: implement
+    description: "Atomic TDD build skill. Takes a context packet (shaped ticket) and produces code + tests on a feature branch. Red → Green → Refactor. Does not shape, review, QA, or ship — single concern: spec t"
+    source: first-party
+    tags: [a,atomic,branch,build,code,concern,context,feature,green,on]
   - name: investigate
     description: "Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle, domain auditing, and issue logging. Four-phase protocol: root cause → pattern analysis → hypothesis test → fix. Use"
+    source: first-party
     tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
   - name: iterate
     description: "Outer-loop orchestrator. Composes /shape, /autopilot, /code-review, /qa, /deploy, /reflect into a closed delivery cycle. Picks a backlog item, ships it, reflects, updates the bucket, picks the next. W"
+    source: first-party
     tags: [a,autopilot,backlog,bucket,closed,code-review,composes,cycle,delivery,deploy]
   - name: model-research
     description: "Research, compare, and select LLM models for AI-powered apps and workflows. Finds latest models per family, verifies availability on target platform, compares pricing/benchmarks/tool-calling, produces"
+    source: first-party
     tags: [ai-powered,apps,availability,benchmarks,compare,compares,family,finds,latest,llm]
+  - name: monitor
+    description: "Post-deploy signal watch. Poll healthcheck and configured signals through a grace window. Emit structured events. Escalate to /investigate on trip, close clean on green. Thin watcher, not diagnosticia"
+    source: first-party
+    tags: [a,clean,close,configured,diagnosticia,emit,escalate,events,grace,green]
   - name: qa
     description: "Browser-based QA, exploratory testing, evidence capture, and bug reporting. Drive running applications and verify they work — not just that tests pass. Use when: \"run QA\", \"test this\", \"verify the f"
+    source: first-party
     tags: [applications,browser-based,bug,capture,drive,evidence,exploratory,f,just,pass]
   - name: refactor
     description: "Branch-aware simplification and refactoring workflow. On feature branches, compare against base and simplify the diff before merge. On primary branch, scan the full codebase, research prior art, and i"
+    source: first-party
     tags: [against,art,base,before,branch,branch-aware,branches,codebase,compare,diff]
   - name: reflect
-    description: "Session retrospective, operator coaching, harness postmortem, and codification. Distill learnings into hooks/rules/skills while upgrading the user's prompts, technical specificity, and reusable vocabu"
-    tags: [coaching,codification,distill,harness,hooks,learnings,operator,postmortem,prompts,retrospective]
+    description: "Session retrospective, operator coaching, harness postmortem, codification, and outer-loop cycle critique. Distills learnings into hooks/rules/skills, mutates the backlog from evidence, and emits harn"
+    source: first-party
+    tags: [backlog,coaching,codification,critique,cycle,distills,emits,evidence,harn,harness]
   - name: research
     description: "Web research, multi-AI delegation, and multi-perspective validation. /research [query], /research delegate [task], /research thinktank [topic]. Triggers: \"search for\", \"look up\", \"research\", \"delegate"
+    source: first-party
     tags: [delegate,delegation,look,multi-ai,multi-perspective,query,research,search,task,thinktank]
   - name: settle
     description: "Unblock, polish, and merge. Works in two modes: GitHub mode (PR exists): fix CI/conflicts/reviews, polish, refactor, land PR. Git-native mode (no PR): use verdict refs, Dagger CI, agent swarm review. "
+    source: first-party
     tags: [agent,ci,conflicts,dagger,exists,fix,git-native,github,in,land]
   - name: shape
     description: "Shape a raw idea into something buildable. Product + technical exploration. Spec, design, critique, plan. Output is a context packet. Use when: \"shape this\", \"write a spec\", \"design this feature\", \"pl"
+    source: first-party
     tags: [a,buildable,context,critique,design,exploration,feature,idea,is,output]
+  - name: agent-browser
+    description: "Browser automation CLI for AI agents. Use when the user needs to interact with websites, including navigating pages, filling forms, clicking buttons, taking screenshots, extracting data, testing web a"
+    source: external
+    tags: [a,agents,ai,automation,browser,buttons,cli,clicking,data,extracting]
 
 agents:
   - name: a11y-auditor

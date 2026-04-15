@@ -15,7 +15,7 @@ if ! command -v dagger &>/dev/null; then
   exit 0
 fi
 
-# Skip if Docker/Colima not running
+# Skip if Docker not running
 if ! docker info &>/dev/null 2>&1; then
   echo "pre-push: Docker not running, skipping CI gates" >&2
   exit 0

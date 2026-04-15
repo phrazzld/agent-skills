@@ -5,3 +5,7 @@ __pycache__/
 .pi/state/
 embeddings.json
 .env
+
+# External skills — reproducible from registry.yaml via scripts/sync-external.sh.
+# Do not commit upstream code; contributors regenerate locally.
+skills/.external/

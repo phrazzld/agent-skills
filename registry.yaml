@@ -1,26 +1,81 @@
 # Spellbook Registry — external skill sources for embeddings and on-demand pull.
 #
 # Skills and agents are discovered from the filesystem (skills/*/SKILL.md,
-# agents/*.md). This file only lists third-party sources.
+# agents/*.md). This file lists third-party sources that feed:
+#   1. scripts/sync-external.sh  → installs into skills/.external/<alias>/
+#   2. scripts/generate-embeddings.py  → builds the semantic search index
 #
-# Consumed by: generate-embeddings.py
+# Schema (per source):
+#   repo:          <org>/<repo>          required. GitHub path.
+#   default:       true                  optional. Marks the local repo (skipped by sync).
+#   ref:           main | v1.2 | <sha>   default "main". Intent (branch/tag/sha).
+#   pin:           <full-sha>            optional. Locks to an immutable sha.
+#                                        Preferred. Enforced by sync unless allow_floating.
+#   skills_path:   <dir>                 default ".". Sparse path under the repo
+#                                        where SKILL.md dirs live.
+#   layout:        flat | multi-root     advisory (used by embeddings). flat = one
+#                                        SKILL.md per subdir of skills_path.
+#   include:       [name, name, …]       optional allowlist of skill dir names.
+#   exclude:       [name, name, …]       optional blocklist.
+#   alias_prefix:  "prefix-"             optional. Prepended to every alias from
+#                                        this source (use to resolve collisions).
+#   allow_floating: true                 optional. Permit a non-immutable ref
+#                                        (main/HEAD/branch). Default: refuse.
+#   embeddings:    true | false          default true. Include in embeddings index.
+#   active:        true | false          default true. false = declared but skipped
+#                                        by sync-external.sh. Use for "defer" sources.
 
-# External skill sources for domain skills (pulled on demand, not managed by us).
 sources:
   - repo: phrazzld/spellbook
     default: true
     layout: flat
     skills_path: skills
+
+  # Anthropic official skills. Curate via include: per workflow need.
+  # frontend-design is already loaded globally — exclude to avoid dup.
   - repo: anthropics/skills
+    ref: main
     layout: flat
     skills_path: skills
+    exclude: [frontend-design]
+    allow_floating: true  # TODO: pin after first successful sync writes resolved sha here.
+
+  # Vercel Labs curated agent skills.
+  - repo: vercel-labs/agent-skills
+    ref: main
+    layout: flat
+    skills_path: skills
+    include:
+      - react-best-practices
+      - web-design-guidelines
+      - react-native-guidelines
+      - react-view-transitions
+      - composition-patterns
+    allow_floating: true  # TODO: pin after first sync.
+
+  # OpenAI .curated — skip SaaS-credentialed skills unless the operator uses them.
   - repo: openai/skills
+    ref: main
     layout: flat
     skills_path: skills/.curated
-  - repo: vercel-labs/agent-skills
-    layout: flat
-    skills_path: skills
+    exclude:
+      - figma
+      - linear
+      - notion
+      - sentry
+      - vercel
+      - cloudflare
+    allow_floating: true  # TODO: pin after first sync.
+
+  # --- Deferred (declared for embeddings only; sync skips when active: false) ---
   - repo: Leonxlnx/taste-skill
+    ref: main
     layout: multi-root
+    active: false
+    embeddings: false
+
   - repo: garrytan/gstack
+    ref: main
     layout: multi-root
+    active: false
+    embeddings: false

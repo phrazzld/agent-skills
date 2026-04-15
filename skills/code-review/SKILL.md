@@ -27,9 +27,15 @@ You are the executive orchestrator.
 1. **Read the diff.** `git diff $BASE...HEAD` (default base: `main` or `master`).
    Classify: what changed? (API, UI, tests, infra, security, perf, data model, etc.)
 
-2. **Select internal reviewers.** Pick 3-5 philosophy agents whose lenses are
-   most relevant to this diff. Read `references/internal-bench.md` for the catalog.
-   Craft a tailored prompt for each — tell them what to focus on.
+2. **Select internal reviewers (static map).** Do NOT hand-pick. Run the
+   selection algorithm in `references/bench-map.yaml`:
+   - `git diff --name-only $BASE...HEAD` → changed files
+   - Start from `default`; union `add` agents for every rule whose glob
+     matches any changed file; de-dupe; cap at 5 (critic pinned)
+   - Bench size always in [3, 5]; selection is deterministic per diff
+   Read `references/bench-map.md` for the full algorithm and
+   `references/internal-bench.md` for each agent's lens. Then craft a
+   tailored prompt per selected reviewer.
 
 3. **Dispatch all three tiers in parallel:**
 
