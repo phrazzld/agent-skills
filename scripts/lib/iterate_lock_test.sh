@@ -11,9 +11,11 @@ setup() {
   TEST_DIR="$(mktemp -d)"
   cd "$TEST_DIR"
   mkdir -p .spellbook
+  LOCK=".spellbook/iterate.lock"
+  # Reset before sourcing; source sets ITERATE_LOCK_PATH=default only if unset.
+  unset ITERATE_LOCK_PATH
   # shellcheck source=scripts/lib/iterate_lock.sh
   source "$SCRIPT_DIR/iterate_lock.sh"
-  LOCK=".spellbook/iterate.lock"
 }
 
 teardown() {
@@ -112,6 +114,7 @@ test_iterate_acquire_path_with_single_quotes_is_safe() {
   # treated as stale, silently stealing a live lock.
   local quoted_dir="$TEST_DIR/has'quote"
   mkdir -p "$quoted_dir"
+  local prev_path="$ITERATE_LOCK_PATH"
   ITERATE_LOCK_PATH="$quoted_dir/iterate.lock"
   # First acquire should succeed.
   assert_exit "acquire with quoted path succeeds" 0 iterate_acquire 01HABC
@@ -125,6 +128,7 @@ test_iterate_acquire_path_with_single_quotes_is_safe() {
   assert_exit "release with quoted path succeeds" 0 iterate_release 01HABC
   assert_eq "lock removed at quoted path" "no" \
     "$([ -f "$ITERATE_LOCK_PATH" ] && echo yes || echo no)"
+  ITERATE_LOCK_PATH="$prev_path"
 }
 
 test_iterate_acquire_corrupt_lock_is_treated_as_stale() {

@@ -29,15 +29,18 @@ iterate_acquire() {
 
   if [ -e "$ITERATE_LOCK_PATH" ]; then
     # Inspect existing lock. If pid is alive, refuse; otherwise treat as stale.
+    # Path is passed via env var: interpolating into a Python single-quoted
+    # string breaks on paths containing "'" or "\" (SyntaxError gets swallowed
+    # by 2>/dev/null, yielding empty existing_pid → stale → silent theft).
     local existing_pid
-    existing_pid="$(python3 -c "
-import json, sys
+    existing_pid="$(ITERATE_LOCK_FILE="$ITERATE_LOCK_PATH" python3 -c '
+import json, os
 try:
-    data = json.load(open('$ITERATE_LOCK_PATH'))
-    print(data.get('pid', ''))
+    data = json.load(open(os.environ["ITERATE_LOCK_FILE"]))
+    print(data.get("pid", ""))
 except Exception:
-    print('')
-" 2>/dev/null)"
+    print("")
+' 2>/dev/null)"
     if [ -n "$existing_pid" ] && [ "$existing_pid" != "0" ] && kill -0 "$existing_pid" 2>/dev/null; then
       echo "iterate_acquire: lock held by live pid $existing_pid" >&2
       return 1
@@ -88,13 +91,13 @@ iterate_release() {
     return 0
   fi
   local recorded
-  recorded="$(python3 -c "
-import json
+  recorded="$(ITERATE_LOCK_FILE="$ITERATE_LOCK_PATH" python3 -c '
+import json, os
 try:
-    print(json.load(open('$ITERATE_LOCK_PATH')).get('cycle_id',''))
+    print(json.load(open(os.environ["ITERATE_LOCK_FILE"])).get("cycle_id", ""))
 except Exception:
-    print('')
-" 2>/dev/null)"
+    print("")
+' 2>/dev/null)"
   if [ "$recorded" != "$cycle_id" ]; then
     echo "iterate_release: cycle_id mismatch (lock=$recorded, asked=$cycle_id)" >&2
     return 1
