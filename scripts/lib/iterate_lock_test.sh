@@ -131,6 +131,36 @@ test_iterate_acquire_path_with_single_quotes_is_safe() {
   ITERATE_LOCK_PATH="$prev_path"
 }
 
+test_iterate_acquire_concurrent_stealers_only_one_wins() {
+  # Two processes both see a stale lock and attempt to steal it. The old
+  # "kill -0 → temp+rename" dance had no mutual exclusion: both could pass
+  # the liveness check, both rename on top of each other, last writer wins,
+  # and BOTH returned 0. Exactly one must win.
+  python3 -c "
+import json
+open('.spellbook/iterate.lock','w').write(json.dumps({'pid':0,'cycle_id':'01HOLD','started_at':'2000-01-01T00:00:00Z'}))
+"
+  local rc_a_file="$TEST_DIR/rc_a" rc_b_file="$TEST_DIR/rc_b"
+  # Fork two children that both try to steal. Each persists its rc.
+  (
+    if iterate_acquire 01HAAA 2>/dev/null; then echo 0 > "$rc_a_file"; else echo $? > "$rc_a_file"; fi
+  ) &
+  local pid_a=$!
+  (
+    if iterate_acquire 01HBBB 2>/dev/null; then echo 0 > "$rc_b_file"; else echo $? > "$rc_b_file"; fi
+  ) &
+  local pid_b=$!
+  wait "$pid_a" "$pid_b"
+  local rc_a rc_b
+  rc_a="$(cat "$rc_a_file")"
+  rc_b="$(cat "$rc_b_file")"
+  # Exactly one winner (rc=0), exactly one loser (rc=1).
+  local winners=0
+  [ "$rc_a" = "0" ] && winners=$((winners + 1))
+  [ "$rc_b" = "0" ] && winners=$((winners + 1))
+  assert_eq "exactly one stealer wins the race" "1" "$winners"
+}
+
 test_iterate_acquire_corrupt_lock_is_treated_as_stale() {
   # Prior process crashed mid-write or disk ate the JSON. Don't hang forever.
   echo "not json" > "$LOCK"
