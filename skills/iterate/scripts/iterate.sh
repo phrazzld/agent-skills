@@ -73,8 +73,9 @@ if [ "$MAX_CYCLES" -gt 1 ] && [ -z "$BUDGET" ]; then
   exit 2
 fi
 
-# ULID generation. Prefer python-ulid if present; fall back to a
-# timestamp-prefixed random hex that sorts lexicographically like a real ULID.
+# ULID generation. Prefer python-ulid if present; otherwise emit a real
+# Crockford-base32 ULID (10 chars timestamp + 16 chars randomness = 26 chars),
+# lexicographically sortable and interchangeable with the library output.
 new_ulid() {
   python3 - <<'PYEOF'
 try:
@@ -82,8 +83,15 @@ try:
     print(str(ulid.new()))
 except Exception:
     import secrets, time
-    v = (int(time.time() * 1000) << 80) | secrets.randbits(80)
-    print(format(v, "026X"))
+    CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
+    def _enc(v, n):
+        out = []
+        for _ in range(n):
+            out.append(CROCKFORD[v & 0x1F]); v >>= 5
+        return "".join(reversed(out))
+    ts = int(time.time() * 1000) & ((1 << 48) - 1)
+    rnd = secrets.randbits(80)
+    print(_enc(ts, 10) + _enc(rnd, 16))
 PYEOF
 }
 
