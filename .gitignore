@@ -9,3 +9,9 @@ embeddings.json
 # External skills — reproducible from registry.yaml via scripts/sync-external.sh.
 # Do not commit upstream code; contributors regenerate locally.
 skills/.external/
+
+# /deliver runtime state: per-invocation ULID dirs with state.json, receipt.json,
+# review/, ci/ transcripts. Agent-written, never human-edited, never committed.
+# Narrow pattern: only .spellbook/deliver/, preserving commit-eligible configs
+# like .spellbook/deploy.yaml that other skills (e.g. /deploy) expect in-tree.
+.spellbook/deliver/

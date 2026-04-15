@@ -338,6 +338,129 @@ print('No hardcoded user paths found.')
         )
 
     @function
+    async def check_deliver_composition(
+        self,
+        source: Annotated[
+            dagger.Directory,
+            DefaultPath("/"),
+            Ignore([".git", "__pycache__", ".venv", "ci"]),
+        ],
+    ) -> str:
+        """Forbid inlined phase-skill internals in skills/deliver/SKILL.md.
+
+        /deliver must compose atomic phase skills via their trigger syntax
+        (/code-review, /ci, /qa, /implement, /refactor, /shape) — not
+        re-implement them by dispatching phase agents or running raw
+        phase tooling. This lint catches composer regressions where
+        inlined logic creeps back in.
+        """
+        script = r"""
+import re, sys, pathlib
+
+TARGET = pathlib.Path('skills/deliver/SKILL.md')
+if not TARGET.exists():
+    print(f'{TARGET} not present; skipping deliver-composition lint.')
+    sys.exit(0)
+
+# Denylist: regex, human-readable label.
+# Patterns target phase-skill internals that /deliver must delegate, not inline.
+DENYLIST = [
+    (r'\bsource\s+scripts/lib/claims\.sh\b',      'claims.sh sourcing (dropped primitive)'),
+    (r'\bclaim_(acquire|release)\b',               'claim_acquire/claim_release (dropped primitive)'),
+    (r'\bdagger\s+call\s+check\b',                 'raw `dagger call check` — use /ci instead'),
+    (r'\bbunx?\s+playwright\b',                    'raw playwright invocation — use /qa instead'),
+    (r'\bnpx\s+playwright\b',                      'raw playwright invocation — use /qa instead'),
+    (r'Agent\s*\(\s*[\'"](?:critic|ousterhout|carmack|grug|beck)[\'"]',
+     'direct bench-agent dispatch — use /code-review instead'),
+    (r'subagent_type\s*=\s*[\'"](?:critic|ousterhout|carmack|grug|beck)[\'"]',
+     'direct bench-agent dispatch — use /code-review instead'),
+]
+
+text = TARGET.read_text()
+findings = []
+for lineno, line in enumerate(text.splitlines(), 1):
+    # Skip fenced/quoted example lines that document what NOT to do.
+    stripped = line.lstrip()
+    if stripped.startswith(('#', '>', '<!--')):
+        continue
+    for regex, label in DENYLIST:
+        if re.search(regex, line):
+            findings.append(f'  {TARGET}:{lineno}: {label}\n    {line.strip()[:120]}')
+
+if findings:
+    print(f'Found {len(findings)} inlined-phase violation(s) in {TARGET}:', file=sys.stderr)
+    print('\n'.join(findings), file=sys.stderr)
+    print('', file=sys.stderr)
+    print('/deliver must compose atomic phase skills via trigger syntax,', file=sys.stderr)
+    print('not re-implement their internals. See backlog.d/032.', file=sys.stderr)
+    sys.exit(1)
+
+print(f'{TARGET}: composition clean (no inlined-phase calls).')
+"""
+        return await (
+            _lint_container(source)
+            .with_exec(["python3", "-c", script])
+            .stdout()
+        )
+
+    @function
+    async def check_no_claims(
+        self,
+        source: Annotated[
+            dagger.Directory,
+            DefaultPath("/"),
+            Ignore([".git", "__pycache__", ".venv", "ci"]),
+        ],
+    ) -> str:
+        """Regression guard: forbid claim-coordination primitives under skills/.
+
+        claims.sh / claim_acquire / claim_release were dropped per 032.
+        Any reappearance under skills/ is a regression and must fail CI.
+        """
+        script = r"""
+import re, sys, pathlib
+
+ROOT = pathlib.Path('skills')
+if not ROOT.exists():
+    print('skills/ not present; skipping no-claims lint.')
+    sys.exit(0)
+
+PATTERNS = [
+    (r'\bclaims\.sh\b',       'claims.sh reference'),
+    (r'\bclaim_acquire\b',    'claim_acquire call'),
+    (r'\bclaim_release\b',    'claim_release call'),
+]
+
+findings = []
+for path in ROOT.rglob('*'):
+    if not path.is_file():
+        continue
+    try:
+        text = path.read_text()
+    except Exception:
+        continue
+    for lineno, line in enumerate(text.splitlines(), 1):
+        for regex, label in PATTERNS:
+            if re.search(regex, line):
+                findings.append(f'  {path}:{lineno}: {label}')
+
+if findings:
+    print(f'Found {len(findings)} claims-primitive reference(s) under skills/:', file=sys.stderr)
+    print('\n'.join(findings[:40]), file=sys.stderr)
+    print('', file=sys.stderr)
+    print('Claim coordination was dropped per backlog.d/032.', file=sys.stderr)
+    print('Do not reintroduce claims.sh / claim_acquire / claim_release in skills/.', file=sys.stderr)
+    sys.exit(1)
+
+print('skills/: no claims primitives found.')
+"""
+        return await (
+            _lint_container(source)
+            .with_exec(["python3", "-c", script])
+            .stdout()
+        )
+
+    @function
     async def check(
         self,
         source: Annotated[
@@ -370,6 +493,8 @@ print('No hardcoded user paths found.')
             tg.start_soon(run_gate, "test-bun", self.test_bun(source))
             tg.start_soon(run_gate, "check-exclusions", self.check_exclusions(source))
             tg.start_soon(run_gate, "check-portable-paths", self.check_portable_paths(source))
+            tg.start_soon(run_gate, "check-deliver-composition", self.check_deliver_composition(source))
+            tg.start_soon(run_gate, "check-no-claims", self.check_no_claims(source))
 
         # Format results
         lines = ["Spellbook CI Results", "=" * 40]

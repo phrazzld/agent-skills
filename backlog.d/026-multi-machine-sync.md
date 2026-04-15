@@ -6,9 +6,13 @@ Estimate: M
 
 ## Goal
 
-Enable `refs/verdicts/*` and agent claim locks to sync across machines via
-`git push`/`git fetch`. Currently claims are local-only (file locks in
-`.git-bug-claims/`). Verdicts (from 020) will also be local refs.
+Enable `refs/verdicts/*` to sync across machines via `git push`/`git fetch`.
+Verdicts (from 020) are local refs.
+
+**Note (032):** Claim-based coordination was dropped when `/autopilot` was
+renamed to `/deliver`. This ticket was originally scoped to sync claims +
+verdicts; it now covers verdicts only. Kept alive as a design note for the
+verdict-sync half. Retained claim-sync sections below are historical.
 
 ## Design
 

@@ -50,5 +50,5 @@ For evidence capture patterns, read `references/evidence-capture.md`.
 - **"Tests pass" is not QA.** Tests verify code paths. QA verifies user experience.
 - **This fallback is intentionally thin.** Generic QA instructions can't encode
   your app's routes, personas, or failure modes. Scaffold for real coverage.
-- **Autopilot expects a scaffolded skill.** If `/autopilot` invokes `/qa` and
+- **Deliver expects a scaffolded skill.** If `/deliver` invokes `/qa` and
   hits this redirect, scaffold first: `/qa scaffold`.

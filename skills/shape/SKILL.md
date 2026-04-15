@@ -60,7 +60,7 @@ techniques in the context packet with specific files to study during build.
 
 ### Phase 4: Context Packet
 
-The output of shape. This is what `/autopilot` and builders consume.
+The output of shape. This is what `/deliver` and `/implement` consume.
 
 ```markdown
 # Context Packet: <title>

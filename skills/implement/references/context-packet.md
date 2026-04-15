@@ -57,7 +57,7 @@ Not hard-gated but sharply reduce builder error rate.
 ### `non-goals`
 
 Things that look in-scope but aren't. Prevents builder scope creep.
-Example: "Does not modify /autopilot's SKILL.md — that's ticket 032."
+Example: "Does not modify /deliver's SKILL.md — that's ticket 032."
 
 ### `constraints`
 

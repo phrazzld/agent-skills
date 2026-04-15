@@ -12,7 +12,7 @@ Argument routing: hex prefix (e.g. `abc1234`) → git-bug; `#N` → GitHub Issue
 | Priority | `priority/p0` `priority/p1` `priority/p2` `priority/p3` | Urgency |
 | Domain | `domain/<name>` (e.g. `domain/auth`, `domain/ci`) | Area of codebase |
 | Type | `type/bug` `type/enhancement` `type/chore` | Nature of work |
-| Status | `status/shaped` | Ready for `/autopilot` (has oracle) |
+| Status | `status/shaped` | Ready for `/deliver` (has oracle) |
 
 ## Lifecycle
 
@@ -21,15 +21,6 @@ Argument routing: hex prefix (e.g. `abc1234`) → git-bug; `#N` → GitHub Issue
 3. **Query:** `git-bug bug status:open --label "priority/p0" --format json`
 4. **Close:** `git-bug bug status close <id>`
 5. **Sync:** `git-bug push origin`
-
-## Claim Protocol
-
-```bash
-source scripts/lib/claims.sh
-claim_acquire <id>    # atomic CAS — fails if already claimed
-claim_check <id>      # 0 = claimed, 1 = free
-claim_release <id>    # release after completion or failure
-```
 
 ## GitHub Bridge
 

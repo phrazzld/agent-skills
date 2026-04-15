@@ -1,7 +1,7 @@
 ---
 name: iterate
 description: |
-  Outer-loop orchestrator. Composes /shape, /autopilot, /code-review, /qa,
+  Outer-loop orchestrator. Composes /shape, /deliver, /code-review, /qa,
   /deploy, /reflect into a closed delivery cycle. Picks a backlog item,
   ships it, reflects, updates the bucket, picks the next. Writes a typed
   event log per cycle.
@@ -13,11 +13,12 @@ argument-hint: "[--max-cycles N] [--budget $N] [--dry-run]"
 
 # /iterate
 
-Outer-loop orchestrator. `/autopilot` ships one item and exits. `/iterate`
-composes existing skills into a closed cycle and runs N of them.
+Outer-loop orchestrator. `/deliver` takes one item to merge-ready and exits.
+`/iterate` composes existing skills into a closed cycle and runs N of them.
 
-This is the outer loop (async delivery). `/autopilot` is the inner loop
-(single-shot). Two skills, two stop conditions, one composition contract.
+This is the outer loop (async delivery). `/deliver` is the inner loop
+(single-shot, merge-ready). Two skills, two stop conditions, one composition
+contract.
 
 ## Phase 1 Scope (current)
 
@@ -28,7 +29,7 @@ This is the outer loop (async delivery). `/autopilot` is the inner loop
   current guard would release the lock between cycles and let a second
   iterate sneak in. Passing `N != 1` exits 2 with a clear message.
 
-**Not yet wired:** real handlers for `/shape`, `/autopilot`, `/code-review`,
+**Not yet wired:** real handlers for `/shape`, `/deliver`, `/code-review`,
 `/qa`, `/deploy`, `/reflect`. Invoking without `--dry-run` writes a
 `phase.failed` event and exits non-zero. That is intentional — Phase 1
 proves the event/lock contract; Phase 2 wires the handlers.
@@ -101,7 +102,7 @@ Kinds: `cycle.opened`, `shape.done`, `build.done`, `review.iter`, `ci.done`,
 ┌── CYCLE START ───────────────────────────────┐
 │  1. pick        → bucket-scorer agent        │  cycle.opened
 │  2. shape       → /shape  (+Council P0 only) │  shape.done
-│  3. build       → /autopilot (build step)    │  build.done
+│  3. build       → /deliver (build step)    │  build.done
 │  4. review      → /code-review               │  review.iter (xN, max 3)
 │     + CI        → dagger call check          │  ci.done
 │  5. qa          → /qa (auto-scaffold)        │  qa.done

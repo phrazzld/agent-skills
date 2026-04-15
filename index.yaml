@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-15T21:48:00Z
+# Generated: 2026-04-15T21:58:49Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -11,10 +11,6 @@ skills:
     description: "Assess and improve codebase readiness for AI coding agents. Dispatches parallel subagents to evaluate style, testing, docs, architecture, CI, observability, security, and dev environment. Produces a s"
     source: first-party
     tags: [a,agents,ai,architecture,assess,ci,codebase,coding,dev,dispatches]
-  - name: autopilot
-    description: "Full delivery pipeline: plan→build→review→ship. Reads highest-priority backlog item, shapes it, builds it via TDD, runs parallel code review, iterates until clean, ships. Use when: shipping feat"
-    source: first-party
-    tags: [backlog,build,builds,clean,code,delivery,feat,full,highest-priority,it]
   - name: ci
     description: "Audit a repo's CI gates, strengthen what is weak, then drive the pipeline green. Owns confidence in correctness — lint, types, tests, coverage, secrets. Dagger-first. Never returns red without a str"
     source: first-party
@@ -23,6 +19,10 @@ skills:
     description: "Parallel multi-agent code review. Launch reviewer team, synthesize findings, auto-fix blocking issues, loop until clean. Use when: \"review this\", \"code review\", \"is this ready to ship\", \"check this co"
     source: first-party
     tags: [auto-fix,blocking,check,clean,co,code,findings,is,issues,launch]
+  - name: deliver
+    description: "Inner-loop composer. Takes one backlog item to merge-ready code. Composes /shape → /implement → {/code-review + /ci + /refactor + /qa} (clean loop) and stops. Does not push, does not merge, does n"
+    source: first-party
+    tags: [backlog,ci,clean,code,code-review,composer,composes,implement,inner-loop,item]
   - name: demo
     description: "Generate demo artifacts: screenshots, GIF walkthroughs, video recordings, polished launch videos with narration and music. From raw evidence to shipped media. Also handles PR evidence upload via draft"
     source: first-party
@@ -52,9 +52,9 @@ skills:
     source: first-party
     tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
   - name: iterate
-    description: "Outer-loop orchestrator. Composes /shape, /autopilot, /code-review, /qa, /deploy, /reflect into a closed delivery cycle. Picks a backlog item, ships it, reflects, updates the bucket, picks the next. W"
+    description: "Outer-loop orchestrator. Composes /shape, /deliver, /code-review, /qa, /deploy, /reflect into a closed delivery cycle. Picks a backlog item, ships it, reflects, updates the bucket, picks the next. Wri"
     source: first-party
-    tags: [a,autopilot,backlog,bucket,closed,code-review,composes,cycle,delivery,deploy]
+    tags: [a,backlog,bucket,closed,code-review,composes,cycle,deliver,delivery,deploy]
   - name: model-research
     description: "Research, compare, and select LLM models for AI-powered apps and workflows. Finds latest models per family, verifies availability on target platform, compares pricing/benchmarks/tool-calling, produces"
     source: first-party

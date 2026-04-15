@@ -11,7 +11,7 @@ to ~/.claude, ~/.codex, ~/.pi via bootstrap.sh.
 ```
 spellbook/
 ├── skills/        # Leaf skills (qa, demo, investigate, research, ...) and
-│                  #   orchestrators (autopilot, code-review, settle, ...)
+│                  #   orchestrators (deliver, code-review, settle, ...)
 ├── agents/        # Specialized agents: planner, builder, critic,
 │                  #   ousterhout, carmack, grug, beck
 ├── harnesses/     # Per-harness configs, hooks, shared principles
@@ -33,13 +33,15 @@ git-bug bug status close <id>        # close issue
 git-bug push origin                  # sync to GitHub bridge
 ```
 
-Agent coordination uses atomic claims: `source scripts/lib/claims.sh && claim_acquire <id>`.
-
 ## Workflow
 
 ```
-backlog.d/ → /groom → /shape (planner) → /autopilot (builder) → /code-review (critic + bench) → ship
+backlog.d/ → /groom → /shape → /deliver → ship
 ```
+
+`/deliver` is the inner-loop composer: one ticket → merge-ready code via
+`/shape` → `/implement` → clean loop over `/code-review` + `/ci` +
+`/refactor` + `/qa`. It stops at merge-ready; humans merge.
 
 ## Principles
 

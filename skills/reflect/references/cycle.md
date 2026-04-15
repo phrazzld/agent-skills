@@ -113,7 +113,7 @@ item. Authority and its boundaries:
 | Op | Allowed | Forbidden |
 |----|---------|-----------|
 | `create` | New items under `backlog.d/NNN-slug.md` with next free index | Creating in `_done/`, `_cycles/`, or any subdir not documented in `/groom` |
-| `edit` | Tighten goals, add evidence refs, update status of items not in a live cycle | Editing items currently claimed (`claims.sh`) by another cycle |
+| `edit` | Tighten goals, add evidence refs, update status of items not in a live cycle | Editing items owned by another live cycle (check `backlog.d/_cycles/*/manifest.json`) |
 | `consolidate` | Merge 2+ overlapping items into the eldest; delete the rest; cite both sources in the survivor | Merging across unrelated themes just to shrink the count |
 | `delete` | Remove items rendered obsolete by cycle evidence (shipped elsewhere, invalidated by a design change) | Deleting because "nobody's working on it" or "looks stale" — that is `/groom`'s job |
 | `reprioritize` | Raise/lower priority when cycle evidence shows impact shift | Reprioritizing on taste alone |
@@ -121,7 +121,7 @@ item. Authority and its boundaries:
 **Never touch:**
 - `backlog.d/_done/` — archival is `/groom`'s job
 - `backlog.d/_cycles/` (except writing this cycle's `reflect.signals.json`)
-- Items whose claim is held by another live cycle
+- Items owned by another live cycle (per its manifest)
 
 **Commit discipline.** One git commit per mutation class, message format:
 `reflect(<cycle-id>): <op> <target> — <finding-id>`. Commits land on the

@@ -5,7 +5,11 @@ Map, not manual. Points to deeper sources of truth.
 ## Architecture
 
 Core workflow:
-`backlog.d/ -> /groom -> /shape -> /autopilot -> /code-review -> /settle -> ship`
+`backlog.d/ -> /groom -> /shape -> /deliver -> ship`
+
+`/deliver` composes `/implement`, `/code-review`, `/ci`, `/refactor`, `/qa`
+into the inner-loop clean-loop. The outer loop (`/autopilot`, 028)
+composes cycles of `/deliver` + `/deploy` + `/monitor` + `/reflect`.
 
 Canonical inventory:
 - `index.yaml` is the generated source of truth for skill names and descriptions.

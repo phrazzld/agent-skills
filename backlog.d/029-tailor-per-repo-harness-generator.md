@@ -83,7 +83,7 @@ in markdown mark permanent protected sections.
 ### Enforcement (structural, not prose)
 
 `scripts/tailor-lint.sh` runs as pre-commit hook on `.claude/skills/`:
-- Reject if `.claude/skills/<name>/SKILL.md` shadows a global workflow skill name (`groom`, `shape`, `autopilot`, `code-review`, `settle`, `reflect`, `iterate`, `tailor`, `harness`)
+- Reject if `.claude/skills/<name>/SKILL.md` shadows a global workflow skill name (`groom`, `shape`, `deliver`, `autopilot`, `code-review`, `settle`, `reflect`, `iterate`, `tailor`, `harness`)
 - Reject if the 2-skill MVP cap is exceeded
 
 ## Control Flow
@@ -164,7 +164,7 @@ No round 2. That's where `/focus` rotted.
 
 | Layer | Owner | Examples |
 |---|---|---|
-| Workflow primitives | **Global (spellbook)** | groom, shape, autopilot, code-review, reflect, settle, harness, iterate, tailor |
+| Workflow primitives | **Global (spellbook)** | groom, shape, deliver, autopilot, code-review, reflect, settle, harness, iterate, tailor |
 | Philosophy bench | Global | beck, carmack, grug, ousterhout, planner, critic |
 | Domain skills | **Per-repo (generated)** | `<repo>-migrations`, `<repo>-fixtures`, `<repo>-deploy` — v2+ |
 | AGENTS.md content | Per-repo | build/test commands, hot paths, gotchas |

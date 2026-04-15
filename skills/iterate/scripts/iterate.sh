@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # /iterate Phase 1 entrypoint: dry-run orchestration of the outer loop.
 #
-# Real mode (not implemented in Phase 1) shells out to /shape, /autopilot,
+# Real mode (not implemented in Phase 1) shells out to /shape, /deliver,
 # /code-review, /qa, /deploy, /reflect. Dry-run walks all 9 phases and writes
 # one event per phase — this exists so contract #5 (≥ cycle.opened
 # and cycle.closed in cycle.jsonl) is verifiable without burning model budget.
@@ -45,7 +45,7 @@ usage() {
 Usage: iterate.sh [--dry-run] [--max-cycles N] [--budget \$N]
 
 Phase 1 supports --dry-run only in full end-to-end mode. Real mode shells
-out to /shape, /autopilot, /code-review, /qa, /deploy, /reflect and will
+out to /shape, /deliver, /code-review, /qa, /deploy, /reflect and will
 fail loudly if any is missing (no auto-scaffold in Phase 1).
 EOF
 }

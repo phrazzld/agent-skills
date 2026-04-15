@@ -6,14 +6,14 @@ Estimate: M (~1.5 dev-days)
 
 ## Goal
 
-Extract the TDD build loop currently inlined in `/autopilot` into its own
+Extract the TDD build loop currently inlined in the pre-032 `/autopilot` (now `/deliver`) into its own
 atomic skill. `/implement` takes a context packet (shaped ticket) and
 produces code + tests. It does not shape, does not review, does not ship.
 Single concern: go from spec to green tests.
 
 ## Why Extract
 
-Current `/autopilot` SKILL.md inlines shape/build/review/ship. That's the
+The pre-032 `/autopilot` SKILL.md (now `/deliver`) inlines shape/build/review/ship. That's the
 wrong granularity for three reasons:
 
 1. **Reuse.** `/deliver` composes phases; the build phase is useful
@@ -84,7 +84,7 @@ does not lint (CI skill's job), does not deploy.
 - [ ] Given a context packet, produces code + tests on a feature branch
 - [ ] All tests green at exit; working tree clean
 - [ ] Does not inline shape/review/ship logic
-- [ ] Eval set: 5 shaped tickets → 5 green implementations, no regressions vs inlined `/autopilot`
+- [ ] Eval set: 5 shaped tickets → 5 green implementations, no regressions vs inlined pre-032 build loop
 
 ## Non-Goals
 
@@ -96,5 +96,5 @@ does not lint (CI skill's job), does not deploy.
 ## Related
 
 - Blocks: 032 (`/deliver` composer needs `/implement` to exist)
-- Depends on: nothing — can be extracted from current `/autopilot` today
+- Depends on: nothing — can be extracted from the pre-032 `/autopilot` (now `/deliver`) today
 - Uses: `builder` agent (existing)

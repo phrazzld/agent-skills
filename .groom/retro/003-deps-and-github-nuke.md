@@ -2,7 +2,7 @@
 
 ## What went well
 
-- **/autopilot pipeline worked end-to-end.** Planner produced a complete context packet,
+- **/autopilot pipeline worked end-to-end.** (Historical note: `/autopilot` was renamed to `/deliver` in 032.) Planner produced a complete context packet,
   builder shipped in one pass, 5-reviewer bench caught real issues (missing Phase 0
   baseline, over-decomposed sub-agents, dead weight coordination table, procedural
   grep patterns). 2 Don't Ship verdicts led to concrete fixes. This validates the

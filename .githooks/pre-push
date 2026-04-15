@@ -21,6 +21,26 @@ if ! docker info &>/dev/null 2>&1; then
   exit 0
 fi
 
+# --- /deliver in-flight warning (non-blocking) ---
+# If a live /deliver state.json exists whose status is not merge_ready, the
+# user likely forgot to finish the run before pushing. Yellow-warn, do not
+# block; pushing mid-flight is their call.
+deliver_root="$repo_root/.spellbook/deliver"
+if [ -d "$deliver_root" ]; then
+  yellow=$'\033[33m'
+  reset=$'\033[0m'
+  while IFS= read -r state_file; do
+    [ -f "$state_file" ] || continue
+    status="$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('status',''))" "$state_file" 2>/dev/null || true)"
+    if [ -n "$status" ] && [ "$status" != "merge_ready" ]; then
+      ulid="$(basename "$(dirname "$state_file")")"
+      echo "${yellow}pre-push: in-flight /deliver run detected (ulid=$ulid, status=$status)${reset}" >&2
+      echo "${yellow}  → /deliver --resume $ulid    # finish the run${reset}" >&2
+      echo "${yellow}  → /deliver --abandon $ulid   # clear state, keep branch${reset}" >&2
+    fi
+  done < <(find "$deliver_root" -mindepth 2 -maxdepth 2 -name state.json 2>/dev/null)
+fi
+
 echo "pre-push: running dagger call check..." >&2
 if ! (cd "$repo_root" && dagger call check); then
   echo "pre-push: CI gates failed. Fix issues before pushing." >&2

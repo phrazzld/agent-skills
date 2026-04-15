@@ -68,7 +68,7 @@ Tested-By: qa-agent
 | `/demo upload` | Uploads to draft GitHub release | Commits `.evidence/` to branch, optional `git push` |
 | `/settle` (git-native) | `gh pr view` for evidence | Reads `.evidence/<branch>/` for review artifacts |
 | `/code-review` | Output in conversation only | Also writes `review-synthesis.md` + `verdict.json` |
-| `/autopilot` | Invokes `/demo upload` to GitHub | Invokes `/demo` which writes locally |
+| `/deliver` | Invokes `/demo upload` to GitHub | Invokes `/demo` which writes locally |
 
 ### Cleanup
 
@@ -108,7 +108,7 @@ grep-friendly, and works offline.
 4. Update `/code-review` to write synthesis + verdict to `.evidence/`
 5. Update `/settle` git-native mode to read from `.evidence/`
 6. Add trailer injection to `/settle --land` merge commit
-7. Update `/autopilot` to skip `gh pr comment` evidence embedding
+7. Update `/deliver` to skip `gh pr comment` evidence embedding
 
 ## Non-Goals
 

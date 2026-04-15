@@ -19,7 +19,7 @@ point your harnesses at a specific checkout, set `SPELLBOOK_DIR=/path/to/spellbo
 
 | Skill | Purpose |
 |-------|---------|
-| `/autopilot` | Full delivery: plan→build→review→ship |
+| `/deliver` | Inner-loop composer: ticket → merge-ready (shape → implement → review+ci+refactor+qa) |
 | `/code-review` | Parallel multi-agent review, auto-fix loop |
 | `/investigate` | Investigate, triage, fix |
 | `/groom` | Backlog management, brainstorming, rethink, scaffold |
@@ -37,7 +37,7 @@ point your harnesses at a specific checkout, set `SPELLBOOK_DIR=/path/to/spellbo
 ## Workflow
 
 ```
-backlog.d/ → /groom → /shape (planner) → /autopilot (builder) → /code-review (critic + bench) → ship
+backlog.d/ → /groom → /shape → /deliver → ship
 ```
 
 ## Structure

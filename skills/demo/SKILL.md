@@ -68,5 +68,5 @@ For TTS narration, read `references/tts-narration.md`.
 - **Self-grading is worthless.** The critic subagent inspects artifacts cold.
 - **This fallback is intentionally thin.** Generic demo instructions can't encode
   your app's features, capture methods, or upload targets. Scaffold for quality.
-- **Autopilot expects a scaffolded skill.** If `/autopilot` invokes `/demo` and
+- **Deliver expects a scaffolded skill.** If `/deliver` invokes `/demo` and
   hits this redirect, scaffold first: `/demo scaffold`.

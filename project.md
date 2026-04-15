@@ -21,7 +21,7 @@ research-backed (web + multi-model validation before codifying).
 | Manifest | `.spellbook.yaml` — declares which primitives a project needs |
 | Focus | Meta-skill that reads manifests and pulls primitives from GitHub |
 | DMI | Disable-model-invocation — user-only skills that cost zero budget |
-| Delivery pipeline | groom → autopilot (shape → build → pr → settle → merge) |
+| Delivery pipeline | groom → deliver (shape → implement → review + ci + refactor + qa) → merge |
 
 ## Active Focus
 

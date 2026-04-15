@@ -76,8 +76,7 @@ Before investigation, the orchestrator gathers baseline context:
 1. Read `project.md` if it exists — store as project context for investigator prompts
 2. Read `backlog.d/` — note existing items, their status, and any gaps
 3. If `git-bug` is installed, read `git-bug bug status:open --format json` — note open issues
-   alongside backlog.d items. Filter out claimed items (those with `refs/claims/<id>` refs
-   or `claimed:*` labels).
+   alongside backlog.d items.
 4. Read `.groom/retro/` if it exists — extract effort calibration and blocker patterns
 5. Read `.groom/review-scores.ndjson` if it exists — pass summary statistics (average scores, verdict distribution, trend direction) to investigator prompts as baseline context
 6. Read `exemplars.md` if it exists — note existing exemplars and pass to investigators as baseline context
@@ -225,8 +224,6 @@ Bootstrap a new project with quality gates:
 6. Verify completed items have a "What Was Built" section — if not, add one from git log
 7. **git-bug audit** (if installed):
    - Close stale bugs (>30 days untouched, no activity)
-   - List claims: `source scripts/lib/claims.sh && claim_list` — release any orphaned claims
-   - Check for `claimed:*` labels where no matching `refs/claims/` ref exists
 8. Reorder remaining by priority
 9. If BACKLOG.md / icebox exists, review it once, migrate any still-relevant items, then delete the legacy file so `backlog.d/` remains the only backlog source of truth
 

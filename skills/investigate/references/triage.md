@@ -145,7 +145,7 @@ Write to `docs/postmortems/YYYY-MM-DD-ISSUE-ID.md` or update `INCIDENT-{timestam
 
 If systemic issue:
 1. Create prevention issue
-2. Optionally `/autopilot` the fix
+2. Optionally `/deliver` the fix
 3. Codify learnings (regression test, agent update, monitoring rule)
 
 ## Auto-Detected Issues
