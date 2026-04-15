@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-08T21:31:43Z
+# Generated: 2026-04-15T20:49:34Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -30,6 +30,9 @@ skills:
   - name: investigate
     description: "Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle, domain auditing, and issue logging. Four-phase protocol: root cause → pattern analysis → hypothesis test → fix. Use"
     tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
+  - name: iterate
+    description: "Outer-loop orchestrator. Composes /shape, /autopilot, /code-review, /qa, /deploy, /reflect into a closed delivery cycle. Picks a backlog item, ships it, reflects, updates the bucket, picks the next. W"
+    tags: [a,autopilot,backlog,bucket,closed,code-review,composes,cycle,delivery,deploy]
   - name: model-research
     description: "Research, compare, and select LLM models for AI-powered apps and workflows. Finds latest models per family, verifies availability on target platform, compares pricing/benchmarks/tool-calling, produces"
     tags: [ai-powered,apps,availability,benchmarks,compare,compares,family,finds,latest,llm]

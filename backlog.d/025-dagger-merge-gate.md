@@ -1,8 +1,12 @@
 # Dagger as merge gate — replace GitHub Actions CI
 
-Priority: medium
+Priority: high
 Status: pending
 Estimate: M
+
+Paired with 022 (swarm review default). Raised from medium → high during
+2026-04-14 grooming — swarm review without a CI merge gate is a half-story;
+these two land together.
 
 ## Goal
 
