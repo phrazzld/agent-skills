@@ -1,7 +1,7 @@
 # `/iterate` — outer-loop workflow orchestrator
 
 Priority: high
-Status: pending
+Status: in-progress (Phase 1)
 Estimate: L (MVP ~5 dev-days)
 Aliases: `/cycle`
 
