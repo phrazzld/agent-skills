@@ -1,8 +1,11 @@
 # Offline evidence and artifact storage in Git
 
-Priority: medium
+Priority: high
 Status: pending
 Estimate: M
+
+Blocks: 026, 027. Raised from medium → high during 2026-04-14 grooming —
+the offline/git-native theme can't validate end-to-end without this piece.
 
 ## Goal
 

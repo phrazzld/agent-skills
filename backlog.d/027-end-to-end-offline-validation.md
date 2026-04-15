@@ -1,8 +1,11 @@
 # End-to-end offline validation test
 
 Priority: low
-Status: pending
+Status: blocked
 Estimate: S
+
+Blocked on 024 (`.evidence/` storage) — can't validate end-to-end offline
+without the storage layer it exercises.
 
 ## Goal
 

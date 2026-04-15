@@ -1,8 +1,23 @@
 # Project-local skill resolution doesn't override global skills
 
 Priority: high
-Status: pending
+Status: done
 Estimate: M
+
+## What Was Built
+
+Commit `6d3944d "fix: scaffold templates use name: qa/demo to properly override
+global skills"` resolved the root cause (Hypothesis #1): project-local resolution
+keys on the `name` field, not the directory name. Scaffold templates (`/qa scaffold`,
+`/demo scaffold`) now write skills with `name: qa` / `name: demo` so project-local
+versions take precedence over the global fallback stubs.
+
+Supplementary work: `3418134` moved scaffold references from harness/ into domain
+skills; `977b4eb` converted qa and demo to scaffold-first thin redirects.
+
+Remaining structural hardening (prevent shadowing global *workflow* skills —
+groom, shape, autopilot, etc.) is covered by backlog item 029 via
+`scripts/tailor-lint.sh` pre-commit enforcement.
 
 ## Goal
 
