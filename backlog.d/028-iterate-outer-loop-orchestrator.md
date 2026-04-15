@@ -1,25 +1,64 @@
-# `/iterate` — outer-loop workflow orchestrator
+# `/autopilot` — outer delivery loop (formerly `/iterate`)
 
 Priority: high
-Status: in-progress (Phase 1)
-Estimate: L (MVP ~5 dev-days)
-Aliases: `/cycle`
+Status: in-progress (Phase 1 shipped under old name `/iterate`)
+Estimate: L (MVP ~5 dev-days; Phase 1 done, Phase 2+ ahead)
+
+## Rename
+
+Formerly `/iterate`. The outer loop is the *actually* autonomous skill —
+multi-cycle, unattended, budgeted, cross-cycle learning. The name
+`/autopilot` belongs to this, not to the inner single-ticket pipeline.
+
+- Old `/autopilot` (single-shot ticket delivery) → renamed to `/deliver` (see 032)
+- Old `/iterate` (this skill) → renamed to `/autopilot`
+- Naming swap tracked in 032. This ticket refers to the new meaning throughout.
 
 ## Goal
 
-Close the delivery loop. `/autopilot` ships one item and exits. `/iterate`
-picks items, ships them, reflects, updates bucket + harness, and picks the
-next. It does **not** reimplement phases — it composes existing skills as
-phase handlers.
+Close the delivery loop. `/deliver` ships one item to merge-ready code and
+exits. `/autopilot` picks items, delivers them, deploys, monitors, triages,
+reflects, updates the backlog + harness, and picks the next. It composes
+existing skills as phase handlers — it does not reimplement phases.
 
-OpenHands inner-loop (IDE, ad-hoc) vs outer-loop (async delivery) distinction
-is load-bearing. `/autopilot` stays inner. `/iterate` is the outer loop.
+OpenHands inner-loop vs outer-loop distinction is load-bearing. `/deliver`
+is inner (single-shot, interactive). `/autopilot` is outer (continuous,
+unattended).
 
-## Why Not Grow `/autopilot`
+## Why Not Grow `/deliver`
 
-Conflating single-shot delivery with continuous operation forces autopilot
-to grow retro + bucket-rewrite + budget logic it shouldn't own. Two skills,
-two clear stop conditions, one composition contract.
+Conflating single-shot delivery with continuous operation forces `/deliver`
+to grow deploy + monitor + retro + bucket-rewrite + budget logic it
+shouldn't own. Two skills, two clear stop conditions, one composition
+contract.
+
+## Composition Contract
+
+```
+/autopilot [--max-cycles N] [--budget $X] [--until <pred>]
+    │
+    ▼
+  acquire .spellbook/autopilot.lock
+    │
+    ▼
+┌── CYCLE START ───────────────────────────────┐
+│  1. pick        → bucket-scorer / read top   │  cycle.opened
+│  2. deliver     → /deliver (full inner loop) │  deliver.done (≡ merge-ready)
+│  3. deploy      → /deploy                    │  deploy.done
+│  4. monitor     → /monitor                   │  monitor.done | monitor.alert
+│  5. triage      → /investigate (if alert)    │  triage.done
+│  6. reflect     → /reflect (session+harness) │  reflect.done
+│  7. update-bucket → backlog mutation         │  bucket.updated
+│  8. update-harness → branch-only suggestion  │  harness.suggested
+└── CYCLE CLOSED ──────────────────────────────┘
+    │
+    ▼
+  stop? (predicate / max-cycles / budget / SIGINT) → next cycle or exit
+```
+
+`/deliver` itself loops shape → implement → code-review → ci → refactor
+→ qa → evidence internally (see 032). `/autopilot` treats `/deliver` as a
+black-box merge-readiness step.
 
 ## State Model
 
@@ -27,187 +66,111 @@ One cycle = one bucket item worked end-to-end. Each cycle gets a ULID:
 
 ```
 backlog.d/_cycles/<ulid>/
-├── cycle.jsonl        # append-only typed event log
+├── cycle.jsonl        # typed event log (see events.sh)
 ├── evidence/          # QA artifacts, review transcripts, diffs
 └── manifest.json      # {item_id, branch, claim, started, closed, status}
 ```
 
-### Event Schema (load-bearing contract)
+### Event Schema
 
-Prose-only append logs rot — that's what ate `/focus`. Typed envelope,
-free-text note field for what we didn't anticipate:
+Typed envelope in `scripts/lib/events.sh`. Closed enum of kinds; writes
+with unknown kinds fail. JSONL corruption breaks `/reflect`, so writes are
+`flock`'d and `fsync`'d.
 
-```json
-{
-  "schema_version": 1,
-  "ts": "2026-04-14T12:00:00Z",
-  "cycle_id": "01HQ...",
-  "kind": "shape.done" | "build.done" | "review.iter" | "ci.done" |
-          "qa.done" | "deploy.done" | "reflect.done" | "harness.suggested" |
-          "phase.failed" | "budget.exhausted" | "cycle.opened" | "cycle.closed",
-  "phase": "shape",
-  "agent": "planner",
-  "refs": ["path/to/artifact"],
-  "findings": [{...}],        // kind-specific payload
-  "note": "free text"         // escape hatch
-}
-```
+Kinds: `cycle.opened`, `deliver.done`, `deploy.done`, `monitor.done`,
+`monitor.alert`, `triage.done`, `reflect.done`, `bucket.updated`,
+`harness.suggested`, `phase.failed`, `budget.exhausted`, `cycle.closed`.
 
-Consumers (reflect, bucket-scorer, harness-tuner) read typed fields.
-Humans read `note`. Rotation: monthly archive to `_cycles/_archive/YYYY-MM/`;
-reflect loads last 90 days.
+**Note:** the per-phase kinds from the old iterate spec (`shape.done`,
+`build.done`, `review.iter`, `ci.done`, `qa.done`) move inside `/deliver`
+and are no longer emitted at the `/autopilot` level — `/autopilot` sees
+one `deliver.done` event. Drops cross-cycle noise.
 
-### Locking
-
-`.spellbook/iterate.lock` holds `{pid, cycle_id, started_at}`. One `/iterate`
-per repo. SIGINT releases cleanly.
-
-## Control Flow
-
-```
-/iterate [--until <pred>] [--max-cycles N] [--budget $X]
-    │
-    ▼
-  acquire lock
-    │
-    ▼
-┌── CYCLE START ──────────────────────────┐
-│  1. pick        → bucket-scorer agent    │  cycle.opened
-│  2. shape       → /shape (+Council P0)   │  shape.done
-│  3. build       → /autopilot build step  │  build.done
-│  4. review      → /code-review           │  review.iter (xN, max 3)
-│     + CI        → dagger call check      │  ci.done
-│  5. qa          → /qa (auto-scaffold)    │  qa.done
-│  6. deploy      → /deploy (auto-scaffold)│  deploy.done
-│  7. reflect     → /reflect on events    │  reflect.done
-│  8. update-bucket → WRAP emitter         │  writes backlog.d/NNN-*.md
-│  9. update-harness → harness.suggested   │  writes to PR branch only
-└── CYCLE CLOSED ─────────────────────────┘
-    │
-    ▼
-  stop? (predicate / max-cycles / budget / SIGINT)
-    │
-    └── no → pick again
-```
-
-### Stopping Predicates (user selects; default `--max-cycles 1`)
+### Stopping Predicates
 
 - `--until "backlog empty"` — no eligible items
 - `--until "P0 closed"` — highest-priority item shipped
 - `--max-cycles N` — hard count
-- `--budget $N` — cumulative model cost (tracked in `manifest.json`)
+- `--budget $N` — cumulative model cost (tracked in manifest.json)
 
-Without `--budget`, `/iterate` refuses unattended mode.
+Unattended mode requires `--budget`. `/autopilot` refuses without it.
 
 ## Components
 
-| Component | Type | Owns |
+| Component | Status | Owns |
 |---|---|---|
-| `skills/iterate/SKILL.md` | skill | orchestration, event writing, lock, budget, stop predicates |
-| `scripts/lib/events.sh` | script | `emit_event <path> <kind> <phase> <agent> <payload>` — atomic JSONL append with fsync |
-| `scripts/scorer.sh` | script | bucket scoring (priority × recency-of-retro-signal) |
-| `agents/bucket-scorer.md` | agent | optional Explore agent when backlog > 20 items |
-| existing `/shape`, `/autopilot`, `/code-review`, `/qa`, `/deploy`, `/reflect` | skills | phase handlers, unchanged |
-
-### Model Council at `shape` (P0 items only)
-
-Three drafters (Claude + Gemini + Codex) produce three context packets in
-parallel; a fresh Claude instance with a chair-only prompt synthesizes.
-Chair is never a drafter (Perplexity anti-self-preference pattern).
-Implemented via existing `/research thinktank` — no new infra.
-
-Gated by priority to cap cost. Not used at `reflect` (3× cost for
-introspection isn't worth it in MVP).
-
-### Static Bench Selection (not a classifier)
-
-Replace hardcoded four-bench with path-glob rules in
-`skills/code-review/references/bench-map.yaml`:
-
-```yaml
-default: [critic, ousterhout, grug]
-rules:
-  - paths: ["**/*.tsx", "**/*.jsx"]
-    add: [a11y-auditor]
-  - paths: ["migrations/**", "**/*.sql"]
-    add: [beck]
-```
-
-Deterministic, greppable, eval-able. No dynamic classifier (single point
-of failure without eval harness). No four new agents (securitron,
-perfhawk, data-steward, infra-skeptic) in MVP — add only when retros
-name a gap the current bench can't fill.
-
-## Auto-Scaffold Contract (with `/tailor`)
-
-`/qa` and `/deploy` check in order:
-1. `.claude/.tailor/manifest.json:domains_owned` — tailor owns this domain? Use tailored artifact.
-2. `ITERATE_MODE=1` env var set? Scaffold silently.
-3. Else prompt user.
-
-Single ownership file. Two disciplined consumers. No race.
+| `skills/autopilot/SKILL.md` | rename from iterate | Orchestration, event writing, lock, budget, stop predicates |
+| `scripts/lib/events.sh` | ✓ shipped (was daybook.sh) | `emit_event` — atomic JSONL append with fsync |
+| `scripts/lib/iterate_lock.sh` | ✓ shipped | Single-instance lock (rename file to `autopilot_lock.sh`) |
+| `/deliver` | 032 — rename autopilot + compose | Full inner pipeline to merge-ready |
+| `/deploy` | 035 — new | Ship to environment |
+| `/monitor` | 036 — new | Post-deploy signal watch + escalate |
+| `/investigate` | ✓ exists | Triage on monitor.alert |
+| `/reflect` | 037 — upgrade | Session + bucket + harness critique |
 
 ## Failure Modes
 
 | Failure | Recovery |
 |---|---|
-| Phase handler fails | Write `phase.failed`, stop cycle, keep lock until `/iterate --resume <ulid>` or `--abandon <ulid>` |
-| Budget exceeded mid-cycle | Finish current phase, write `budget.exhausted`, stop |
+| Phase handler fails | `phase.failed` event, stop cycle, keep lock until `--resume <ulid>` or `--abandon <ulid>` |
+| Monitor flags anomaly | `monitor.alert` → triage → remediation or `phase.failed` |
+| Budget exceeded mid-cycle | Finish current phase, `budget.exhausted`, stop |
 | Event log write fails | Fatal — fsync every event; corrupted JSONL breaks reflect |
-| Two `/iterate` attempts | Second exits on lock |
-| `/autopilot` internal fail | Bubble up; cycle fails; no auto-retry (prevents cost spiral) |
+| Two `/autopilot` attempts | Second exits on lock |
+| `/deliver` internal fail | Bubble up; cycle fails; no auto-retry (prevents cost spiral) |
 
-## MVP Slice (~5 dev-days)
+## Phase Plan
 
-1. **Events + `/iterate` skeleton** (1.5 days)
-   - `skills/iterate/SKILL.md` with single-cycle mode (`--max-cycles 1` default)
-   - `scripts/lib/events.sh` with typed event schema
-   - Event writing at each phase boundary
-   - Lock file with clean SIGINT
+**Phase 1 — shipped on `feat/iterate-mvp-phase1` under old name `/iterate`:**
+- Dry-run walk of all phases
+- Typed event log (`events.sh`, formerly `daybook.sh`)
+- Single-instance lock with stale-pid steal
+- Single-cycle guard (`--max-cycles > 1` exits 2)
+- 27 regression tests
 
-2. **Static bench + bench-map.yaml** — **split out to 030** (1.5 days)
-   - Design and oracle live in `backlog.d/030-static-bench-map.md`
-   - Independently valuable; can land before or during `/iterate` MVP
-   - Treat 030 as a sibling dependency, not blocking
+**Phase 2 — rename + real handlers (~3-4 dev-days):**
+1. Rename `/iterate` → `/autopilot` (mechanical, after 032 renames old `/autopilot` → `/deliver`)
+2. Update event kinds to new composition (drop inner-phase kinds)
+3. Wire `/deliver`, `/deploy`, `/monitor`, `/investigate`, `/reflect` handlers
+4. Multi-cycle control flow with stop predicates
+5. Budget tracking in manifest.json
 
-3. **Auto-scaffold qa + deploy in ITERATE_MODE** (2 days)
-   - `ITERATE_MODE=1` env check in `/qa` and new `/deploy` skill
-   - Build `/deploy` router from `/qa` scaffold template
-   - Manifest.json lookup for tailor-owned domains
+**Phase 3 — unattended ops (~2 dev-days):**
+- `--resume <ulid>` / `--abandon <ulid>`
+- `harness.suggested` writing to `harness/auto-tune` branch
+- Spellbook dogfoods on itself
 
 ## Oracle
 
-- [ ] `/iterate --max-cycles 1` runs pick → shape → build → review → ci → qa → deploy → reflect → update-bucket on a real backlog item
-- [ ] `backlog.d/_cycles/<ulid>/cycle.jsonl` exists with ≥8 typed events, all valid against schema
-- [ ] `/iterate` refuses to run unattended without `--budget`
-- [ ] Second `/iterate` invocation while first holds lock exits non-zero with clear message
-- [ ] SIGINT during cycle releases lock; `--resume` continues from last completed phase
-- [ ] `/code-review` bench selection driven by `bench-map.yaml`, not hardcoded
-- [ ] `/qa` auto-scaffolds silently when `ITERATE_MODE=1` and `.claude/.tailor/manifest.json` doesn't own it
+- [ ] `/autopilot --max-cycles 1` runs pick → deliver → deploy → monitor → reflect → bucket-update on a real backlog item
+- [ ] Cycle event log contains ≥6 typed events, all valid against schema
+- [ ] `/autopilot` refuses unattended without `--budget`
+- [ ] Second `/autopilot` invocation while first holds lock exits non-zero
+- [ ] SIGINT releases lock; `--resume` continues from last completed phase
+- [ ] `/deliver` runs its own internal loop (shape/implement/review/ci/qa) and returns merge-ready state
+- [ ] `monitor.alert` triggers `/investigate` automatically
 - [ ] `harness.suggested` events write to `harness/auto-tune` branch only, never main
-- [ ] Spellbook dogfoods `/iterate` on itself (one cycle, one backlog item)
+- [ ] Spellbook dogfoods on itself (one cycle, one backlog item)
 
-## Non-Goals (MVP)
+## Non-Goals
 
-- Dynamic philosophy bench classifier — static globs first
-- Four new agents (securitron, perfhawk, data-steward, infra-skeptic) — prove gap first
-- GEPA auto-tuner + `harness/auto-tune` automatic edits — defer until ≥20 cycles of signal
-- Model Council at reflect phase — too expensive for MVP; shape only
-- Refactor inlined between review iterations — wall-time tradeoff; revisit after data
+- Dynamic philosophy bench classifier — static globs first (see 030)
+- GEPA auto-tuner — defer until ≥20 cycles of signal (031)
+- Model Council at reflect — too expensive for MVP; shape only
 - MAR-style multi-reflector — single reflect pass in MVP
-- Merging PRs — humans merge; loop suggests only
+- Merging PRs automatically — humans merge; loop suggests only
 - Unattended mode without explicit `--budget`
+- Tailored per-repo skills — separate initiative (029 needs rework)
 
 ## Related
 
-- Depends on: 022 (swarm review default), 025 (dagger merge gate)
-- Sibling split-out: 030 (static bench-map — independently shippable)
-- Unlocks: 029 (`/tailor` — uses cycle events for eval signal),
-  031 (harness auto-tune — parked until ≥20 cycles produce signal)
-- Supersedes parts of: `/autopilot` continuous-mode speculation
+- Depends on: 022 (swarm review default), 025 (dagger merge gate), 032 (`/deliver` rename + recompose), 035 (`/deploy`), 036 (`/monitor`), 037 (`/reflect` upgrade)
+- Sibling: 030 (static bench-map), 024 (evidence storage)
+- Unlocks: 031 (harness auto-tune — parked until cycles produce signal)
+- Supersedes: old `/autopilot` continuous-mode speculation
 
 ## Name Collision Notes
 
-- `/loop` blocked by Claude Code native (recurring interval skill)
-- `/iterate` clean across Claude Code, Codex CLI, Gemini CLI, spellbook
-- Env var: `ITERATE_MODE=1` (namespace-prone — consider `SPELLBOOK_ITERATE=1` if collision surfaces)
+- `/autopilot` (new meaning) free once 032 renames the current skill
+- Env var: `AUTOPILOT_MODE=1` (was `ITERATE_MODE=1`) — change as part of Phase 2
+- Lock file: `.spellbook/autopilot.lock` (was `.spellbook/iterate.lock`)
