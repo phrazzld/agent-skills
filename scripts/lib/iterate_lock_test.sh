@@ -88,10 +88,16 @@ test_iterate_release_removes_lock() {
   assert_eq "lock file removed" "no" "$([ -f "$LOCK" ] && echo yes || echo no)"
 }
 
-test_iterate_release_refuses_wrong_cycle_id() {
+test_iterate_release_wrong_cycle_id_is_noop() {
+  # A late trap from a finished cycle must not wipe a successor's lock, so
+  # cycle_id mismatch is a no-op (rc=0, lock unchanged). This keeps callers
+  # from having to know the secret "|| true" incantation.
   iterate_acquire 01HABC
-  assert_exit "release with wrong cycle_id fails" 1 iterate_release 01HOTHER
+  assert_exit "release with wrong cycle_id is a no-op (rc=0)" 0 iterate_release 01HOTHER
   assert_eq "lock still present" "yes" "$([ -f "$LOCK" ] && echo yes || echo no)"
+  # The owning cycle can still release normally afterward.
+  assert_exit "correct cycle_id still releases" 0 iterate_release 01HABC
+  assert_eq "lock removed after correct release" "no" "$([ -f "$LOCK" ] && echo yes || echo no)"
 }
 
 test_iterate_release_no_lock_is_ok() {

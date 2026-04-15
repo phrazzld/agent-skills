@@ -110,9 +110,10 @@ sys.exit(1)
 PYEOF
 }
 
-# Release the iterate lock. Only if the recorded cycle_id matches the caller —
-# prevents a late trap from wiping a subsequent cycle's lock.
-# Idempotent: missing lock returns 0 (trap-safe cleanup).
+# Release the iterate lock. Fully idempotent: any of (a) missing lock,
+# (b) cycle_id mismatch, (c) successful removal returns 0. The mismatch case
+# is a no-op — a late trap from a finished cycle must not wipe a successor's
+# lock. Callers never need `|| true`.
 # Args: <cycle_id>
 iterate_release() {
   local cycle_id="$1"
@@ -132,8 +133,10 @@ except Exception:
     print("")
 ' 2>/dev/null)"
   if [ "$recorded" != "$cycle_id" ]; then
-    echo "iterate_release: cycle_id mismatch (lock=$recorded, asked=$cycle_id)" >&2
-    return 1
+    # Observability: log the skip but do not fail. Lock belongs to another
+    # cycle (or is corrupt) — not ours to delete.
+    echo "iterate_release: no-op (lock cycle=$recorded, asked=$cycle_id)" >&2
+    return 0
   fi
   rm -f "$ITERATE_LOCK_PATH"
 }

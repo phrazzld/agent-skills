@@ -109,7 +109,7 @@ run_cycle() {
   # Release on any exit path — SIGINT, normal return, or failure. Scoped to
   # this cycle_id so traps don't clobber a successor.
   # shellcheck disable=SC2064  # we want $cycle_id expanded now
-  trap "iterate_release '$cycle_id' || true" EXIT INT TERM
+  trap "iterate_release '$cycle_id'" EXIT INT TERM
 
   daybook_event "$log" cycle.opened pick orchestrator \
     "{\"note\":\"cycle started (dry_run=$DRY_RUN)\"}"
@@ -135,7 +135,7 @@ run_cycle() {
     daybook_event "$log" phase.failed pick orchestrator \
       '{"note":"real mode unimplemented in Phase 1","reason":"phase-1-scope"}'
     daybook_event "$log" cycle.closed close orchestrator '{"status":"aborted"}'
-    iterate_release "$cycle_id" || true
+    iterate_release "$cycle_id"
     trap - EXIT INT TERM
     return 1
   fi
@@ -143,7 +143,7 @@ run_cycle() {
   daybook_event "$log" cycle.closed close orchestrator \
     "{\"status\":\"closed\",\"cycle_id\":\"$cycle_id\"}"
 
-  iterate_release "$cycle_id" || true
+  iterate_release "$cycle_id"
   trap - EXIT INT TERM
   echo "$cycle_id"
 }
