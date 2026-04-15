@@ -100,12 +100,14 @@ run_cycle() {
   cycle_id="$(new_ulid)"
   cycle_dir="backlog.d/_cycles/$cycle_id"
   log="$cycle_dir/cycle.jsonl"
-  mkdir -p "$cycle_dir/evidence"
 
+  # Acquire lock BEFORE materializing cycle dir — a failed acquire must not
+  # orphan backlog.d/_cycles/<ulid>/ trees on disk.
   if ! iterate_acquire "$cycle_id"; then
     echo "iterate: could not acquire lock" >&2
     return 1
   fi
+  mkdir -p "$cycle_dir/evidence"
   # Release on any exit path — SIGINT, normal return, or failure. Scoped to
   # this cycle_id so traps don't clobber a successor. Bash's default after
   # an INT/TERM handler is to resume the script, not exit — we must exit

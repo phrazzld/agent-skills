@@ -257,14 +257,15 @@ test_sigint_exits_with_130() {
         python3 - <<'PYEOF'
 import os, signal, subprocess, time
 env = os.environ.copy()
-env["ITERATE_SIGINT_TEST_SLEEP"] = "3"
+env["ITERATE_SIGINT_TEST_SLEEP"] = "10"
 p = subprocess.Popen(["bash", env["ITERATE_SH"], "--dry-run"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                      env=env)
 # Wait for lock file so we know the trap is in place.
 lock = env["ITERATE_LOCK_PATH"]
-for _ in range(60):
+for _ in range(200):  # up to 10s, plenty for CI
     if os.path.exists(lock):
+        time.sleep(0.05)  # let the trap install
         break
     time.sleep(0.05)
 p.send_signal(signal.SIGINT)
@@ -285,13 +286,14 @@ test_sigterm_exits_with_143() {
         python3 - <<'PYEOF'
 import os, signal, subprocess, time
 env = os.environ.copy()
-env["ITERATE_SIGINT_TEST_SLEEP"] = "3"
+env["ITERATE_SIGINT_TEST_SLEEP"] = "10"
 p = subprocess.Popen(["bash", env["ITERATE_SH"], "--dry-run"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                      env=env)
 lock = env["ITERATE_LOCK_PATH"]
-for _ in range(60):
+for _ in range(200):  # up to 10s, plenty for CI
     if os.path.exists(lock):
+        time.sleep(0.05)  # let the trap install
         break
     time.sleep(0.05)
 p.send_signal(signal.SIGTERM)
