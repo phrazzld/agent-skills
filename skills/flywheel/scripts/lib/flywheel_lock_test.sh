@@ -14,7 +14,7 @@ setup() {
   LOCK=".spellbook/flywheel.lock"
   # Reset before sourcing; source sets FLYWHEEL_LOCK_PATH=default only if unset.
   unset FLYWHEEL_LOCK_PATH
-  # shellcheck source=scripts/lib/flywheel_lock.sh
+  # shellcheck source=flywheel_lock.sh
   source "$SCRIPT_DIR/flywheel_lock.sh"
 }
 

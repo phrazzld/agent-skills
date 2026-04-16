@@ -4,7 +4,7 @@
 # JSONL corruption breaks /reflect, so writes are locked and fsync'd.
 #
 # Usage:
-#   source scripts/lib/events.sh
+#   source skills/flywheel/scripts/lib/events.sh
 #   emit_event <log_path> <kind> <phase> <agent> <payload_json>
 #
 # cycle_id is derived from the parent directory name of <log_path>

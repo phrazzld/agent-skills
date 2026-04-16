@@ -9,7 +9,7 @@
 # so a SIGKILL'd cycle doesn't wedge the worktree forever.
 #
 # Usage:
-#   source scripts/lib/flywheel_lock.sh
+#   source skills/flywheel/scripts/lib/flywheel_lock.sh
 #   flywheel_acquire <cycle_id>   # 0 on success, 1 if another live cycle holds it
 #   flywheel_release <cycle_id>   # 0 on success (idempotent); 1 if cycle_id mismatch
 

@@ -16,16 +16,32 @@
 #   run --resume <ulid>, run --abandon <ulid>, run --until <pred>
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+# Resolve this script's real location through symlinks — libs live beside it.
+if command -v readlink >/dev/null 2>&1 && readlink -f / >/dev/null 2>&1; then
+    SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+else
+    # macOS without coreutils: walk the symlink chain manually.
+    SCRIPT_PATH="${BASH_SOURCE[0]}"
+    while [ -L "$SCRIPT_PATH" ]; do
+        SCRIPT_PATH="$(readlink "$SCRIPT_PATH")"
+        case "$SCRIPT_PATH" in /*) ;; *) SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$SCRIPT_PATH")" && pwd)/$(basename "$SCRIPT_PATH")" ;; esac
+    done
+fi
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 
-# Anchor all relative paths (cycle dir, default lock path) to REPO_ROOT.
-cd "$REPO_ROOT"
+# State root: the project the user is running /flywheel against, not the skill's install dir.
+if STATE_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+    :
+else
+    STATE_ROOT="$PWD"
+fi
 
-# shellcheck source=../../../scripts/lib/events.sh
-source "$REPO_ROOT/scripts/lib/events.sh"
-# shellcheck source=../../../scripts/lib/flywheel_lock.sh
-source "$REPO_ROOT/scripts/lib/flywheel_lock.sh"
+cd "$STATE_ROOT"
+
+# shellcheck source=lib/events.sh
+source "$SCRIPT_DIR/lib/events.sh"
+# shellcheck source=lib/flywheel_lock.sh
+source "$SCRIPT_DIR/lib/flywheel_lock.sh"
 
 # ULID generation. Prefer python-ulid if present; otherwise emit a real
 # Crockford-base32 ULID (10 chars timestamp + 16 chars randomness = 26 chars),
@@ -291,20 +307,53 @@ for mf in glob.glob('backlog.d/_cycles/*/manifest.json'):
             locked.add(iid)
 
 SKIP_STATUSES = {'done', 'shipped', 'abandoned', 'blocked'}
-PRIORITY_RANK = {'P0': 4, 'P1': 3, 'P2': 2, 'P3': 1}
+PRIORITY_RANK = {
+    'P0': 4,
+    'P1': 3,
+    'P2': 2,
+    'P3': 1,
+    'high': 3,
+    'medium': 2,
+    'low': 1,
+}
 
 now = datetime.now(timezone.utc)
 
+def frontmatter(content: str) -> str:
+    match = re.match(r'^---\n(.*?)\n---\n?', content, re.DOTALL)
+    return match.group(1) if match else ''
+
+def frontmatter_value(frontmatter_blob: str, key: str):
+    match = re.search(rf'^{re.escape(key)}:\s*(.+)$', frontmatter_blob, re.MULTILINE)
+    return match.group(1).strip() if match else None
+
+def header_value(content: str, label: str):
+    match = re.search(rf'^{re.escape(label)}:\s*(.+)$', content, re.MULTILINE)
+    return match.group(1).strip() if match else None
+
+def parse_dep_list(raw_value: str):
+    raw_value = raw_value.strip()
+    if not raw_value or raw_value == '[]':
+        return []
+    if raw_value.startswith('[') and raw_value.endswith(']'):
+        inner = raw_value[1:-1].strip()
+        if not inner:
+            return []
+        return [part.strip().strip('"').strip("'") for part in inner.split(',') if part.strip()]
+    return [raw_value.strip().strip('"').strip("'")]
+
 candidates = []
-for path in glob.glob('backlog.d/[0-9][0-9][0-9]-*.md'):
+for path in glob.glob('backlog.d/[0-9][0-9]*-*.md'):
     fname = os.path.basename(path)
     stem = fname[:-3]  # strip .md
+    content = open(path).read()
+    meta = frontmatter(content)
 
     # Eligibility 1: pattern match (already covered by glob above).
     # Eligibility 2: Status not in skip set.
-    status_match = re.search(r'^Status:\s*(.+)', open(path).read(), re.MULTILINE)
-    if status_match:
-        status_val = status_match.group(1).strip().lower()
+    status_val = frontmatter_value(meta, 'status') or header_value(content, 'Status')
+    if status_val:
+        status_val = status_val.strip().lower()
         if any(s in status_val for s in SKIP_STATUSES):
             continue
 
@@ -312,29 +361,35 @@ for path in glob.glob('backlog.d/[0-9][0-9][0-9]-*.md'):
     if stem in locked:
         continue
 
-    # Eligibility 4: no Blocked-by pointing at eligible items — simplified:
-    # skip if Blocked-by header present and non-empty target.
-    blocked_match = re.search(r'^Blocked-by:\s*(\S+)', open(path).read(), re.MULTILINE)
-    if blocked_match:
-        blocker = blocked_match.group(1).strip()
-        # If blocker file exists in backlog.d/ and isn't done, skip.
-        blocker_path = f"backlog.d/{blocker}.md"
-        if os.path.exists(blocker_path):
-            bs = open(blocker_path).read()
-            bs_match = re.search(r'^Status:\s*(.+)', bs, re.MULTILINE)
-            if bs_match:
-                bs_val = bs_match.group(1).strip().lower()
-                if not any(s in bs_val for s in ('done', 'shipped')):
-                    continue
-            else:
-                continue  # no status → assume open
-
-    content = open(path).read()
+    # Eligibility 4: unresolved dependencies block pickup. Support both
+    # frontmatter `depends_on:` and legacy `Blocked-by:` headers.
+    dep_raw = frontmatter_value(meta, 'depends_on')
+    blockers = parse_dep_list(dep_raw) if dep_raw is not None else []
+    if not blockers:
+        blocked_header = header_value(content, 'Blocked-by')
+        blockers = parse_dep_list(blocked_header) if blocked_header else []
+    blocked = False
+    for blocker in blockers:
+        blocker_id = blocker[:-3] if blocker.endswith('.md') else blocker
+        blocker_path = f"backlog.d/{blocker_id}.md"
+        if not os.path.exists(blocker_path):
+            continue
+        blocker_content = open(blocker_path).read()
+        blocker_meta = frontmatter(blocker_content)
+        blocker_status = (
+            frontmatter_value(blocker_meta, 'status')
+            or header_value(blocker_content, 'Status')
+            or ''
+        ).strip().lower()
+        if not any(s in blocker_status for s in ('done', 'shipped')):
+            blocked = True
+            break
+    if blocked:
+        continue
 
     # Scoring.
-    pri_match = re.search(r'^Priority:\s*(P[0-3]|\w+)', content, re.MULTILINE)
-    if pri_match:
-        pri_str = pri_match.group(1)
+    pri_str = frontmatter_value(meta, 'priority') or header_value(content, 'Priority')
+    if pri_str:
         priority_rank = PRIORITY_RANK.get(pri_str, 0)
     else:
         priority_rank = 0
@@ -514,12 +569,39 @@ EOF
     mv "$src_path" "$dst_path"
     touched+=("$dst_path")
 
-    # Update Status: to shipped in the moved file.
+    # Update status to shipped in the moved file. Support both frontmatter
+    # `status:` and legacy `Status:` headings.
     python3 -c "
 import re, sys
 path = sys.argv[1]
 content = open(path).read()
-content = re.sub(r'^Status:.*', 'Status: shipped', content, flags=re.MULTILINE)
+
+lines = content.splitlines()
+if lines and lines[0].strip() == '---':
+    end = None
+    for idx in range(1, len(lines)):
+        if lines[idx].strip() == '---':
+            end = idx
+            break
+    if end is not None:
+        replaced = False
+        for idx in range(1, end):
+            if lines[idx].lower().startswith('status:'):
+                lines[idx] = 'status: shipped'
+                replaced = True
+                break
+        if not replaced:
+            lines.insert(end, 'status: shipped')
+        content = '\n'.join(lines)
+        if content and not content.endswith('\n'):
+            content += '\n'
+    else:
+        content = re.sub(r'^Status:.*', 'Status: shipped', content, flags=re.MULTILINE)
+elif re.search(r'^Status:', content, re.MULTILINE):
+    content = re.sub(r'^Status:.*', 'Status: shipped', content, flags=re.MULTILINE)
+else:
+    content = content.rstrip('\n') + '\nStatus: shipped\n'
+
 open(path, 'w').write(content)
 " "$dst_path"
 

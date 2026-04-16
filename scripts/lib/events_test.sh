@@ -11,8 +11,8 @@ setup() {
   ORIG_DIR="$(pwd)"
   TEST_DIR="$(mktemp -d)"
   cd "$TEST_DIR"
-  # shellcheck source=scripts/lib/events.sh
-  source "$SCRIPT_DIR/events.sh"
+  # shellcheck source=../../skills/flywheel/scripts/lib/events.sh
+  source "$SCRIPT_DIR/../../skills/flywheel/scripts/lib/events.sh"
   CYCLE_DIR="$TEST_DIR/_cycles/01HTESTCYCLE00000000000000"
   mkdir -p "$CYCLE_DIR"
   LOG="$CYCLE_DIR/cycle.jsonl"
@@ -106,10 +106,10 @@ test_emit_event_rejects_bad_payload_json() {
 }
 
 test_emit_event_appends_multiple_lines() {
-  emit_event "$LOG" cycle.opened   shape  planner '{}'
-  emit_event "$LOG" shape.done     shape  planner '{}'
-  emit_event "$LOG" build.done     build  builder '{}'
-  emit_event "$LOG" cycle.closed   close  orchestrator '{}'
+  emit_event "$LOG" cycle.opened   pick   orchestrator '{}'
+  emit_event "$LOG" deliver.done   deliver builder '{}'
+  emit_event "$LOG" deploy.done    deploy  deployer '{}'
+  emit_event "$LOG" cycle.closed   close   orchestrator '{}'
   local count
   count="$(wc -l < "$LOG" | tr -d ' ')"
   assert_eq "multiple events all appended" "4" "$count"
@@ -141,7 +141,7 @@ test_emit_event_payload_cannot_override_core_envelope() {
 }
 
 test_emit_event_merges_payload_fields() {
-  emit_event "$LOG" shape.done shape planner '{"refs":["a","b"],"note":"ok"}'
+  emit_event "$LOG" deliver.done deliver builder '{"refs":["a","b"],"note":"ok"}'
   local refs note
   refs="$(python3 -c "import json,sys; print(','.join(json.loads(sys.stdin.read())['refs']))" < "$LOG")"
   note="$(python3 -c "import json,sys; print(json.loads(sys.stdin.read())['note'])" < "$LOG")"
@@ -150,9 +150,11 @@ test_emit_event_merges_payload_fields() {
 }
 
 test_emit_event_all_known_kinds_accepted() {
+  # Phase 2 closed enum — shape.done, build.done, review.iter, ci.done, qa.done
+  # were retired (inner-pipeline events collapsed into deliver.done in Phase 2).
   local kinds=(
-    cycle.opened shape.done build.done review.iter ci.done
-    qa.done deploy.done reflect.done harness.suggested
+    cycle.opened deliver.done deploy.done monitor.done monitor.alert
+    triage.done reflect.done bucket.updated harness.suggested
     phase.failed budget.exhausted cycle.closed
   )
   local all_ok=0
@@ -167,7 +169,7 @@ test_emit_event_all_known_kinds_accepted() {
 
 test_emit_event_each_line_parses_as_json() {
   emit_event "$LOG" cycle.opened shape planner '{}'
-  emit_event "$LOG" shape.done shape planner '{"note":"a"}'
+  emit_event "$LOG" deliver.done deliver builder '{"note":"a"}'
   emit_event "$LOG" cycle.closed close orchestrator '{}'
   local ok
   ok="$(python3 -c "
@@ -187,13 +189,13 @@ test_emit_event_concurrent_writes_no_corruption() {
   # Two shell children append simultaneously. Atomic flock should serialize.
   (
     for i in 1 2 3 4 5; do
-      emit_event "$LOG" cycle.opened shape planner "{\"note\":\"a$i\"}"
+      emit_event "$LOG" cycle.opened pick orchestrator "{\"note\":\"a$i\"}"
     done
   ) &
   local pid_a=$!
   (
     for i in 1 2 3 4 5; do
-      emit_event "$LOG" shape.done shape planner "{\"note\":\"b$i\"}"
+      emit_event "$LOG" deliver.done deliver builder "{\"note\":\"b$i\"}"
     done
   ) &
   local pid_b=$!
