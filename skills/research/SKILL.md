@@ -57,6 +57,12 @@ multi-source triangulation.
    Default fanout path: `thinktank run research/quick --input "$QUERY" --output /tmp/thinktank-out --json --no-synthesis`
    Deep path: `thinktank research "$QUERY" --output /tmp/thinktank-out --json`
    Add `--paths ...` when local files or directories should be pointed out as starting places.
+   Before waiting, record the mode (`quick` or `deep`), output directory, and expected runtime band in your own notes.
+   Default budgets: `quick` targets `60-180s` with a hard cap of `300s`; `deep` targets `3-8m` with a hard cap of `900s`.
+   Thinktank launches a real multi-agent Pi bench, so even `research/quick` can take a few minutes.
+   With `--json`, stdout stays reserved for the final envelope; a healthy run may look quiet until completion.
+   Inspect the output directory while it runs: `trace/events.jsonl`, `manifest.json`, `task.md`, and `prompts/` are the current partial-progress artifacts.
+   Current limitation: if you stop a run early, completed agent reports may not exist yet. Treat that as a current Thinktank limitation, not as evidence that nothing happened.
    Skip Thinktank for pure external/web-only research and state that explicitly in the synthesis.
 3. **xAI / social pulse** — Bash: `curl -s https://api.x.ai/v1/responses -H "Authorization: Bearer $XAI_API_KEY" ...`
    Model MUST be `grok-4.20-beta-latest-non-reasoning` (only grok-4 supports tool use).
@@ -80,7 +86,7 @@ skipped — and state why it was skipped in the Synthesis section.
 For X Search: quotes or paraphrases from X posts, authors, dates.]
 
 ## Thinktank (Pi bench)
-[What did the thinktank bench surface? Note any disagreements between agents. If skipped, say the query was not repo-aware enough to justify the bench.]
+[What did the thinktank bench surface? Label this section `Thinktank (complete)` or `Thinktank (partial)`. Note any disagreements between agents. If skipped, say the query was not repo-aware enough to justify the bench.]
 
 ## Codebase
 [What relevant patterns, implementations, or prior art exist locally?
@@ -95,6 +101,10 @@ Recommendations grounded in the evidence above. Every claim cites a source.]
 (state why) or you failed to run it (go back and run it). A report that
 collapses all sources into one unlabeled blob has failed the fanout goal.
 Readers must be able to see what each tool contributed independently.
+
+If Thinktank is still running when you need to respond, say that plainly.
+Name the output directory and summarize only the artifacts that actually exist
+so far. Do not present an incomplete run as a finished Thinktank result.
 
 **Narrow to a single source ONLY when:**
 - The user explicitly names one (e.g., "/research web-search [query]")
