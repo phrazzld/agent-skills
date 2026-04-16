@@ -323,6 +323,43 @@ else
   discover_remote
 fi
 
+# Per-project skill allowlist. If $PWD/.spellbook.yaml has a `skills:` list,
+# intersect GLOBAL_SKILLS and EXTERNAL_SKILLS with it (allowlist order wins).
+# Unknown names are dropped with a warning. Missing or malformed file →
+# global behavior preserved.
+ALLOWLIST_ACTIVE=0
+if [ -f "$PWD/.spellbook.yaml" ]; then
+  allowlist=$(python3 - "$PWD/.spellbook.yaml" <<'PY' || true
+import sys, yaml
+try:
+    d = yaml.safe_load(open(sys.argv[1]))
+    print(' '.join(str(s) for s in (d or {}).get('skills') or []))
+except Exception as e:
+    sys.stderr.write('warn: could not parse .spellbook.yaml: {}\n'.format(e))
+PY
+)
+  if [ -n "$allowlist" ]; then
+    ALLOWLIST_ACTIVE=1
+    filtered_global=(); filtered_external=()
+    for s in $allowlist; do
+      if contains "$s" "${GLOBAL_SKILLS[@]}"; then filtered_global+=("$s")
+      elif contains "$s" "${EXTERNAL_SKILLS[@]}"; then filtered_external+=("$s")
+      else warn "  .spellbook.yaml: unknown skill '$s' (skipped)"
+      fi
+    done
+    GLOBAL_SKILLS=("${filtered_global[@]}")
+    EXTERNAL_SKILLS=("${filtered_external[@]}")
+    info "Allowlist active: ${#GLOBAL_SKILLS[@]} first-party + ${#EXTERNAL_SKILLS[@]} external"
+  fi
+fi
+
+if [ "${SPELLBOOK_TEST_MODE:-0}" = "1" ]; then
+  printf 'GLOBAL_SKILLS=%s\n' "${GLOBAL_SKILLS[*]:-}"
+  printf 'EXTERNAL_SKILLS=%s\n' "${EXTERNAL_SKILLS[*]:-}"
+  printf 'ALLOWLIST_ACTIVE=%s\n' "$ALLOWLIST_ACTIVE"
+  exit 0
+fi
+
 if [ ${#GLOBAL_SKILLS[@]} -eq 0 ]; then
   err "No skills found"
   exit 1
@@ -386,7 +423,7 @@ link_local() {
   # symlink hides them from harnesses that only glob `*`. Force per-entry mode
   # whenever externals are present.
   local force_per_entry=0
-  if [ "${#EXTERNAL_SKILLS[@]}" -gt 0 ]; then
+  if [ "${#EXTERNAL_SKILLS[@]}" -gt 0 ] || [ "${ALLOWLIST_ACTIVE:-0}" -eq 1 ]; then
     force_per_entry=1
     # Remove any prior whole-dir symlink so we can populate per-entry.
     if [ -L "$skills_dir" ]; then

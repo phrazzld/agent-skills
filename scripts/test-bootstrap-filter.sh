@@ -60,13 +60,8 @@ make_fake_spellbook() {
 run_bootstrap_probe() {
   local spellbook="$1" project="$2"
   # SPELLBOOK_TEST_MODE=1 makes bootstrap.sh dump the post-filter state and
-  # exit before touching any harness dirs. HOME is also pinned to a scratch
-  # dir so that — even if a future bug skipped the early-exit — the real
-  # ~/.claude, ~/.codex, ~/.pi are never touched.
-  local fake_home="$project/.home"
-  mkdir -p "$fake_home"
+  # exit before touching any harness dirs.
   ( cd "$project" && \
-      HOME="$fake_home" \
       SPELLBOOK_TEST_MODE=1 \
       SPELLBOOK_DIR="$spellbook" \
       bash "$BOOTSTRAP" 2>&1 )
