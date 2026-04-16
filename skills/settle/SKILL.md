@@ -45,8 +45,10 @@ Detection sequence:
 3. Otherwise → git-native mode
 
 When invoked as `/land <branch>`, always use git-native mode regardless of
-whether a PR exists. `/land` validates the verdict ref, runs Dagger CI, and
-merges.
+whether a PR exists. `/land` delegates to `scripts/land.sh`, which validates
+the verdict ref (must exist and point at HEAD), rejects `dont-ship` verdicts,
+runs Dagger CI when available, and merges `--no-ff` to master.
+`SPELLBOOK_NO_REVIEW=1` bypasses the verdict gate for emergencies.
 
 ## Objective
 

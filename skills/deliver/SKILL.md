@@ -5,6 +5,8 @@ description: |
   /shape → /implement → {/code-review + /ci + /refactor + /qa} (clean loop)
   and stops. Does not push, does not merge, does not deploy. Communicates
   with callers via exit code + receipt.json — no stdout parsing.
+  Every run also ends with a tight operator-facing brief plus a full
+  /reflect session.
   Use when: building a shaped ticket, "deliver this", "make it merge-ready",
   driving one backlog item through review + CI + QA.
   Trigger: /deliver.
@@ -23,6 +25,39 @@ You are the executive orchestrator.
 - Compose atomic phase skills. Never inline phase logic.
 - Dispatch → synthesize receipts → make proceed/fix/escalate calls.
 - Fail loud. Never swallow a phase failure into a "best effort" pass.
+
+## Closeout Contract
+
+Every `/deliver` run ends with two operator-facing outputs, in this order:
+1. A tight delivery brief.
+2. A full `/reflect` session.
+
+This does not replace the machine contract. `receipt.json` remains the source
+of truth for callers and automation. The brief and reflection are for the
+human operator.
+
+The delivery brief is short and punchy. It is not a file inventory, a raw
+changelog, or a generic "green tests" note. Default shape: 1-2 short
+paragraphs or 4-6 flat bullets.
+
+The delivery brief must answer:
+- What ticket was worked and what changed.
+- What value the ticket adds, and why making it merge-ready is useful and
+  important now.
+- What alternatives to the implemented design existed.
+- Why the implemented design is best under the current constraints. If it is
+  not clearly best, say so plainly and explain why it was still the right
+  delivery choice.
+- What value the change creates for developers and operators.
+- What value the change creates for users or customers once it ships.
+- What was verified, and what residual risk remains before merge or deploy.
+
+`/reflect` remains mandatory. Do not collapse reflection into the delivery
+brief. The brief explains the delivered result; `/reflect` captures the
+learnings, harness changes, and follow-on mutations.
+
+When `/deliver` is invoked under `/autopilot`, keep the same content shape but
+let the outer loop own the final session-level shipping brief.
 
 ## Composition
 
@@ -133,6 +168,7 @@ Full protocol: `references/durability.md`.
   re-shape. Do not spin.
 - **Skipping shape.** Building without a context packet yields plausible
   garbage. If the item has no oracle, `/shape` runs first. Always.
+- **Review without verdict = dirty.** If `/code-review` runs but no `refs/verdicts/<branch>` points at HEAD afterwards, treat the review phase as failed.
 - **Merging.** Never. End-state is merge-ready, not merged.
 
 ## References

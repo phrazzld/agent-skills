@@ -120,6 +120,7 @@ verdict_write "<branch>" '{"branch":"<branch>","base":"<base>","verdict":"<ship|
   gets new commits after review, the verdict is stale and `/settle` will re-trigger review.
 - Verdict refs live under `refs/verdicts/<branch>` and sync via `git push/fetch`.
 - Also write a copy to `.evidence/<branch>/<date>/verdict.json` for browsability.
+- The escape hatch (`SPELLBOOK_NO_REVIEW=1`) is handled at the caller (`scripts/land.sh`, `pre-merge-commit`), never inside `/code-review`.
 
 Skip this step if `scripts/lib/verdicts.sh` does not exist in the target project
 (Spellbook-only feature, not expected in downstream repos).
