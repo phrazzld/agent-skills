@@ -14,6 +14,10 @@ setup() {
   TEST_DIR="$(mktemp -d)"
   cd "$TEST_DIR"
   git init -q
+  mkdir -p .empty-hooks
+  git config core.hooksPath .empty-hooks
+  git config user.name "Test User"
+  git config user.email "test@example.com"
   git commit --allow-empty -m "initial" -q
   git checkout -b feat-foo -q
   git commit --allow-empty -m "feat commit" -q
@@ -147,6 +151,13 @@ test_check_landable_rejects_stale() {
   verdict_write feat-foo '{"branch":"feat-foo","base":"master","verdict":"ship","reviewers":["critic"],"scores":{},"sha":"'"$sha"'","date":"2026-04-06T15:00:00Z"}'
   git commit --allow-empty -m "post-review" -q
   assert_exit "verdict_check_landable rejects stale" 1 verdict_check_landable feat-foo
+}
+
+test_check_landable_rejects_unknown_verdict() {
+  local sha
+  sha="$(git rev-parse HEAD)"
+  verdict_write feat-foo '{"branch":"feat-foo","base":"master","verdict":"unknown","reviewers":["critic"],"scores":{},"sha":"'"$sha"'","date":"2026-04-06T15:00:00Z"}'
+  assert_exit "verdict_check_landable rejects unknown verdict" 1 verdict_check_landable feat-foo
 }
 
 # --- Runner ---

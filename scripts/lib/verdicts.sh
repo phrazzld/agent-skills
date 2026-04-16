@@ -76,16 +76,20 @@ verdict_validate() {
   [ "$verdict_sha" = "$head_sha" ]
 }
 
-# Check if a branch is landable: verdict exists, SHA matches HEAD, not dont-ship.
+# Check if a branch is landable: verdict exists, SHA matches HEAD, and is allowed.
 # Args: <branch>
-# Returns: 0 if landable, 1 if missing/stale, 2 if dont-ship
+# Returns: 0 if landable, 1 if missing/stale/unknown, 2 if dont-ship
 verdict_check_landable() {
   local branch="$1"
   verdict_validate "$branch" || return 1
   local json verdict_value
-  json="$(verdict_read "$branch")"
-  verdict_value="$(echo "$json" | python3 -c "import sys,json; print(json.load(sys.stdin)['verdict'])")"
-  [ "$verdict_value" != "dont-ship" ] || return 2
+  json="$(verdict_read "$branch")" || return 1
+  verdict_value="$(echo "$json" | python3 -c "import sys,json; print(json.load(sys.stdin)['verdict'])" 2>/dev/null)" || return 1
+  case "$verdict_value" in
+    ship | conditional) return 0 ;;
+    dont-ship) return 2 ;;
+    *) return 1 ;;
+  esac
 }
 
 # Delete a verdict ref.

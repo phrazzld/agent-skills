@@ -5,6 +5,7 @@ description: |
   /monitor → /investigate → /reflect, mutates the backlog, and emits harness
   suggestions to a branch. Inner loop is /deliver (one ticket → merge-ready,
   a black box here). Outer loop is this: continuous, unattended, budgeted.
+  Every run ends with a tight shipping brief plus a full /reflect session.
   Use when: continuous delivery, "autopilot", "run the outer loop",
   "next N items", "overnight queue", "outer loop", "cycle".
   Trigger: /autopilot.
@@ -50,6 +51,34 @@ You are the executive orchestrator.
 - Treat `/deliver` as an opaque merge-readiness step. Do not re-implement
   its inner clean loop. Consume its exit code + receipt; escalate disagreement.
 - Treat the event log as the source of truth — every phase boundary writes an event.
+
+## Closeout Contract
+
+Every `/autopilot` run ends with two operator-facing outputs, in this order:
+1. A tight shipping brief.
+2. A full `/reflect` session.
+
+The shipping brief is short and punchy. It is not a file inventory, a raw
+changelog, or a generic "tests passed" recap. Default shape: 1-2 short
+paragraphs or 4-6 flat bullets.
+
+The shipping brief must answer:
+- What ticket was selected and what changed.
+- What value the ticket adds, and why shipping it is useful and important now.
+- What alternatives to the implemented design existed.
+- Why the implemented design is best under the current constraints. If it is
+  not clearly best, say so plainly and explain why it was still the right
+  choice to ship.
+- What value the change creates for developers and operators.
+- What value the change creates for users or customers.
+- What was verified, and what residual risk remains.
+
+`/reflect` remains mandatory. Do not collapse reflection into the shipping
+brief. The brief explains the shipped decision; `/reflect` captures the
+learnings, harness changes, and follow-on mutations.
+
+For future multi-cycle runs, emit this brief per cycle and then emit one final
+aggregate summary across the whole session.
 
 ## Flags
 

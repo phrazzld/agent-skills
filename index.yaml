@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-16T01:34:16Z
+# Generated: 2026-04-16T15:11:56Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -16,9 +16,9 @@ skills:
     source: first-party
     tags: [a,backlog,branch,composes,cycles,del,deliver,delivery,deploy,emits]
   - name: ci
-    description: "Audit a repo's CI gates, strengthen what is weak, then drive the pipeline green. Owns confidence in correctness — lint, types, tests, coverage, secrets. Dagger-first. Never returns red without a str"
+    description: "Audit a repo's CI gates, strengthen what is weak, then drive the pipeline green. Owns confidence in correctness — lint, types, tests, coverage, secrets. Dagger is the canonical pipeline owner; absen"
     source: first-party
-    tags: [a,audit,ci,confidence,correctness,coverage,dagger-first,drive,gates,green]
+    tags: [a,absen,audit,canonical,ci,confidence,correctness,coverage,dagger,drive]
   - name: code-review
     description: "Parallel multi-agent code review. Launch reviewer team, synthesize findings, auto-fix blocking issues, loop until clean. Use when: \"review this\", \"code review\", \"is this ready to ship\", \"check this co"
     source: first-party

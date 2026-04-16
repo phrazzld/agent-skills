@@ -27,7 +27,7 @@ catches model-specific blind spots.
 - [x] `/deliver` pipeline includes code review step that produces verdict
 - [x] `/land` refuses without verdict ref
 - [x] Pre-merge hook blocks `git merge` without verdict
-- [x] Skipping review requires explicit `--no-review` flag (escape hatch)
+- [x] Skipping review requires explicit `SPELLBOOK_NO_REVIEW=1` env var (escape hatch)
 
 ## Non-Goals
 
@@ -36,15 +36,16 @@ catches model-specific blind spots.
 
 ## What Was Built
 
-- `scripts/land.sh` (39 lines) — thin `/land` entrypoint. Validates verdict
-  via `verdict_check_landable`, optionally runs Dagger CI, merges `--no-ff`.
+- `scripts/land.sh` — thin `/land` entrypoint. Validates verdict
+  via `verdict_check_landable`, keeps Dagger CI active even under review bypass,
+  resolves the target branch dynamically, and merges `--no-ff`.
   Exit codes: 0 (success), 2 (missing/stale verdict), 3 (dont-ship), 4 (dagger fail).
-- `.githooks/pre-merge-commit` (52 lines) — git hook blocking merge commits
+- `.githooks/pre-merge-commit` — git hook blocking merge commits
   without valid verdict. Fail-open on branch-name ambiguity (learned from def0cb9).
 - `verdict_check_landable` function in `scripts/lib/verdicts.sh` — returns 0/1/2
-  for landable/missing-stale/dont-ship. Centralizes logic used by both callers.
+  for landable/missing-stale-or-invalid/dont-ship. Centralizes logic used by both callers.
 - Escape hatch: `SPELLBOOK_NO_REVIEW=1` env var, respected by both hook and script.
-- 26 tests total: 16 verdict, 6 land, 4 hook — all green.
+- 30 tests total: 17 verdict, 7 land, 6 hook — all green.
 - Skill prose updates: `/deliver` gotcha bullet, `/settle` /land pointer,
   `/code-review` escape-hatch documentation.
 
