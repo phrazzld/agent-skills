@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-16T20:09:19Z
+# Generated: 2026-04-16T21:05:30Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -11,6 +11,10 @@ skills:
     description: "Assess and improve codebase readiness for AI coding agents. Dispatches parallel subagents to evaluate style, testing, docs, architecture, CI, observability, security, and dev environment. Produces a s"
     source: first-party
     tags: [a,agents,ai,architecture,assess,ci,codebase,coding,dev,dispatches]
+  - name: ceo-review
+    description: "Dialectical premise-and-alternatives audit for a plan, spec, or context packet. Four moves: premise challenge (is this the right problem?), mandatory structurally-distinct alternatives, cross-model ou"
+    source: first-party
+    tags: [a,alternatives,audit,challenge,context,cross-model,dialectical,four,is,mandatory]
   - name: ci
     description: "Audit a repo's CI gates, strengthen what is weak, then drive the pipeline green. Owns confidence in correctness — lint, types, tests, coverage, secrets. Dagger is the canonical pipeline owner; absen"
     source: first-party
@@ -63,6 +67,10 @@ skills:
     description: "Post-deploy signal watch. Poll healthcheck and configured signals through a grace window. Emit structured events. Escalate to /diagnose on trip, close clean on green. Thin watcher, not diagnostician. "
     source: first-party
     tags: [a,clean,close,configured,diagnose,diagnostician,emit,escalate,events,grace]
+  - name: office-hours
+    description: "YC-partner-style interrogation of a raw idea. Six forcing questions before you shape anything: demand reality, status quo, desperate specificity, narrowest wedge, observation & surprise, future-fit. N"
+    source: first-party
+    tags: [a,anything,before,demand,desperate,forcing,future-fit,idea,interrogation,n]
   - name: qa
     description: "Browser-based QA, exploratory testing, evidence capture, and bug reporting. Drive running applications and verify they work — not just that tests pass. Use when: \"run QA\", \"test this\", \"verify the f"
     source: first-party

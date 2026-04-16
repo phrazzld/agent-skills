@@ -106,6 +106,33 @@ temporal decomposition, hidden coupling.
   the invoking project's `git rev-parse --show-toplevel`, not the skill's
   install dir.
 
+## Diverge Before You Converge
+
+Twice — on the problem, then on the solution. Norman's double diamond.
+Same-model self-debate collapses to consensus (MAD literature);
+heterogeneity is load-bearing, not aesthetic.
+
+- **Challenge the framing first.** Five-whys the request before touching
+  the stated solution. Tickets often encode symptoms, not root causes.
+  If the ticket says "feature X," name the underlying user outcome — the
+  best path to it may not be X. A solid execution of the wrong problem
+  is the most expensive failure mode.
+- **Mandatory alternatives, not "consider alternatives."** Every
+  non-trivial design produces ≥2 structurally distinct approaches —
+  typically one minimal-viable and one ideal, ideally also one that
+  inverts a load-bearing assumption. If you can't articulate how each
+  would fail differently, you have one option wearing costumes.
+- **Cross-model second voice.** Consult Codex, Gemini, Thinktank, or a
+  fresh-context subagent with a different foundation. Same-model
+  self-critique is theater. Persona diversity (ousterhout/carmack/grug)
+  is not foundation diversity — both matter, for different reasons.
+- **User ratifies each converge point.** Divergence proposes, user
+  disposes. Silent absorption of a second opinion is not ratification.
+
+Applied operationally in `/groom` (problem diamond) and `/shape`
+(solution diamond). The doctrine is always-on for every skill that
+touches problem definition or solution design.
+
 ## Boil the Ocean
 
 With AI, the marginal cost of completeness is near zero. Ship finished products,

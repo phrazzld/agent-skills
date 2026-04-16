@@ -140,6 +140,10 @@ Every investigator returns this exact shape:
 After all investigators return, the **orchestrator** (you) synthesizes. Do NOT present
 raw findings. Do NOT delegate synthesis to a sub-agent — this requires product judgment.
 
+0. **Premise challenge** — Audit the request's framing before theming. Is this
+   the root problem or a downstream symptom? Five-whys the stated goal. If it's
+   a symptom ticket, name the underlying need and re-anchor the synthesis there.
+   Converging on solutions to the wrong problem is worse than silence.
 1. **Cross-reference** — Which findings appear across 2+ investigators? (highest signal)
 2. **Theme extraction** — Group findings into 2-4 strategic themes. A theme is a cluster
    of findings that share a root cause or a shared solution. Not individual items — themes.
@@ -239,6 +243,7 @@ Bootstrap a new project with quality gates:
 
 ## Gotchas
 
+- **Accepting the ticket's framing as given** — A `/groom X` request is the user's first-draft articulation, not a locked problem statement. Before the investigation bench, five-whys the request: is this the root problem or a downstream symptom? If the user asked to groom "feature X," investigate whether X is the right lens or a proxy. Symptom-level grooming produces symptom-level backlogs.
 - **Investigators returning "everything is fine"** — Red flag. Push harder. Every codebase has findings; an investigator that found none didn't look.
 - **Synthesis that lists findings without theming** — That's a report, not synthesis. Group into themes before presenting.
 - **Themes without recommendations** — That's a menu, not grooming. Pick one action per theme and argue for it.
