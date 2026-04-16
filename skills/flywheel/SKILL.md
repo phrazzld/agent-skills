@@ -9,15 +9,14 @@ description: |
   Use when: continuous delivery, "flywheel", "run the outer loop",
   "next N items", "overnight queue", "outer loop", "cycle".
   Trigger: /flywheel.
-argument-hint: "[--max-cycles N] [--budget $N] [--dry-run]"
+argument-hint: "[--max-cycles N] [--budget $N] [--unattended] [--dry-run]"
 ---
 
 # /flywheel
 
 Outer-loop delivery orchestrator. `/deliver` takes one item to merge-ready
 and exits (inner loop). `/flywheel` composes cycles of `/deliver` +
-`/deploy` + `/monitor` + `/diagnose` + `/reflect` and runs N of them
-(outer loop).
+`/deploy` + `/monitor` + `/diagnose` + `/reflect` and runs N of them.
 
 Two skills, two stop conditions, one composition contract:
 - `/deliver` (inner) — single-shot, interactive, ends at merge-ready.
@@ -26,208 +25,168 @@ Two skills, two stop conditions, one composition contract:
 OpenHands inner-loop vs outer-loop distinction is load-bearing. Do not
 grow one into the other.
 
-## Phase 1 Scope (current)
-
-- Dry-run end-to-end walk of all phases
-- Typed cycle events (`scripts/lib/events.sh`)
-- Single-instance lock (`scripts/lib/flywheel_lock.sh`) with stale-pid steal
-- **Single-cycle only.** Multi-cycle (`--max-cycles > 1`) is Phase 2; the
-  current guard would release the lock between cycles and let a second
-  flywheel sneak in. Passing `N != 1` exits 2 with a clear message.
-
-**Not yet wired:** real handlers for `/deliver`, `/deploy`, `/monitor`,
-`/diagnose`, `/reflect`. Invoking without `--dry-run` writes a
-`phase.failed` event and exits non-zero. That is intentional — Phase 1
-proves the event/lock contract; Phase 2 wires the handlers.
-
-Phase 2+ design (multi-cycle, budget accounting, resume/abandon, harness
-auto-tune branch) is tracked in `backlog.d/028-flywheel-outer-loop-orchestrator.md`.
-
 ## Execution Stance
 
 You are the executive orchestrator.
 - Keep work selection, stop judgment, and cycle close/abandon on the lead model.
 - Delegate each phase to its named skill; never inline phase logic here.
-- Treat `/deliver` as an opaque merge-readiness step. Do not re-implement
-  its inner clean loop. Consume its exit code + receipt; escalate disagreement.
-- Treat the event log as the source of truth — every phase boundary writes an event.
+- Treat `/deliver` as an opaque merge-readiness step. Consume exit code +
+  receipt; escalate disagreement.
+- Treat the event log as the source of truth — every phase boundary writes
+  an event via `flywheel.sh emit`.
 
-## Closeout Contract
+## Real Mode — Cycle Orchestration
 
-Every `/flywheel` run ends with two operator-facing outputs, in this order:
-1. A tight shipping brief.
-2. A full `/reflect` session.
+The MODEL drives the outer loop by invoking script subcommands. The script
+provides state primitives; the model provides judgment.
 
-The shipping brief is short and punchy. It is not a file inventory, a raw
-changelog, or a generic "tests passed" recap. Default shape: 1-2 short
-paragraphs or 4-6 flat bullets.
+```
+1. Mint cycle:
+   cycle_id=$(bash skills/flywheel/scripts/flywheel.sh new-cycle --budget $BUDGET)
 
-The shipping brief must answer:
-- What ticket was selected and what changed.
-- What value the ticket adds, and why shipping it is useful and important now.
-- What alternatives to the implemented design existed.
-- Why the implemented design is best under the current constraints. If it is
-  not clearly best, say so plainly and explain why it was still the right
-  choice to ship.
-- What value the change creates for developers and operators.
-- What value the change creates for users or customers.
-- What was verified, and what residual risk remains.
+2. Pick item:
+   item=$(bash skills/flywheel/scripts/flywheel.sh pick $cycle_id)
+   If EMPTY → close noop, exit 0.
 
-`/reflect` remains mandatory. Do not collapse reflection into the shipping
-brief. The brief explains the shipped decision; `/reflect` captures the
-learnings, harness changes, and follow-on mutations.
+3. Invoke /deliver $item --state-dir backlog.d/_cycles/$cycle_id/evidence/deliver/
+   - On exit 0: read receipt.json; emit deliver.done with cost_usd, branch, head_sha.
+   - On non-zero: emit phase.failed, close aborted, STOP this cycle.
+   bash skills/flywheel/scripts/flywheel.sh emit $cycle_id deliver.done \
+     deliver builder '{"cost_usd":<x>,"branch":"<b>","head_sha":"<s>"}'
 
-For future multi-cycle runs, emit this brief per cycle and then emit one final
-aggregate summary across the whole session.
+4. Invoke /deploy; parse receipt; emit:
+   bash skills/flywheel/scripts/flywheel.sh emit $cycle_id deploy.done \
+     deploy deployer '<receipt_json>'
+
+5. Invoke /monitor; consume its one terminal event.
+   - monitor.done → proceed to step 7.
+   - monitor.alert → go to step 6.
+   bash skills/flywheel/scripts/flywheel.sh emit $cycle_id monitor.done \
+     monitor monitor '<payload>'
+
+6. (If alert) Invoke /diagnose; emit:
+   bash skills/flywheel/scripts/flywheel.sh emit $cycle_id triage.done \
+     triage diagnostician '<payload>'
+
+7. Invoke /reflect cycle $cycle_id; emit:
+   bash skills/flywheel/scripts/flywheel.sh emit $cycle_id reflect.done \
+     reflect reflector '<payload_with_new_items>'
+
+8. Update bucket (shipped or failed):
+   bash skills/flywheel/scripts/flywheel.sh update-bucket $cycle_id shipped
+
+9. Suggest harness changes:
+   bash skills/flywheel/scripts/flywheel.sh update-harness $cycle_id
+
+10. Close cycle:
+    bash skills/flywheel/scripts/flywheel.sh close $cycle_id closed
+
+11. If --max-cycles > 1 and budget remains and no stop predicate triggered:
+    GOTO 1.
+```
+
+After cycle(s), emit operator-facing shipping brief + full /reflect session
+(see Closeout Contract).
 
 ## Flags
 
-| Flag | Purpose | Phase |
-|------|---------|-------|
-| `--max-cycles N` | Hard count of cycles. **Phase 1 requires N=1**; any other value exits 2 | 1 (N=1 only) |
-| `--budget $N` | Cumulative model cost ceiling | Phase 2 — inert in Phase 1 (single-cycle never exhausts) |
-| `--dry-run` | Walk phases, write events, invoke nothing | 1 |
-| `--until <pred>` | Stop predicate ("backlog empty", "P0 closed") | 2 |
-| `--resume <ulid>` | Resume a paused cycle from last completed phase | 2 |
-| `--abandon <ulid>` | Mark cycle abandoned and release its lock | 2 |
+| Flag | Purpose |
+|------|---------|
+| `--max-cycles N` | Hard count of cycles (default 1) |
+| `--budget $N` | Cumulative model cost ceiling |
+| `--unattended` | No-TTY mode; requires `--budget` |
+| `--dry-run` | Walk phases, write 8-event trail, invoke nothing |
+| `--until <pred>` | Stop predicate — Phase 2b (exits 2) |
+| `--resume <ulid>` | Resume paused cycle — Phase 2b (exits 2) |
+| `--abandon <ulid>` | Mark abandoned — Phase 2b (exits 2) |
 
-`--max-cycles > 1` exits 2 with `flywheel: --max-cycles > 1 is Phase 2; not
-yet implemented`. `--budget` is parsed for forward compatibility but has no
-effect in Phase 1.
+Unattended without `--budget` exits 2: `flywheel: unattended mode requires
+--budget <usd>`. Default interactive cap is $5 USD.
+
+## Subcommands
+
+| Subcommand | Purpose |
+|------------|---------|
+| `new-cycle [--budget $X] [--unattended]` | Acquire lock, mint ULID, write manifest, emit cycle.opened. stdout: `<ulid>` |
+| `pick <cycle_id>` | Deterministic eligibility filter + scoring. stdout: `<item_id>` or `EMPTY` |
+| `emit <cycle_id> <kind> <phase> <agent> <payload>` | Validated event write; sums cost_usd; triggers budget.exhausted at 95% |
+| `close <cycle_id> <status> [<reason>]` | Emit cycle.closed, update manifest, release lock |
+| `update-bucket <cycle_id> <ship_status>` | Backlog mutation (move on shipped, stamp on failed). Idempotent |
+| `update-harness <cycle_id>` | Emit harness.suggested (Phase 2b: branch mechanics) |
+| `budget <cycle_id>` | stdout: manifest budget block as JSON |
+| `status [<cycle_id>]` | Human-readable cycle state |
+| `run [flags]` | Drive the outer loop (--dry-run or real). Accepts --max-cycles |
 
 ## Artifacts Per Cycle
 
 ```
 backlog.d/_cycles/<ulid>/
 ├── cycle.jsonl        # append-only typed events (the event log)
-├── evidence/          # QA artifacts, review transcripts, diffs, /deliver state
+├── evidence/          # QA artifacts, review transcripts, diffs
 │   └── deliver/       # /deliver state dir when invoked by /flywheel
-└── manifest.json      # {item_id, branch, started, closed, status}
+└── manifest.json      # full cycle state with budget accounting
 ```
-
-`backlog.d/_cycles/` is intentionally preserved across the rename —
-historical cycles stay readable and identifiable.
 
 ## Event Schema
 
-Every event is one JSON line with this envelope:
+Closed enum — 12 kinds. Unknown kinds fail at emit time.
 
-```json
-{
-  "schema_version": 1,
-  "ts": "2026-04-14T12:00:00Z",
-  "cycle_id": "01HQ...",
-  "kind": "cycle.opened",
-  "phase": "shape",
-  "agent": "planner",
-  "refs": ["path/to/artifact"],
-  "findings": [],
-  "note": "free text"
-}
-```
+| Kind | When |
+|------|------|
+| `cycle.opened` | Cycle starts (new-cycle) |
+| `deliver.done` | /deliver exits 0 |
+| `deploy.done` | /deploy completes |
+| `monitor.done` | /monitor: clean |
+| `monitor.alert` | /monitor: regression detected |
+| `triage.done` | /diagnose completes |
+| `reflect.done` | /reflect cycle completes |
+| `bucket.updated` | update-bucket mutates backlog |
+| `harness.suggested` | update-harness emits suggestion |
+| `phase.failed` | Any phase returns non-zero |
+| `budget.exhausted` | spent_usd >= cap_usd * 0.95 |
+| `cycle.closed` | Cycle ends (any status) |
 
-`kind` is a closed enum — writes with unknown kinds fail at the script level.
-JSONL corruption breaks `/reflect`, so writes are `flock`'d and `fsync`'d.
+Inner-pipeline events (`shape.done`, `build.done`, etc.) live inside
+`/deliver` — `/flywheel` sees one `deliver.done` per cycle.
 
-Current Phase 1 kinds (drawn from the pre-rename `/iterate` spec):
-`cycle.opened`, `shape.done`, `build.done`, `review.iter`, `ci.done`,
-`qa.done`, `deploy.done`, `reflect.done`, `harness.suggested`,
-`phase.failed`, `budget.exhausted`, `cycle.closed`.
+## Closeout Contract
 
-TODO(028 phase-2): drop inner-pipeline kinds (`shape.done`, `build.done`,
-`review.iter`, `ci.done`, `qa.done`) once `/deliver` composition lands;
-outer loop sees one `deliver.done` event per cycle. Add `deliver.done`,
-`monitor.done`, `monitor.alert`, `triage.done`, `bucket.updated`.
+Every `/flywheel` run ends with:
+1. A tight shipping brief (what changed, why, value, verified, residual risk).
+2. A full `/reflect` session.
 
-## Control Flow
-
-```
-/flywheel [flags]
-    │
-    ▼
-  acquire .spellbook/flywheel.lock  (fails if a live /flywheel holds it)
-    │
-    ▼
-┌── CYCLE START ───────────────────────────────┐
-│  1. pick        → deterministic selector     │  cycle.opened
-│  2. deliver     → /deliver (inner loop)      │  deliver.done (Phase 2)
-│  3. deploy      → /deploy                    │  deploy.done
-│  4. monitor     → /monitor                   │  monitor.done | monitor.alert
-│  5. triage      → /diagnose (on alert)       │  triage.done
-│  6. reflect     → /reflect on events         │  reflect.done
-│  7. update-bucket → backlog mutation         │  bucket.updated
-│  8. update-harness → harness.suggested       │  writes to PR branch only
-└── CYCLE CLOSED ──────────────────────────────┘
-    │
-    ▼
-  cycle done → release lock (Phase 1 runs exactly one cycle)
-```
-
-In Phase 1 the dry-run still walks the pre-rename 9-phase trail
-(shape/build/review/ci/qa/deploy/reflect). Phase 2 collapses the inner
-steps into a single `/deliver` invocation and a single `deliver.done` event.
-
-## Invocation
-
-```bash
-# Dry-run a single cycle — writes phase events, invokes nothing.
-bash skills/flywheel/scripts/flywheel.sh --dry-run
-
-# Real mode (Phase 2+; currently writes phase.failed and exits 1)
-bash skills/flywheel/scripts/flywheel.sh
-
-# Multi-cycle is Phase 2 — this exits 2 in Phase 1.
-bash skills/flywheel/scripts/flywheel.sh --max-cycles 5 --budget 20
-```
+For multi-cycle runs: one brief per cycle, then one aggregate summary.
+`/reflect` is mandatory; do not collapse it into the brief.
 
 ## Lock Semantics
 
-`.spellbook/flywheel.lock` holds `{pid, cycle_id, started_at}`. SIGINT, EXIT,
-and TERM traps release the lock — scoped to the acquiring `cycle_id` so a
-late trap from a prior cycle cannot wipe a successor's lock. Stale locks
-(owner pid dead, or JSON corrupt) are stolen atomically via `O_CREAT|O_EXCL`.
-
-Known limitations:
-- **Pid recycling.** If the recorded pid is reused by an unrelated process,
-  `kill -0` reports alive and acquire refuses. Manual recovery:
-  `rm .spellbook/flywheel.lock`. A future revision may add `started_at`-based
-  disambiguation.
-- **`python-ulid` is optional.** When unavailable, the fallback emits real
-  26-character Crockford base32 ULIDs (10 chars timestamp + 16 chars random),
-  lexicographically sortable and interchangeable with the library output.
-- **Paths anchor to REPO_ROOT.** `flywheel.sh` `cd`s to the spellbook repo
-  root on startup so `backlog.d/_cycles/...` and the default lock path
-  always land in the right tree even when invoked from outside the repo.
-  If you override `FLYWHEEL_LOCK_PATH`, pass an absolute path.
-
-## Stop Conditions (Phase 1)
-
-- Cycle finishes normally → emit `cycle.closed`, release lock, exit 0
-- Any phase returns non-zero → `phase.failed` event, release lock, exit 1
-- SIGINT → trap releases lock, exit 130
-- SIGTERM → trap releases lock, exit 143
-- `--max-cycles > 1` → exit 2 before acquiring the lock (Phase 2 feature)
-- Budget-exhausted mid-cycle is a Phase 2 stop condition (no-op in Phase 1)
+`.spellbook/flywheel.lock` holds `{pid, cycle_id, started_at}`. Stale locks
+(owner pid dead) are stolen atomically. SIGINT → exit 130. SIGTERM → exit 143.
 
 ## Gotchas
 
-- **Never run two /flywheel in the same worktree.** The lock enforces it;
-  tests verify. Two worktrees of the same repo can run concurrently —
-  state anchors to REPO_ROOT of each worktree.
-- **Inner loop is a black box.** `/deliver` owns shape/implement/review/
-  ci/refactor/qa. Do not reach into its state or retry its internal
-  clean loop from here — consume exit code + receipt, escalate disagreement.
-- **Dry-run invokes nothing.** It exists to prove the event contract, not to
-  rehearse phases. Do not use it as a cheap "preview".
-- **Real mode has no handlers in Phase 1.** It writes `phase.failed` and
-  exits 1 by design. Wiring is Phase 2.
-- **Auto-scaffold is Phase 3.** If `/qa` or `/deploy` is missing when real
-  mode lands, the cycle fails loudly — no silent scaffolding.
-- **`harness.suggested` writes to a branch only** (never main). Phase 2
-  emits the event and wires the branch write; Phase 1 dry-run does not emit
-  it (would train the wrong mental model of the contract).
+- **Never run two /flywheel in the same worktree.** Lock enforces it.
+- **Inner loop is a black box.** Consume exit code + receipt only.
+- **emit validates kinds.** Do not invent kinds inline; update EVENT_KINDS
+  in `scripts/lib/events.sh` and every consumer.
+- **budget.exhausted fires at 95%.** Finish current phase first. The 5%
+  headroom absorbs metering lag.
+- **update-bucket is idempotent.** Guards every mutation with cycle_id grep.
+  Re-running is safe; it detects the marker and no-ops.
+- **harness.suggested writes to a branch only** (never main). Phase 2b wires
+  the branch mechanics; Phase 2a emits a placeholder event.
 - **Never auto-merge.** `/flywheel` never opens, approves, or merges a PR.
-  Humans merge. The harness auto-tune branch (Phase 3) requires CODEOWNERS
-  review by design.
-- **Closed-enum kinds.** Adding a new kind requires updating `EVENT_KINDS`
-  in `events.sh` and every consumer — don't invent kinds inline.
+- **Paths anchor to REPO_ROOT.** flywheel.sh cds to the repo root on startup.
+  Override FLYWHEEL_LOCK_PATH with an absolute path.
+
+## References
+
+See `backlog.d/028-flywheel-outer-loop-orchestrator.md` for:
+- Full eligibility filter and scoring formula (`pick`)
+- Manifest schema and budget accounting
+- Resume & abandon semantics (Phase 2b)
+- Durability guarantees (D1–D5)
+- update-bucket mutation grammar
+- update-harness branch mechanics (Phase 2b)
+- Stopping predicates (`--until`)
+- Worktree behavior
