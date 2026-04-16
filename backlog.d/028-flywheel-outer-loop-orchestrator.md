@@ -57,7 +57,7 @@ contract.
 │  2. deliver     → /deliver (full inner loop) │  deliver.done (≡ merge-ready)
 │  3. deploy      → /deploy                    │  deploy.done
 │  4. monitor     → /monitor                   │  monitor.done | monitor.alert
-│  5. triage      → /investigate (if alert)    │  triage.done
+│  5. triage      → /diagnose (if alert)    │  triage.done
 │  6. reflect     → /reflect (session+harness) │  reflect.done
 │  7. update-bucket → backlog mutation         │  bucket.updated
 │  8. update-harness → branch-only suggestion  │  harness.suggested
@@ -345,7 +345,7 @@ operator resolves with normal git tooling.
 | `/deliver` | 032 — rename flywheel + compose | Full inner pipeline to merge-ready |
 | `/deploy` | 035 — new | Ship to environment |
 | `/monitor` | 036 — new | Post-deploy signal watch + escalate |
-| `/investigate` | ✓ exists | Triage on monitor.alert |
+| `/diagnose` | ✓ exists | Triage on monitor.alert |
 | `/reflect` | 037 — upgrade | Session + bucket + harness critique |
 
 ## Failure Modes
@@ -411,7 +411,7 @@ skills/flywheel/
     ├── phase-pick.md              # eligibility filter, scoring formula
     ├── phase-deliver.md           # /deliver invocation, --state-dir, receipt consumption
     ├── phase-deploy.md            # /deploy contract
-    ├── phase-monitor.md           # /monitor + alert handoff to /investigate
+    ├── phase-monitor.md           # /monitor + alert handoff to /diagnose
     ├── phase-reflect.md           # /reflect invocation + new-item payload
     ├── phase-update-bucket.md     # mutation grammar, idempotence rules
     ├── phase-update-harness.md    # branch mechanics, suggestion format
@@ -489,7 +489,7 @@ Composition work:
    `monitor.done`, `monitor.alert`, `triage.done`, `bucket.updated`.
    Update tests.
 3. Wire real handlers: `/deliver` (032), `/deploy` (035), `/monitor` (036),
-   `/investigate` (existing), `/reflect` (037).
+   `/diagnose` (existing), `/reflect` (037).
 4. Multi-cycle control flow with stop predicates (`--until`, `--budget`,
    `--max-cycles`).
 5. Budget tracking in `manifest.json`.
@@ -515,7 +515,7 @@ Functional:
       within the same worktree
 - [ ] `/deliver` runs its internal loop and returns merge-ready via exit 0
       + receipt.json with `status == "merge_ready"`
-- [ ] `monitor.alert` triggers `/investigate` automatically, emitting
+- [ ] `monitor.alert` triggers `/diagnose` automatically, emitting
       `triage.done` before `reflect`
 - [ ] `harness.suggested` commits land on `harness/auto-tune` only, never
       on default branch; branch rebased-clean before each append;

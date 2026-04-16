@@ -110,7 +110,7 @@ outer loop's contract:
 | Monitor exit | Outer loop action |
 |--------------|-------------------|
 | 0 (`monitor.done`) | Proceed to `/reflect`, close cycle |
-| 2 (`monitor.alert`) | Invoke `/investigate` with the alert payload |
+| 2 (`monitor.alert`) | Invoke `/diagnose` with the alert payload |
 | 1 (`phase.failed`) | Emit `phase.failed`, abort cycle, require operator |
 
 Exit 2 is reserved. Do not reuse it for tooling failures.

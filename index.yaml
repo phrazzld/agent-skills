@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-16T16:31:29Z
+# Generated: 2026-04-16T16:34:12Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -35,6 +35,10 @@ skills:
     description: "Analyze, test, and upgrade dependencies. One curated PR, not 47 version bumps. Reachability analysis, behavioral diffs, risk assessment. Package-manager agnostic. Use when: \"upgrade deps\", \"dependency"
     source: first-party
     tags: [47,agnostic,analysis,analyze,assessment,behavioral,bumps,curated,dependencies,dependency]
+  - name: diagnose
+    description: "Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle, domain auditing, and issue logging. Four-phase protocol: root cause → pattern analysis → hypothesis test → fix. Use"
+    source: first-party
+    tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
   - name: flywheel
     description: "Outer-loop delivery orchestrator. Composes cycles of /deliver → /deploy → /monitor → /diagnose → /reflect, mutates the backlog, and emits harness suggestions to a branch. Inner loop is /delive"
     source: first-party
@@ -51,18 +55,14 @@ skills:
     description: "Atomic TDD build skill. Takes a context packet (shaped ticket) and produces code + tests on a feature branch. Red → Green → Refactor. Does not shape, review, QA, or ship — single concern: spec t"
     source: first-party
     tags: [a,atomic,branch,build,code,concern,context,feature,green,on]
-  - name: investigate
-    description: "Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle, domain auditing, and issue logging. Four-phase protocol: root cause → pattern analysis → hypothesis test → fix. Use"
-    source: first-party
-    tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
   - name: model-research
     description: "Research, compare, and select LLM models for AI-powered apps and workflows. Finds latest models per family, verifies availability on target platform, compares pricing/benchmarks/tool-calling, produces"
     source: first-party
     tags: [ai-powered,apps,availability,benchmarks,compare,compares,family,finds,latest,llm]
   - name: monitor
-    description: "Post-deploy signal watch. Poll healthcheck and configured signals through a grace window. Emit structured events. Escalate to /investigate on trip, close clean on green. Thin watcher, not diagnosticia"
+    description: "Post-deploy signal watch. Poll healthcheck and configured signals through a grace window. Emit structured events. Escalate to /diagnose on trip, close clean on green. Thin watcher, not diagnostician. "
     source: first-party
-    tags: [a,clean,close,configured,diagnosticia,emit,escalate,events,grace,green]
+    tags: [a,clean,close,configured,diagnose,diagnostician,emit,escalate,events,grace]
   - name: qa
     description: "Browser-based QA, exploratory testing, evidence capture, and bug reporting. Drive running applications and verify they work — not just that tests pass. Use when: \"run QA\", \"test this\", \"verify the f"
     source: first-party

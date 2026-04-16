@@ -2,7 +2,7 @@
 name: monitor
 description: |
   Post-deploy signal watch. Poll healthcheck and configured signals through
-  a grace window. Emit structured events. Escalate to /investigate on trip,
+  a grace window. Emit structured events. Escalate to /diagnose on trip,
   close clean on green. Thin watcher, not diagnostician.
   Use when: "monitor signals", "watch the deploy", "is the deploy ok",
   "post-deploy watch", "signal watch", "grace window", "watch production".
@@ -12,11 +12,11 @@ argument-hint: "[<deploy-receipt-ref>] [--grace <duration>] [--config <path>]"
 
 # /monitor
 
-Watch signals after a deploy. Escalate to `/investigate` on regression. Close
+Watch signals after a deploy. Escalate to `/diagnose` on regression. Close
 clean when signals stay green through the grace window.
 
 This skill observes and escalates. It does not diagnose root cause
-(`/investigate` does). It does not rollback (caller decides). It does not
+(`/diagnose` does). It does not rollback (caller decides). It does not
 page humans (outer loop decides).
 
 ## Execution Stance
@@ -90,7 +90,7 @@ On `monitor.done` the `findings` array holds the final sample per signal
 | 2 | `monitor.alert` emitted — signal tripped, escalating (not a failure) |
 | 1 | Tooling failure (config parse, network, auth) — `phase.failed` emitted |
 
-Exit 2 is distinct from exit 1 so the outer loop can route: `/investigate`
+Exit 2 is distinct from exit 1 so the outer loop can route: `/diagnose`
 on 2, retry-or-abort on 1.
 
 ## Escalation Rule
@@ -113,7 +113,7 @@ A signal **trips** when BOTH hold:
 This asymmetry is deliberate. A hard failure means the deploy is already
 broken in an obvious way — delaying escalation by one poll interval wastes
 30 seconds of users seeing 500s. A slow-burn signal can flap from a single
-bad minute; one confirmation keeps noise from dragging `/investigate` out
+bad minute; one confirmation keeps noise from dragging `/diagnose` out
 of bed.
 
 Details in `references/grace-window.md`.
@@ -206,7 +206,7 @@ SPELLBOOK_HEALTHCHECK_URL=https://app.example.com/health /monitor
   threshold violations on non-healthcheck signals almost always resolve.
   Require the second confirmation.
 - **Do not diagnose in the alert payload.** The payload is samples plus
-  threshold info. Root cause belongs to `/investigate`. A `note` field of
+  threshold info. Root cause belongs to `/diagnose`. A `note` field of
   "db connection pool likely exhausted" is out of scope and misleads the
   next skill.
 - **Do not rollback.** Even if the signal is catastrophic. The outer loop
@@ -224,5 +224,5 @@ SPELLBOOK_HEALTHCHECK_URL=https://app.example.com/health /monitor
 - **Poll interval is a floor.** Slow backends may stretch the actual
   cadence. The grace window is wall-clock, not poll-count.
 - **Never page humans.** Write the alert event. The outer loop routes
-  escalation (Slack, PagerDuty, `/investigate`). Paging from inside this
+  escalation (Slack, PagerDuty, `/diagnose`). Paging from inside this
   skill duplicates channels and creates noise.

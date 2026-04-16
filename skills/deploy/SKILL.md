@@ -5,7 +5,7 @@ description: |
   repo config, dispatches to platform-specific recipe, captures a
   structured receipt (sha, version, URL, rollback handle), stops when the
   target reports healthy. Does not monitor (→ /monitor), does not triage
-  (→ /investigate), does not decide when to deploy.
+  (→ /diagnose), does not decide when to deploy.
   Use when: "deploy", "ship this", "ship to prod", "release", "push to
   staging", "deploy this branch", "release cut".
   Trigger: /deploy, /ship-it, /release.
@@ -194,7 +194,7 @@ containing `bootstrap.sh` AND `skills/` AND no `.spellbook/deploy.yaml`.
 
 - `/flywheel` (028) — outer-loop caller; passes merged sha + env
 - `/monitor` (036) — consumes this receipt, decides on rollback
-- `/investigate` — triages anomalies post-deploy
+- `/diagnose` — triages anomalies post-deploy
 - `/settle` / `/land` — merge gate that must pass before `/deploy` runs
 - `references/targets.md` — platform-specific recipes
 - `references/repo-config.md` — config schema and detection rules

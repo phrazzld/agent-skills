@@ -1,16 +1,17 @@
 ---
-name: investigate
+name: diagnose
 description: |
   Investigate, audit, triage, and fix. Systematic debugging, incident lifecycle,
   domain auditing, and issue logging. Four-phase protocol: root cause → pattern
   analysis → hypothesis test → fix.
   Use for: any bug, test failure, production incident, error spikes, audit,
-  triage, postmortem, "investigate", "why is this broken", "debug this",
+  triage, postmortem, "diagnose", "why is this broken", "debug this",
   "production down", "is production ok", "audit stripe", "log issues".
+  Trigger: /diagnose.
 argument-hint: <symptoms or domain> e.g. "error in auth" or "audit stripe"
 ---
 
-# /investigate
+# /diagnose
 
 Find root cause. Fix it. Prove it works.
 

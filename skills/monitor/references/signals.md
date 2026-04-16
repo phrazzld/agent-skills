@@ -149,7 +149,7 @@ block on stdin and prints one JSON line on stdout:
 
 If the adapter fails (auth, network, parse), print to stderr and exit
 non-zero. The poll loop treats adapter failures as `phase.failed`, not as
-signal trips — a broken adapter should not trigger `/investigate`.
+signal trips — a broken adapter should not trigger `/diagnose`.
 
 ---
 
