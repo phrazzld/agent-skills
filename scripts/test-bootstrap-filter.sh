@@ -112,6 +112,44 @@ assert_contains "unknown dropped GLOBAL_SKILLS=a" "GLOBAL_SKILLS=a" "$out"
 assert_contains "unknown dropped EXTERNAL_SKILLS=d" "EXTERNAL_SKILLS=d" "$out"
 assert_contains "unknown dropped ALLOWLIST_ACTIVE=1" "ALLOWLIST_ACTIVE=1" "$out"
 
+echo "test: empty skills list → allowlist active, both arrays empty"
+mkdir -p "$tmp/proj5"
+cat > "$tmp/proj5/.spellbook.yaml" <<YAML
+skills: []
+YAML
+out=$(run_bootstrap_probe "$tmp/sb" "$tmp/proj5")
+assert_contains "empty list GLOBAL_SKILLS=" "GLOBAL_SKILLS=" "$out"
+assert_contains "empty list EXTERNAL_SKILLS=" "EXTERNAL_SKILLS=" "$out"
+assert_contains "empty list ALLOWLIST_ACTIVE=1" "ALLOWLIST_ACTIVE=1" "$out"
+# Make sure the a/b/c skills did NOT leak through into GLOBAL_SKILLS.
+if printf '%s' "$out" | grep -Eq 'GLOBAL_SKILLS=.*[abc]'; then
+  printf '  FAIL empty list should not contain a/b/c\n    actual:\n%s\n' "$out"
+  fail=1
+  fails+=("empty list leaked skills")
+else
+  printf '  ok   empty list did not leak skills\n'
+fi
+
+echo "test: missing skills key → parse_fail, fall through to global"
+mkdir -p "$tmp/proj6"
+cat > "$tmp/proj6/.spellbook.yaml" <<YAML
+# No skills: key at all, just another field.
+some_other_key: hello
+YAML
+out=$(run_bootstrap_probe "$tmp/sb" "$tmp/proj6")
+assert_contains "missing key GLOBAL_SKILLS=a b c" "GLOBAL_SKILLS=a b c" "$out"
+assert_contains "missing key EXTERNAL_SKILLS=d e" "EXTERNAL_SKILLS=d e" "$out"
+assert_contains "missing key ALLOWLIST_ACTIVE=0" "ALLOWLIST_ACTIVE=0" "$out"
+
+echo "test: null skills value → parse_fail, fall through to global"
+mkdir -p "$tmp/proj7"
+cat > "$tmp/proj7/.spellbook.yaml" <<YAML
+skills:
+YAML
+out=$(run_bootstrap_probe "$tmp/sb" "$tmp/proj7")
+assert_contains "null value GLOBAL_SKILLS=a b c" "GLOBAL_SKILLS=a b c" "$out"
+assert_contains "null value ALLOWLIST_ACTIVE=0" "ALLOWLIST_ACTIVE=0" "$out"
+
 echo
 if [ "$fail" -eq 0 ]; then
   echo "all tests passed"

@@ -325,23 +325,46 @@ fi
 
 # Per-project skill allowlist. If $PWD/.spellbook.yaml has a `skills:` list,
 # intersect GLOBAL_SKILLS and EXTERNAL_SKILLS with it (allowlist order wins).
-# Unknown names are dropped with a warning. Missing or malformed file →
-# global behavior preserved.
+# Three parser states (sentinel on first stdout token):
+#   PRESENT <names…> → file present, `skills:` is a list (possibly empty).
+#                      Allowlist is active; empty list → empty result (fail-loud
+#                      via the "No skills found" guard below, which is correct
+#                      for "user said install nothing").
+#   PARSE_FAIL       → file present but malformed or wrong shape. Warn and fall
+#                      through to global behavior.
+#   (file absent)    → skip filter entirely, global behavior preserved.
 ALLOWLIST_ACTIVE=0
 if [ -f "$PWD/.spellbook.yaml" ]; then
-  allowlist=$(python3 - "$PWD/.spellbook.yaml" <<'PY' || true
+  allowlist_raw=$(python3 - "$PWD/.spellbook.yaml" <<'PY' || true
 import sys, yaml
 try:
     d = yaml.safe_load(open(sys.argv[1]))
-    print(' '.join(str(s) for s in (d or {}).get('skills') or []))
 except Exception as e:
     sys.stderr.write('warn: could not parse .spellbook.yaml: {}\n'.format(e))
+    print('PARSE_FAIL')
+    sys.exit(0)
+if not isinstance(d, dict) or 'skills' not in d:
+    print('PARSE_FAIL')
+    sys.exit(0)
+skills = d.get('skills')
+if skills is None:
+    # `skills:` key present but null. Treat as malformed (user likely meant []).
+    sys.stderr.write('warn: .spellbook.yaml: skills: is null (use [] for empty)\n')
+    print('PARSE_FAIL')
+    sys.exit(0)
+if not isinstance(skills, list):
+    sys.stderr.write('warn: .spellbook.yaml: skills: must be a list\n')
+    print('PARSE_FAIL')
+    sys.exit(0)
+print('PRESENT ' + ' '.join(str(s) for s in skills))
 PY
 )
-  if [ -n "$allowlist" ]; then
+  # Read first token as status sentinel; remaining tokens are allowlist names.
+  read -r status rest <<< "$allowlist_raw"
+  if [ "$status" = "PRESENT" ]; then
     ALLOWLIST_ACTIVE=1
     filtered_global=(); filtered_external=()
-    for s in $allowlist; do
+    for s in $rest; do
       if contains "$s" "${GLOBAL_SKILLS[@]}"; then filtered_global+=("$s")
       elif contains "$s" "${EXTERNAL_SKILLS[@]}"; then filtered_external+=("$s")
       else warn "  .spellbook.yaml: unknown skill '$s' (skipped)"
@@ -351,6 +374,7 @@ PY
     EXTERNAL_SKILLS=("${filtered_external[@]}")
     info "Allowlist active: ${#GLOBAL_SKILLS[@]} first-party + ${#EXTERNAL_SKILLS[@]} external"
   fi
+  # Any other status (PARSE_FAIL, empty, unexpected) → leave ALLOWLIST_ACTIVE=0.
 fi
 
 if [ "${SPELLBOOK_TEST_MODE:-0}" = "1" ]; then
