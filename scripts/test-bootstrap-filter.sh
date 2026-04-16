@@ -150,6 +150,19 @@ out=$(run_bootstrap_probe "$tmp/sb" "$tmp/proj7")
 assert_contains "null value GLOBAL_SKILLS=a b c" "GLOBAL_SKILLS=a b c" "$out"
 assert_contains "null value ALLOWLIST_ACTIVE=0" "ALLOWLIST_ACTIVE=0" "$out"
 
+echo "test: subdir invocation → picks up .spellbook.yaml from git root"
+mkdir -p "$tmp/proj8/sub/nested"
+( cd "$tmp/proj8" && git init -q && git config user.email t@t && git config user.name t )
+cat > "$tmp/proj8/.spellbook.yaml" <<YAML
+skills:
+  - a
+  - d
+YAML
+out=$(run_bootstrap_probe "$tmp/sb" "$tmp/proj8/sub/nested")
+assert_contains "subdir GLOBAL_SKILLS=a" "GLOBAL_SKILLS=a" "$out"
+assert_contains "subdir EXTERNAL_SKILLS=d" "EXTERNAL_SKILLS=d" "$out"
+assert_contains "subdir ALLOWLIST_ACTIVE=1" "ALLOWLIST_ACTIVE=1" "$out"
+
 echo
 if [ "$fail" -eq 0 ]; then
   echo "all tests passed"

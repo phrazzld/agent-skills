@@ -323,8 +323,9 @@ else
   discover_remote
 fi
 
-# Per-project skill allowlist. If $PWD/.spellbook.yaml has a `skills:` list,
-# intersect GLOBAL_SKILLS and EXTERNAL_SKILLS with it (allowlist order wins).
+# Per-project skill allowlist. Resolves symmetric to /tailor-skills: the file
+# lives at the git toplevel, so running bootstrap from a subdirectory still
+# picks it up. If there is no enclosing git repo, falls back to $PWD.
 # Three parser states (sentinel on first stdout token):
 #   PRESENT <names…> → file present, `skills:` is a list (possibly empty).
 #                      Allowlist is active; empty list → empty result (fail-loud
@@ -334,8 +335,9 @@ fi
 #                      through to global behavior.
 #   (file absent)    → skip filter entirely, global behavior preserved.
 ALLOWLIST_ACTIVE=0
-if [ -f "$PWD/.spellbook.yaml" ]; then
-  allowlist_raw=$(python3 - "$PWD/.spellbook.yaml" <<'PY' || true
+project_root=$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+if [ -f "$project_root/.spellbook.yaml" ]; then
+  allowlist_raw=$(python3 - "$project_root/.spellbook.yaml" <<'PY' || true
 import sys, yaml
 try:
     d = yaml.safe_load(open(sys.argv[1]))
