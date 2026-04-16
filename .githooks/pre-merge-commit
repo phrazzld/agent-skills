@@ -42,8 +42,8 @@ verdicts_lib="$repo_root/scripts/lib/verdicts.sh"
 # shellcheck source=scripts/lib/verdicts.sh
 source "$verdicts_lib"
 
-verdict_check_landable "$branch"
-rc=$?
+rc=0
+verdict_check_landable "$branch" || rc=$?
 if [ "$rc" -eq 1 ]; then
   echo "pre-merge-commit: no valid verdict for '$branch'." >&2
   echo "  Run /code-review first, or bypass with:" >&2
@@ -52,5 +52,8 @@ if [ "$rc" -eq 1 ]; then
 elif [ "$rc" -eq 2 ]; then
   echo "pre-merge-commit: verdict is 'dont-ship' for '$branch'." >&2
   echo "  Address review findings and re-run /code-review." >&2
+  exit 1
+elif [ "$rc" -ne 0 ]; then
+  echo "pre-merge-commit: unexpected verdict check failure (rc=$rc)." >&2
   exit 1
 fi

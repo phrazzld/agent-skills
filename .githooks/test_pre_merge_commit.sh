@@ -13,6 +13,10 @@ setup() {
   TEST_DIR="$(mktemp -d)"
   cd "$TEST_DIR"
   git init -q
+  mkdir -p .empty-hooks
+  git config core.hooksPath .empty-hooks
+  git config user.name "Test User"
+  git config user.email "test@example.com"
   git commit --allow-empty -m "initial on master" -q
 
   # Install the hook
@@ -55,9 +59,25 @@ write_verdict() {
   local branch="$1" verdict_value="$2"
   local sha
   sha="$(git rev-parse "$branch")"
+  # shellcheck source=scripts/lib/verdicts.sh
   source scripts/lib/verdicts.sh
   local json='{"branch":"'"$branch"'","base":"master","verdict":"'"$verdict_value"'","reviewers":["critic"],"scores":{"correctness":8},"sha":"'"$sha"'","date":"2026-04-06T15:00:00Z"}'
   verdict_write "$branch" "$json"
+}
+
+assert_contains() {
+  local desc="$1" needle="$2" haystack="$3"
+  if printf '%s' "$haystack" | grep -Fq "$needle"; then
+    PASS=$((PASS + 1))
+    echo "  PASS  $desc"
+  else
+    FAIL=$((FAIL + 1))
+    echo "  FAIL  $desc (missing '$needle')"
+  fi
+}
+
+run_hook_direct() {
+  env GIT_REFLOG_ACTION="merge feat-x" .githooks/pre-merge-commit
 }
 
 # --- Tests ---
@@ -69,6 +89,21 @@ test_merge_blocked_no_verdict() {
 test_merge_blocked_dont_ship() {
   write_verdict feat-x dont-ship
   assert_exit "merge blocked with dont-ship verdict" 1 git merge --no-ff feat-x
+}
+
+test_hook_reports_missing_verdict() {
+  local output rc=0
+  output="$(run_hook_direct 2>&1)" || rc=$?
+  assert_exit "hook blocks missing verdict directly" 0 test "$rc" -eq 1
+  assert_contains "hook explains missing verdict" "no valid verdict for 'feat-x'" "$output"
+}
+
+test_hook_reports_dont_ship_verdict() {
+  local output rc=0
+  write_verdict feat-x dont-ship
+  output="$(run_hook_direct 2>&1)" || rc=$?
+  assert_exit "hook blocks dont-ship directly" 0 test "$rc" -eq 1
+  assert_contains "hook explains dont-ship verdict" "verdict is 'dont-ship' for 'feat-x'" "$output"
 }
 
 test_merge_allowed_ship() {
@@ -85,7 +120,7 @@ test_merge_bypass_env() {
 
 run_tests() {
   local funcs
-  funcs="$(declare -F | awk '/test_merge_/{print $3}')"
+  funcs="$(declare -F | awk '/test_(hook_|merge_)/{print $3}')"
   for t in $funcs; do
     setup
     "$t"

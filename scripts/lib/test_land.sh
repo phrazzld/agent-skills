@@ -13,6 +13,11 @@ setup() {
   TEST_DIR="$(mktemp -d)"
   cd "$TEST_DIR"
   git init -q
+  git symbolic-ref HEAD refs/heads/main
+  mkdir -p .empty-hooks
+  git config core.hooksPath .empty-hooks
+  git config user.name "Test User"
+  git config user.email "test@example.com"
   git commit --allow-empty -m "initial" -q
   # Symlink verdicts.sh so land.sh can source it
   mkdir -p scripts/lib
@@ -48,9 +53,21 @@ write_verdict() {
   local branch="$1" verdict_value="$2"
   local sha
   sha="$(git rev-parse HEAD)"
+  # shellcheck source=scripts/lib/verdicts.sh
   source scripts/lib/verdicts.sh
-  local json='{"branch":"'"$branch"'","base":"master","verdict":"'"$verdict_value"'","reviewers":["critic"],"scores":{"correctness":8},"sha":"'"$sha"'","date":"2026-04-06T15:00:00Z"}'
+  local json='{"branch":"'"$branch"'","base":"main","verdict":"'"$verdict_value"'","reviewers":["critic"],"scores":{"correctness":8},"sha":"'"$sha"'","date":"2026-04-06T15:00:00Z"}'
   verdict_write "$branch" "$json"
+}
+
+install_fake_dagger() {
+  local exit_code="$1"
+  mkdir -p bin
+  cat >bin/dagger <<EOF
+#!/usr/bin/env bash
+exit $exit_code
+EOF
+  chmod +x bin/dagger
+  : > dagger.json
 }
 
 # --- Tests ---
@@ -77,6 +94,12 @@ test_land_accepts_conditional() {
 test_land_bypass_env_var() {
   assert_exit "land bypasses with SPELLBOOK_NO_REVIEW=1" 0 \
     env SPELLBOOK_NO_REVIEW=1 bash scripts/land.sh feat-test
+}
+
+test_land_bypass_still_runs_dagger() {
+  install_fake_dagger 1
+  assert_exit "land bypass still runs dagger" 4 \
+    env PATH="$TEST_DIR/bin:$PATH" SPELLBOOK_NO_REVIEW=1 bash scripts/land.sh feat-test
 }
 
 test_land_rejects_stale_verdict() {
