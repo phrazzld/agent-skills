@@ -83,8 +83,6 @@ catalog.
   `scripts/generate-index.sh`. If a chosen skill disappeared after
   regeneration, bootstrap prints a warning and skips it — the
   allowlist is intersected with what actually exists.
-- **Opt-out is trivial.** Delete `.spellbook.yaml`, re-run
-  `./bootstrap.sh`. Global set returns.
 - **Don't over-reduce.** The goal is "fit for this repo," not
   "absolute minimum." Cutting 80% of noise is already the win; chasing
   smaller at the cost of utility is the failure mode.
