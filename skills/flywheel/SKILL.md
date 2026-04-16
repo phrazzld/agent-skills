@@ -85,9 +85,9 @@ After cycle(s), emit operator-facing shipping brief + full /reflect session
 | `--budget $N` | Cumulative model cost ceiling |
 | `--unattended` | No-TTY mode; requires `--budget` |
 | `--dry-run` | Walk phases, write 8-event trail, invoke nothing |
-| `--until <pred>` | Stop predicate — Phase 2b (exits 2) |
-| `--resume <ulid>` | Resume paused cycle — Phase 2b (exits 2) |
-| `--abandon <ulid>` | Mark abandoned — Phase 2b (exits 2) |
+| `--until <pred>` | Stop predicate (exits 2 — not yet implemented) |
+| `--resume <ulid>` | Resume paused cycle (exits 2 — not yet implemented) |
+| `--abandon <ulid>` | Mark abandoned (exits 2 — not yet implemented) |
 
 Unattended without `--budget` exits 2: `flywheel: unattended mode requires
 --budget <usd>`. Default interactive cap is $5 USD.
@@ -101,7 +101,7 @@ Unattended without `--budget` exits 2: `flywheel: unattended mode requires
 | `emit <cycle_id> <kind> <phase> <agent> <payload>` | Validated event write; sums cost_usd; triggers budget.exhausted at 95% |
 | `close <cycle_id> <status> [<reason>]` | Emit cycle.closed, update manifest, release lock |
 | `update-bucket <cycle_id> <ship_status>` | Backlog mutation (move on shipped, stamp on failed). Idempotent |
-| `update-harness <cycle_id>` | Emit harness.suggested (Phase 2b: branch mechanics) |
+| `update-harness <cycle_id>` | Emit harness.suggested (branch mechanics not yet implemented) |
 | `budget <cycle_id>` | stdout: manifest budget block as JSON |
 | `status [<cycle_id>]` | Human-readable cycle state |
 | `run [flags]` | Drive the outer loop (--dry-run or real). Accepts --max-cycles |
@@ -162,8 +162,7 @@ For multi-cycle runs: one brief per cycle, then one aggregate summary.
   headroom absorbs metering lag.
 - **update-bucket is idempotent.** Guards every mutation with cycle_id grep.
   Re-running is safe; it detects the marker and no-ops.
-- **harness.suggested writes to a branch only** (never main). Phase 2b wires
-  the branch mechanics; Phase 2a emits a placeholder event.
+- **harness.suggested writes to a branch only** (never main). Branch mechanics not yet implemented; currently emits a placeholder event.
 - **Never auto-merge.** `/flywheel` never opens, approves, or merges a PR.
 - **Paths anchor to REPO_ROOT.** flywheel.sh cds to the repo root on startup.
   Override FLYWHEEL_LOCK_PATH with an absolute path.

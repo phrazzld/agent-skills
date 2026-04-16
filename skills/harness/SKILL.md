@@ -6,7 +6,9 @@ description: |
   Use when: "create a skill", "update skill", "improve the harness",
   "sync skills", "eval skill", "lint skill", "tune the harness",
   "add skill", "remove skill", "convert agent to skill",
-  "audit skills", "skill health", "unused skills".
+  "audit skills", "skill health", "unused skills",
+  "lint this skill", "eval this skill", "evaluate this skill",
+  "validate this skill", "check this skill".
   Trigger: /harness, /focus, /skill, /primitive.
 argument-hint: "[create|eval|lint|convert|sync|engineer|audit] [target]"
 ---

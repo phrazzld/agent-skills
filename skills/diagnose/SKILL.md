@@ -203,13 +203,6 @@ For non-trivial production issues, create `INCIDENT-{timestamp}.md`:
 - **Root cause**: When found
 - **Fix**: What resolved it
 
-## Bounded Shell Output (MANDATORY)
-
-- Size first: `wc -l <file>` or `du -h`
-- Read windows: `sed -n '1,120p'`; jump with `rg -n`
-- Cap logs: `head -n 200`, `tail -n 200`
-- Abort after 20s without signal; narrow scope, rerun
-
 ## Red Flags -- STOP and Return to Phase 1
 
 - "Quick fix for now, investigate later"
