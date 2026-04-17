@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-16T23:04:28Z
+# Generated: 2026-04-17T21:56:43Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -99,6 +99,10 @@ skills:
     description: "Per-repo skill subset selector. Reads the current project, reads the spellbook catalog, picks 10-20 skills that fit this repo, writes the selection to .spellbook.yaml so bootstrap only symlinks that s"
     source: first-party
     tags: [10-20,bootstrap,catalog,current,fit,only,per-repo,picks,project,reads]
+  - name: tailor
+    description: "Generate a project-local harness specialized to this repo. Writes .claude/settings.local.json + AGENTS.md, then A/B-evaluates them against a canned task and rolls back automatically on regression. The"
+    source: first-party
+    tags: [a,against,agents,automatically,b-evaluates,back,canned,claude,generate,harness]
   - name: yeet
     description: "End-to-end \"ship it to the remote\" in one command. Reads the whole worktree, understands what's in flight, tidies debris, splits pending work into semantically-meaningful conventional commits, and pus"
     source: first-party
