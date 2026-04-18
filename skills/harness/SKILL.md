@@ -71,6 +71,19 @@ this harness creates, evaluates, and lints.
    filesystem-level equivalent that works across all three. Prior art:
    `harnesses/pi/settings.json:skills[]` glob. See
    `harnesses/shared/AGENTS.md` Cross-Harness First.
+10. **Prose for an intelligent reader, not a program.** You're not
+    writing code. You're writing instructions for an intelligent
+    agent. The best skills read like a colleague explaining
+    (`skills/.external/anthropic-skill-creator/SKILL.md` ends a
+    section with "Cool? Cool."). Favor bullets, examples, and
+    guardrails over flowcharts. If your skill has Phase 0 / Phase 1 /
+    state-machine shape, you're describing a program. Strip to
+    invariants + a "shape of the work" paragraph; the agent fills
+    sequencing itself. *Exemplars:*
+    `skills/.external/openai-playwright/SKILL.md` (147 lines, mostly
+    copy-paste examples + guardrails) and
+    `skills/.external/anthropic-skill-creator/SKILL.md`
+    (colleague-voice throughout).
 
 ## Gotchas
 
@@ -88,3 +101,8 @@ this harness creates, evaluates, and lints.
   Codex plugins) is a design bug. All three harnesses scan SKILL.md
   from a skills directory — that's the common denominator. Runtime
   features are optimizations, not primary mechanisms.
+- State-machine-shaped skills (Phase 0-N flowcharts, deterministic
+  scoring scripts inside SKILL.md, exit-code routing tables) are a
+  smell. You're writing for an intelligent agent, not Python.
+  Rewrite as invariants + guardrails + a paragraph of "shape of
+  the work." The agent fills sequencing itself.

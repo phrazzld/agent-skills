@@ -263,30 +263,13 @@ verify_no_broken_spellbook_symlinks() {
 }
 
 discover_local() {
-  local skill agent name
-  GLOBAL_SKILLS=()
-  EXTERNAL_SKILLS=()
+  local agent
+  # Minimal globals: only /tailor and /seed are symlinked into harness skills
+  # dirs. Every other primitive lives in spellbook and is copied per-repo by
+  # /tailor or /seed. Agents remain globally available — they're lightweight
+  # and used by many workflows.
+  GLOBAL_SKILLS=(tailor seed)
   GLOBAL_AGENTS=()
-
-  for skill in "$SPELLBOOK"/skills/*/SKILL.md; do
-    [ -f "$skill" ] || continue
-    GLOBAL_SKILLS+=("$(basename "$(dirname "$skill")")")
-  done
-
-  # External skills installed by scripts/sync-external.sh.
-  # First-party wins on collision: externals only load if the name isn't
-  # already in GLOBAL_SKILLS.
-  if [ -d "$SPELLBOOK/skills/.external" ]; then
-    for skill in "$SPELLBOOK"/skills/.external/*/SKILL.md; do
-      [ -f "$skill" ] || continue
-      name="$(basename "$(dirname "$skill")")"
-      if contains "$name" "${GLOBAL_SKILLS[@]}"; then
-        warn "  external skill '$name' shadowed by first-party skill"
-        continue
-      fi
-      EXTERNAL_SKILLS+=("$name")
-    done
-  fi
 
   for agent in "$SPELLBOOK"/agents/*.md; do
     [ -f "$agent" ] || continue
@@ -295,18 +278,11 @@ discover_local() {
 }
 
 discover_remote() {
-  GLOBAL_SKILLS=()
-  EXTERNAL_SKILLS=()  # remote mode: externals are local-only (require sync)
+  # Minimal globals, same as discover_local. No need to list remote catalog.
+  GLOBAL_SKILLS=(tailor seed)
   GLOBAL_AGENTS=()
 
   local names
-  names=$(curl -sf "https://api.github.com/repos/$REPO/contents/skills" | \
-    python3 -c "import sys,json; [print(d['name']) for d in json.load(sys.stdin) if d['type']=='dir']" 2>/dev/null) \
-    || { err "Failed to list remote skills"; exit 1; }
-  while IFS= read -r name; do
-    [ -n "$name" ] && GLOBAL_SKILLS+=("$name")
-  done <<< "$names"
-
   names=$(curl -sf "https://api.github.com/repos/$REPO/contents/agents" | \
     python3 -c "import sys,json; [print(f['name'].removesuffix('.md')) for f in json.load(sys.stdin) if f['name'].endswith('.md')]" 2>/dev/null) \
     || { err "Failed to list remote agents"; exit 1; }
@@ -321,75 +297,6 @@ if [ -n "$SPELLBOOK" ]; then
   discover_local
 else
   discover_remote
-fi
-
-# Per-project skill allowlist. Resolves symmetric to /tailor-skills: the file
-# lives at the git toplevel, so running bootstrap from a subdirectory still
-# picks it up. If there is no enclosing git repo, falls back to $PWD.
-#
-# Discovery-agnostic by construction: runs once on whichever arrays
-# discover_local or discover_remote populated, so remote-install (curl|bash)
-# gets the same filter as local-checkout. install_remote() at the bottom of
-# this file iterates the already-filtered GLOBAL_SKILLS[].
-#
-# Three parser states (sentinel on first stdout token):
-#   PRESENT <names…> → file present, `skills:` is a list (possibly empty).
-#                      Allowlist is active; empty list → empty result (fail-loud
-#                      via the "No skills found" guard below, which is correct
-#                      for "user said install nothing").
-#   PARSE_FAIL       → file present but malformed or wrong shape. Warn and fall
-#                      through to global behavior.
-#   (file absent)    → skip filter entirely, global behavior preserved.
-ALLOWLIST_ACTIVE=0
-project_root=$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
-if [ -f "$project_root/.spellbook.yaml" ]; then
-  allowlist_raw=$(python3 - "$project_root/.spellbook.yaml" <<'PY' || true
-import sys, yaml
-try:
-    d = yaml.safe_load(open(sys.argv[1]))
-except Exception as e:
-    sys.stderr.write('warn: could not parse .spellbook.yaml: {}\n'.format(e))
-    print('PARSE_FAIL')
-    sys.exit(0)
-if not isinstance(d, dict) or 'skills' not in d:
-    print('PARSE_FAIL')
-    sys.exit(0)
-skills = d.get('skills')
-if skills is None:
-    # `skills:` key present but null. Treat as malformed (user likely meant []).
-    sys.stderr.write('warn: .spellbook.yaml: skills: is null (use [] for empty)\n')
-    print('PARSE_FAIL')
-    sys.exit(0)
-if not isinstance(skills, list):
-    sys.stderr.write('warn: .spellbook.yaml: skills: must be a list\n')
-    print('PARSE_FAIL')
-    sys.exit(0)
-print('PRESENT ' + ' '.join(str(s) for s in skills))
-PY
-)
-  # Read first token as status sentinel; remaining tokens are allowlist names.
-  read -r status rest <<< "$allowlist_raw"
-  if [ "$status" = "PRESENT" ]; then
-    ALLOWLIST_ACTIVE=1
-    filtered_global=(); filtered_external=()
-    for s in $rest; do
-      if contains "$s" "${GLOBAL_SKILLS[@]}"; then filtered_global+=("$s")
-      elif contains "$s" "${EXTERNAL_SKILLS[@]}"; then filtered_external+=("$s")
-      else warn "  .spellbook.yaml: unknown skill '$s' (skipped)"
-      fi
-    done
-    GLOBAL_SKILLS=("${filtered_global[@]}")
-    EXTERNAL_SKILLS=("${filtered_external[@]}")
-    info "Allowlist active: ${#GLOBAL_SKILLS[@]} first-party + ${#EXTERNAL_SKILLS[@]} external"
-  fi
-  # Any other status (PARSE_FAIL, empty, unexpected) → leave ALLOWLIST_ACTIVE=0.
-fi
-
-if [ "${SPELLBOOK_TEST_MODE:-0}" = "1" ]; then
-  printf 'GLOBAL_SKILLS=%s\n' "${GLOBAL_SKILLS[*]:-}"
-  printf 'EXTERNAL_SKILLS=%s\n' "${EXTERNAL_SKILLS[*]:-}"
-  printf 'ALLOWLIST_ACTIVE=%s\n' "$ALLOWLIST_ACTIVE"
-  exit 0
 fi
 
 if [ ${#GLOBAL_SKILLS[@]} -eq 0 ]; then
@@ -451,40 +358,22 @@ link_local() {
   local agents_dir="$harness_dir/agents"
 
   info "  Linking skills..."
-  # External skills live in skills/.external/<alias>/ (hidden), so a whole-dir
-  # symlink hides them from harnesses that only glob `*`. Force per-entry mode
-  # whenever externals are present.
-  local force_per_entry=0
-  if [ "${#EXTERNAL_SKILLS[@]}" -gt 0 ] || [ "${ALLOWLIST_ACTIVE:-0}" -eq 1 ]; then
-    force_per_entry=1
-    # Remove any prior whole-dir symlink so we can populate per-entry.
-    if [ -L "$skills_dir" ]; then
-      rm -f "$skills_dir"
-    fi
+  # Per-entry symlinks for the minimal global set (tailor, seed). Remove any
+  # prior whole-dir symlink from earlier bootstrap generations that mirrored
+  # the full catalog.
+  if [ -L "$skills_dir" ]; then
+    rm -f "$skills_dir"
   fi
 
-  if [ "$force_per_entry" -eq 0 ] && link_parent_dir "$SPELLBOOK/skills" "$skills_dir" "skills/"; then
-    :  # parent symlink succeeded
-  else
-    # Per-skill symlinks: first-party + external (first-party wins on name).
-    local skill src
-    local skill_names=("${GLOBAL_SKILLS[@]}" "${EXTERNAL_SKILLS[@]}")
-    cleanup_symlinks_under_prefix "$skills_dir" "$SPELLBOOK/skills" "${skill_names[@]}"
-    mkdir -p "$skills_dir"
-    for skill in "${GLOBAL_SKILLS[@]}"; do
-      src="$SPELLBOOK/skills/$skill"
-      [ -d "$src" ] || { warn "    missing local skill: $skill"; continue; }
-      ln -sfn "$src" "$skills_dir/$skill"
-      ok "    $skill"
-    done
-    for skill in "${EXTERNAL_SKILLS[@]:-}"; do
-      [ -z "$skill" ] && continue
-      src="$SPELLBOOK/skills/.external/$skill"
-      [ -d "$src" ] || { warn "    missing external skill: $skill"; continue; }
-      ln -sfn "$src" "$skills_dir/$skill"
-      ok "    $skill (external)"
-    done
-  fi
+  local skill src
+  cleanup_symlinks_under_prefix "$skills_dir" "$SPELLBOOK/skills" "${GLOBAL_SKILLS[@]}"
+  mkdir -p "$skills_dir"
+  for skill in "${GLOBAL_SKILLS[@]}"; do
+    src="$SPELLBOOK/skills/$skill"
+    [ -d "$src" ] || { warn "    missing local skill: $skill"; continue; }
+    ln -sfn "$src" "$skills_dir/$skill"
+    ok "    $skill"
+  done
 
   info "  Linking agents..."
   if ! link_parent_dir "$SPELLBOOK/agents" "$agents_dir" "agents/"; then
@@ -635,10 +524,8 @@ fi
 ok "Done. Installed to $installed harness(es)."
 echo
 info "Skills (${#GLOBAL_SKILLS[@]}): ${GLOBAL_SKILLS[*]}"
-if [ "${#EXTERNAL_SKILLS[@]}" -gt 0 ]; then
-  info "External skills (${#EXTERNAL_SKILLS[@]}): ${EXTERNAL_SKILLS[*]}"
-fi
 info "Agents (${#GLOBAL_AGENTS[@]}): ${GLOBAL_AGENTS[*]}"
+info "(Other primitives live in \$SPELLBOOK/skills/ — install per-repo via /tailor or /seed.)"
 echo
 if [ -n "$SPELLBOOK" ]; then
   info "Mode: symlink (edits in $SPELLBOOK propagate instantly)"
