@@ -33,6 +33,25 @@ gets wrong without the skill.
 If you're writing "1. Read the file 2. Find the function 3. Edit it" —
 that's not a skill, that's a task description.
 
+**In-repo exemplars worth reading before drafting:**
+- `skills/flywheel/SKILL.md` — 42 lines. Minimal composer. States
+  invariants, nothing more.
+- `skills/diagnose/SKILL.md` — judgment encoded as a routing table.
+  The table IS the skill; prose around it explains edge cases only.
+- `skills/settle/SKILL.md` — judgment encoded as mode detection.
+  Two modes, different recovery paths per mode.
+- `skills/tailor-skills/SKILL.md` — 90 lines. "Moves" section shows
+  how to encode sequential steps the model still has judgment over.
+
+**External exemplars (installed under `skills/.external/`):**
+- `anthropic-skill-creator` — the "theory of mind" framing:
+  explain the *why* before the *how* so the model can handle
+  edge cases the rules don't enumerate.
+- `anthropic-claude-api` — stratified progressive disclosure across
+  SKILL.md body → language-specific reference folders → code examples.
+- `vercel-dogfood` — repro-first discipline: document immediately
+  before moving on, so findings survive session handoff.
+
 ## Progressive disclosure
 
 Three layers. Each loads only when needed:

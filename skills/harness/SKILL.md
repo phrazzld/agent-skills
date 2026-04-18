@@ -44,6 +44,9 @@ this harness creates, evaluates, and lints.
    domains should be split. Three workflows is healthy. Five is a refactor signal.
 2. **Token budget: 3,000 target, 5,000 ceiling.** Every token competes for
    attention with the user's actual problem. 5,000 is the hard ceiling, not target.
+   *Exemplars in this repo:* `skills/flywheel/SKILL.md` (42 lines — states
+   composition invariants, delegates phase logic elsewhere) and
+   `skills/shape/SKILL.md` (117 lines — invariant-first even at larger scale).
 3. **Mode content in references, not inline.** Mandatory for >3 modes. Thin
    SKILL.md with routing table, mode content in `references/mode-*.md`.
 4. **Every line justifies its token cost.** Irrelevant-but-related content
@@ -52,6 +55,9 @@ this harness creates, evaluates, and lints.
    conversation. Don't split unless domain coherence demands it.
 6. **Encode judgment, not procedures.** If the model already knows how, the
    skill is waste. Gotcha lists outperform pages of happy-path instructions.
+   *Exemplars:* `skills/diagnose/SKILL.md` (routing table is the core
+   judgment — which phase for which symptom) and `skills/settle/SKILL.md`
+   (mode detection — GitHub-PR vs git-native — is the core judgment).
 7. **Mode-bloat gate.** >4 modes with inline content is a lint failure.
    Extract to references/ or split the skill.
 8. **Self-contained.** Every file the skill needs lives under
