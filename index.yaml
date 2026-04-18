@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-18T21:32:56Z
+# Generated: 2026-04-18T22:00:29Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -100,9 +100,9 @@ skills:
     source: first-party
     tags: [a,buildable,context,critique,design,exploration,feature,idea,is,output]
   - name: tailor
-    description: "Tailor this repository's harness. Explore the repo, read prior session history if any, browse the spellbook catalog, pick the primitives that fit, and install them locally in .claude/. Specialize wher"
+    description: "Tailor this repository's harness. Explore the repo, read prior session history, browse the spellbook catalog, and install a per-repo set of skills and agents in .claude/. Workflow skills get rewritten"
     source: first-party
-    tags: [browse,catalog,claude,explore,fit,harness,history,if,in,install]
+    tags: [a,agents,browse,catalog,claude,explore,get,harness,history,in]
   - name: yeet
     description: "End-to-end \"ship it to the remote\" in one command. Reads the whole worktree, understands what's in flight, tidies debris, splits pending work into semantically-meaningful conventional commits, and pus"
     source: first-party
