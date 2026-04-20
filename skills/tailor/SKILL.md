@@ -25,6 +25,21 @@ tailoring; it's decoration.
    `package.json` / `Cargo.toml` / `pyproject.toml`, README, top-level
    structure.
 
+   **Also inventory any existing harness.** If `.claude/skills/` or
+   `.claude/agents/` already has content, classify each entry:
+   - **Tailor-owned** — has a `.spellbook` marker file with
+     `source: <name>`, `installed: <timestamp>`, and (newer runs)
+     `installed-by: tailor`. Safe to replace or remove.
+   - **Scaffolded** — marker says `installed-by: <skill>-scaffold`
+     (e.g. `qa-scaffold`, `demo-scaffold`) or the content is a
+     scaffold output the repo explicitly authored. Preserve.
+   - **Human-authored / unknown** — no marker, or marker from an
+     era before current /tailor (no `installed-by` field). Preserve
+     by default; flag for user confirmation before overwriting.
+
+   Read the repo-level `.spellbook/repo-brief.md` if present —
+   it's the prior run's brief, useful for diffing what changed.
+
 2. **Prior art.** If your harness keeps session history for this repo
    (Claude Code: `~/.claude/projects/<path-hash>/`, Codex: analogous
    state path), read the session JSONL and memory files. What
@@ -60,6 +75,10 @@ tailoring; it's decoration.
    Short, dense, concrete. This is the single source of truth for
    "what is this repo" that every rewriter anchors to.
 
+   **Persist the brief to `.spellbook/repo-brief.md`** at the repo
+   root. Future runs read it to diff what's changed. Overwrite any
+   existing version.
+
 5. **Pick.** Dispatch planner + critic subagents with the repo
    brief attached. Planner proposes a set following the picking
    defaults below; critic applies `references/focus-postmortem.md`.
@@ -75,7 +94,38 @@ tailoring; it's decoration.
 
    One round. Stop on critic-clear.
 
-6. **Install.** Three categories, different rules:
+6. **Install.** First reconcile, then write.
+
+   **Reconcile.** For each tailor-owned item inventoried in step 1
+   (has `.spellbook` marker with `installed-by: tailor`):
+   - Still in the new pick → replace with fresh rewrite.
+   - Not in the new pick → remove the skill/agent directory. This
+     is how `/tailor` self-heals canary-class fossils where the
+     prior pick no longer matches the repo's current needs.
+
+   For items without a `.spellbook` marker (unknown origin): do not
+   touch without user confirmation. If a skill you're about to
+   install collides with an unmarked existing skill of the same
+   name, surface the conflict: "existing `.claude/skills/qa/` has
+   no tailor marker — is it scaffolded, human-authored, or prior-
+   era /tailor output? [preserve / replace / diff]".
+
+   **Write `.spellbook` markers.** Every skill and agent installed
+   or updated by this run gets a marker file at
+   `<skill-or-agent>/.spellbook` with:
+
+   ```yaml
+   source: <primitive-name>
+   installed: <ISO-8601 timestamp>
+   installed-by: tailor
+   tailor-version: <git commit SHA of spellbook/skills/tailor>
+   category: universal | workflow | domain-invented
+   ```
+
+   Markers are how re-runs tell your output apart from human-
+   authored content.
+
+   Three categories, different install rules:
 
    - **Universal skills** — `research`, `groom`, `office-hours`,
      `ceo-review`, `reflect`, and similar that carry no repo-specific
@@ -195,6 +245,17 @@ tailoring; it's decoration.
   the bar.
 - Preserve self-containment. When you copy or rewrite a skill, its
   `references/` and `scripts/` stay with it.
+- **Non-destructive by default.** Never delete `.claude/` content
+  that lacks a `.spellbook` marker with `installed-by: tailor`. If
+  reconciliation wants to remove something unmarked, ask the user
+  first. Tailor owns `AGENTS.md` (overwrite is fine; pre-existing
+  AGENTS.md without a prior tailor run should prompt confirmation)
+  and `.spellbook/repo-brief.md` (always overwrite).
+- **Settings merge, not overwrite.** When writing
+  `.claude/settings.local.json`, merge with the existing file
+  additively — user-added permissions entries survive. Only the
+  entries this run derived from actual tool usage are your
+  contribution.
 
 ## What "tailored" means
 
