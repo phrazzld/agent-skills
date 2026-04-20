@@ -146,11 +146,50 @@ tailoring; it's decoration.
      this one too" and ships byte-identical output. Each rewriter
      receives: (a) the repo brief from step 4 (shared spine —
      cite these anchors, don't invent parallel vocabulary),
-     (b) the spellbook source, (c) a domain-specific reading
-     assignment (`/ci` reads `.github/workflows/` + dagger config;
-     `/diagnose` reads evidence logs + postmortems; `/deliver`
-     reads `backlog.d/` + recent merged PRs), (d) the mandate
-     above.
+     (b) the spellbook source, (c) a reading assignment (see
+     table below), (d) the mandate above.
+
+     **Every workflow skill gets a reading assignment.** Skills
+     with clear command anchors get rewritten easily; abstract-
+     process skills (shape, refactor, code-review, flywheel,
+     groom, implement, diagnose) are the ones that silently pass
+     through because the source looks "already generic enough."
+     They aren't — they're the skills where rewriters have to
+     encode *this repo's judgment* as content, since there's no
+     command to swap in. Assignments:
+
+     | Skill | Read |
+     |---|---|
+     | ci | `.github/workflows/`, `dagger/`, `Dockerfile*`, CI status history |
+     | deliver | `backlog.d/`, recent merged PRs, CONTRIBUTING.md |
+     | deploy | `vercel.json`, `fly.*.toml`, `Dockerfile*`, deploy workflows |
+     | settle | merge history, branch-protection rules, release tooling |
+     | yeet | commit history, `commitlint.config.*`, semver tooling |
+     | qa | test configs, critical-path routes, Playwright/E2E specs |
+     | demo | evidence scripts, demo capture tools |
+     | monitor | signal surfaces (Sentry/Canary/health), alerts |
+     | **shape** | `backlog.d/*.md`, recent shape docs, planning conventions, design-review lineage |
+     | **refactor** | git churn (hot files), debt map, ARCHITECTURE.md, recent refactor PRs, named hotspots from repo brief |
+     | **code-review** | AGENTS.md red flags, recent review threads, repo's philosophy bench, known anti-patterns |
+     | **flywheel** | milestone tracker, issue IDs from repo brief, recent cycle reflections, deploy observables |
+     | **groom** | issue tracker (git-bug / GH / backlog.d/), grooming cadence, prioritization scheme |
+     | **implement** | test runner command, mocking boundaries, test config, recent TDD cycles |
+     | **diagnose** | signal surfaces, `.evidence/`, postmortems, observability tooling |
+
+     **Loop-core skills must not ship shallow.** The seven bolded
+     rows above (shape, refactor, code-review, flywheel, groom,
+     implement, diagnose) are the development loop's connective
+     tissue — they encode *how this team builds here*. Their source
+     text looks abstract because its job is generic wisdom. *Your*
+     rewrite's job is to name what each skill MEANS in this
+     codebase: the actual hotspots, the actual red flags, the
+     actual backlog conventions, the actual milestone structure,
+     the actual test command, the actual signal surfaces. "Generic
+     refactoring discipline" is the source's contribution; your
+     contribution is "in this repo, refactor first targets
+     `getRevealPhaseState` (N+1, #146) and theme-token leakage."
+     If your rewrite could describe any Next.js+Convex repo, any
+     Elixir/Phoenix repo, any Rust service — it's shallow. Redo.
 
      **Rewriters may add sections, delete irrelevant structure,
      and restructure — the spellbook source is a reference, not
