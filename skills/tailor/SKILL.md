@@ -25,8 +25,11 @@ tailoring; it's decoration.
    `package.json` / `Cargo.toml` / `pyproject.toml`, README, top-level
    structure.
 
-   **Also inventory any existing harness.** If `.claude/skills/` or
-   `.claude/agents/` already has content, classify each entry:
+   **Also inventory any existing harness.** Check all per-harness
+   paths and the canonical location: `.agents/skills/`,
+   `.agents/agents/`, `.claude/skills/`, `.claude/agents/`,
+   `.codex/skills/`, `.codex/agents/`, `.pi/skills/`, `.pi/agents/`.
+   If any have content, classify each entry:
    - **Tailor-owned** — has a `.spellbook` marker file with
      `source: <name>`, `installed: <timestamp>`, and (newer runs)
      `installed-by: tailor`. Safe to replace or remove.
@@ -94,7 +97,9 @@ tailoring; it's decoration.
 
    One round. Stop on critic-clear.
 
-6. **Install.** First reconcile, then write.
+6. **Install.** First reconcile, then write. **Canonical location
+   is `.agents/`, not `.claude/`** — see cross-harness install
+   invariant below.
 
    **Reconcile.** For each tailor-owned item inventoried in step 1
    (has `.spellbook` marker with `installed-by: tailor`):
@@ -106,9 +111,28 @@ tailoring; it's decoration.
    For items without a `.spellbook` marker (unknown origin): do not
    touch without user confirmation. If a skill you're about to
    install collides with an unmarked existing skill of the same
-   name, surface the conflict: "existing `.claude/skills/qa/` has
+   name, surface the conflict: "existing `.agents/skills/qa/` has
    no tailor marker — is it scaffolded, human-authored, or prior-
    era /tailor output? [preserve / replace / diff]".
+
+   **Install canonical, symlink per-harness.** Write skill and
+   agent files to the canonical location — `.agents/skills/<name>/`
+   and `.agents/agents/<name>.md`. Then create per-harness
+   symlinks so every harness reads from the same canonical set:
+
+   ```
+   .claude/skills -> ../.agents/skills
+   .claude/agents -> ../.agents/agents
+   .codex/skills  -> ../.agents/skills
+   .codex/agents  -> ../.agents/agents
+   .pi/skills     -> ../.agents/skills
+   .pi/agents     -> ../.agents/agents
+   ```
+
+   Create symlinks for all three harnesses regardless of which
+   the user is running today. Cheap, harmless, and prevents
+   "works on Claude Code, breaks on Codex" surprises when the
+   user (or a collaborator) switches harnesses.
 
    **Write `.spellbook` markers.** Every skill and agent installed
    or updated by this run gets a marker file at
@@ -236,8 +260,16 @@ tailoring; it's decoration.
      *here* (not the generic description). Agents in a sibling
      table, not a prose sentence.
 
-8. **Write `.claude/settings.local.json`.** Permissions allowlist
-   derived from the tools actually in use.
+8. **Write per-harness settings.** Each harness has its own
+   settings format and path; emit one variant per harness:
+   - `.claude/settings.local.json` (JSON, Claude Code)
+   - `.codex/config.toml` (TOML, Codex)
+   - `.pi/settings.json` (JSON, Pi)
+
+   Permissions allowlist (and any other per-harness toggles)
+   derive from the tools actually in use. Merge additively with
+   any existing file — don't nuke user-added entries. Emit all
+   three so the harness can be swapped without re-tailoring.
 
 ## Invariants
 
@@ -274,7 +306,8 @@ tailoring; it's decoration.
      concrete absence, not "didn't seem relevant").
   3. **Agent installation:** grep every installed skill for
      `subagent_type:` references. Every referenced agent must resolve
-     to a file in `.claude/agents/`. A `/code-review` that dispatches
+     to a file in `.agents/agents/` (and therefore in each harness's
+     symlinked agents dir). A `/code-review` that dispatches
      `ousterhout` + `carmack` + `grug` against nonexistent agent
      files is a silent regression — the skill fails at call time.
   4. **AGENTS.md debt map:** zero `(unfiled)` entries. Every P0 has
@@ -284,17 +317,27 @@ tailoring; it's decoration.
   the bar.
 - Preserve self-containment. When you copy or rewrite a skill, its
   `references/` and `scripts/` stay with it.
-- **Non-destructive by default.** Never delete `.claude/` content
-  that lacks a `.spellbook` marker with `installed-by: tailor`. If
-  reconciliation wants to remove something unmarked, ask the user
-  first. Tailor owns `AGENTS.md` (overwrite is fine; pre-existing
-  AGENTS.md without a prior tailor run should prompt confirmation)
-  and `.spellbook/repo-brief.md` (always overwrite).
-- **Settings merge, not overwrite.** When writing
-  `.claude/settings.local.json`, merge with the existing file
-  additively — user-added permissions entries survive. Only the
-  entries this run derived from actual tool usage are your
-  contribution.
+- **Cross-harness install.** Write skills and agents to the
+  canonical location `.agents/skills/` + `.agents/agents/`, and
+  symlink into all three harness dirs (`.claude/`, `.codex/`,
+  `.pi/`) — not just the one the user is currently running.
+  Spellbook's doctrine is cross-harness first (see shared
+  AGENTS.md); a repo installed Claude-only is harness-locked by
+  construction. AGENTS.md at the repo root is already harness-
+  neutral. Per-harness settings files (`.claude/settings.local.
+  json`, `.codex/config.toml`, `.pi/settings.json`) are emitted
+  per-harness because their formats differ.
+- **Non-destructive by default.** Never delete content in
+  `.agents/` or any harness dir that lacks a `.spellbook` marker
+  with `installed-by: tailor`. If reconciliation wants to remove
+  something unmarked, ask the user first. Tailor owns `AGENTS.md`
+  (overwrite is fine; pre-existing AGENTS.md without a prior
+  tailor run should prompt confirmation) and
+  `.spellbook/repo-brief.md` (always overwrite).
+- **Settings merge, not overwrite.** When writing any harness
+  settings file, merge with the existing file additively —
+  user-added permissions entries survive. Only the entries this
+  run derived from actual tool usage are your contribution.
 
 ## What "tailored" means
 
