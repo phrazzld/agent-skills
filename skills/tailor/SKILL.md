@@ -63,6 +63,16 @@ tailoring; it's decoration.
 5. **Pick.** Dispatch planner + critic subagents with the repo
    brief attached. Planner proposes a set following the picking
    defaults below; critic applies `references/focus-postmortem.md`.
+
+   **Planner must also propose ≥1 candidate domain invention per
+   round**, with the concrete repo characteristic that would justify
+   it (e.g., "`/convex-migrate` — this repo has live-traffic Convex
+   schema evolution with `v.optional` upgrade paths in
+   `convex/schema.ts`"). The critic evaluates via criterion 4. Landing
+   on "none justified" is a valid outcome — the point is to force the
+   thinking, not the output. Repos with load-bearing domain needs
+   shouldn't slip through because the picker never considered them.
+
    One round. Stop on critic-clear.
 
 6. **Install.** Three categories, different rules:
@@ -92,6 +102,17 @@ tailoring; it's decoration.
      reads `backlog.d/` + recent merged PRs), (d) the mandate
      above.
 
+     **Rewriters may add sections, delete irrelevant structure,
+     and restructure — the spellbook source is a reference, not
+     a template to fill in.** Stack-native content (Elixir
+     `:observer` + `:telemetry`, Rust `cargo miri`, Go `-race`,
+     OTP supervision patterns) often has no slot in the JS/TS-
+     shaped source. Add the section. Conversely, if the source
+     has content that doesn't apply (matrix builds for a
+     single-target repo, Playwright config for a CLI), delete it.
+     Find-and-replace at the noun level produces B+ output; real
+     tailoring restructures where the repo demands it.
+
      **Critic reviews all rewrites together, not individually.**
      Three checks: (1) **depth** — subtractive test, would this
      rewrite be wrong if applied to another repo with the same
@@ -117,7 +138,11 @@ tailoring; it's decoration.
      brief; enumerate pre-commit hooks, what humans do, what's
      enforced where.
    - **Known-debt map** — concrete file/line pointers. Every P0
-     debt item gets a filed issue ID, not `(unfiled)`.
+     debt item gets a filed issue ID, not `(unfiled)`. If the repo
+     brief surfaced a P0 with no tracker ID, file it (`gh issue
+     create` or `git-bug bug new` or `backlog.d/NNN-*.md`) before
+     writing this section. Debt-map entries like `INCIDENT-*.md`
+     filenames are pointers, not IDs — attach a tracker ID.
    - **Harness index** — table: installed skill → what it does
      *here* (not the generic description). Agents in a sibling
      table, not a prose sentence.
@@ -140,16 +165,34 @@ tailoring; it's decoration.
   X" is not a name.
 - **No `references/<repo-name>.md` sidecar files.** If a skill has
   repo-specific content, it belongs in the SKILL.md body. A sidecar
-  notes file is the sewn-on-sleeve anti-pattern — the generic jacket
-  with an appendix. Forbidden.
-- **Self-audit before declaring done.** For each workflow skill you
-  installed, `diff` the rewritten SKILL.md against the spellbook
-  source. Byte-identical means the rewriter dropped the ball — go
-  back and redo that skill. For each workflow skill you *excluded*,
-  name the concrete missing infrastructure (no `vercel.json`, no
-  `fly.*.toml`, no `convex/`, no `Dockerfile`, no `.github/workflows/
-  *deploy*` — concrete absence, not "didn't seem relevant"). Silent
-  skip is the failure mode that ships B+ output when A is the bar.
+  named after the repo is the sewn-on-sleeve anti-pattern — the
+  generic jacket with an appendix. Forbidden.
+
+  *Permitted:* stack-specific references under their own topic
+  (`references/elixir-observability.md`, `references/convex-
+  patterns.md`, `references/otp-supervision.md`). These carry
+  reusable content that's too deep for SKILL.md progressive
+  disclosure — not a repo appendix. If the name could apply to
+  another repo on the same stack, it's fine. If the name is this
+  repo, rewrite it into SKILL.md.
+- **Self-audit before declaring done.** Four checks:
+  1. **Workflow rewrites:** `diff` each installed workflow SKILL.md
+     against the spellbook source. Byte-identical = rewriter
+     dropped the ball. Go back and redo.
+  2. **Excluded workflows:** name the concrete missing infrastructure
+     for each skipped skill (no `vercel.json`, no `fly.*.toml`, no
+     `convex/`, no `Dockerfile`, no `.github/workflows/*deploy*` —
+     concrete absence, not "didn't seem relevant").
+  3. **Agent installation:** grep every installed skill for
+     `subagent_type:` references. Every referenced agent must resolve
+     to a file in `.claude/agents/`. A `/code-review` that dispatches
+     `ousterhout` + `carmack` + `grug` against nonexistent agent
+     files is a silent regression — the skill fails at call time.
+  4. **AGENTS.md debt map:** zero `(unfiled)` entries. Every P0 has
+     a filed tracker ID.
+
+  Silent skip is the failure mode that ships B+ output when A is
+  the bar.
 - Preserve self-containment. When you copy or rewrite a skill, its
   `references/` and `scripts/` stay with it.
 
