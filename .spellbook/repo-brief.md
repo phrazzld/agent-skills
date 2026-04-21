@@ -214,6 +214,14 @@ Validated patterns the user has ratified:
 - `.agents/skills/curate/` pre-dates the `.spellbook` marker era; content
   references `scripts/generate-embeddings.py` which still exists. Preserve
   by default; flag for user before overwriting or removing.
-- No deploy target, no browser QA, no postmortem dir, no demo pipeline —
-  workflow skills `/deploy`, `/monitor`, `/diagnose`, `/qa`, `/demo`, and
-  `/flywheel` are skipped with concrete justification.
+- `/flywheel` is installed as an exact-copy of the catalog source
+  (`skills/flywheel/SKILL.md`, 43 lines). Spellbook is the *source* of
+  `/flywheel`; it lives in the always-install tier and cannot be skipped,
+  even though this repo has no `/deploy`/`/monitor` leaf steps to
+  orchestrate today. An exact-copy install is a valid tailoring outcome
+  for a repo that is itself the canonical source.
+- Skipped with concrete absence: `/deploy` (no `vercel.json` / `fly.*.toml`
+  / deploy workflow), `/monitor` (no Sentry / health-endpoint /
+  observability config), `/diagnose` (no postmortem or `.evidence/` dir,
+  no observability tooling), `/qa` (no browser/E2E surface), `/demo` (no
+  demo pipeline).
