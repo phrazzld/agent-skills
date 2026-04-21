@@ -148,6 +148,19 @@ sources:
       - cloudflare
     allow_floating: true  # TODO: pin after first sync.
 
+  # forrestchang/andrej-karpathy-skills — community compilation of Karpathy's
+  # Twitter observations on LLM coding pitfalls: four principles (surface
+  # assumptions, simplicity first, surgical changes, goal-driven execution).
+  # Canonical distillation lives in-tree at skills/karpathy-guidelines/ —
+  # this registry entry exists so embeddings index the upstream repo and
+  # surface it alongside the native version on semantic search.
+  - repo: forrestchang/andrej-karpathy-skills
+    ref: main
+    layout: flat
+    skills_path: skills
+    alias_prefix: "karpathy-"
+    allow_floating: true  # TODO: pin after first sync.
+
   # --- Deferred (declared for embeddings only; sync skips when active: false) ---
   - repo: Leonxlnx/taste-skill
     ref: main
