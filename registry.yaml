@@ -161,6 +161,24 @@ sources:
     alias_prefix: "karpathy-"
     allow_floating: true  # TODO: pin after first sync.
 
+  # jakubkrehel/make-interfaces-feel-better — design-engineering skill for UI
+  # polish. Encodes 16 specific techniques (concentric border radius, optical
+  # alignment, layered shadows, interruptible animations, scale-on-press 0.96,
+  # tabular nums, image outlines) with exact values, not hand-wavy guidance.
+  # Based on Jakub Krehel's "Details that make interfaces feel better" article.
+  #
+  # LICENSE CAVEAT: no LICENSE file declared upstream as of pin sha. GitHub
+  # public = viewable/forkable under GH terms; skills/.external/ is gitignored
+  # (local cache, not redistribution). If we ever fork content into skills/
+  # or redistribute, revisit — track a follow-up to request an upstream LICENSE.
+  - repo: jakubkrehel/make-interfaces-feel-better
+    ref: main
+    pin: 384562064fcdd99778fcbafd8729626fe6aab02f
+    layout: flat
+    skills_path: skills
+    alias_prefix: "jakub-"
+    include: [make-interfaces-feel-better]
+
   # --- Deferred (declared for embeddings only; sync skips when active: false) ---
   - repo: Leonxlnx/taste-skill
     ref: main
