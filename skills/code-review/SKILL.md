@@ -38,6 +38,11 @@ results, fix blockers, loop until clean.
    | Thinktank review | 10 agents, 8 model providers | `thinktank review` CLI. See `references/thinktank-review.md` |
    | Cross-harness | Codex + Gemini CLIs (skip whichever you are) | See `references/cross-harness.md` |
 
+   Thinktank-specific rule: wait for the process to exit, or for
+   `trace/summary.json` to reach `complete` or `degraded` with a
+   `run_completed` event in `trace/events.jsonl`, before you consume the run.
+   Mid-run output directories are not final artifacts.
+
 4. **Synthesize.** Collect all outputs. Deduplicate findings across tiers.
    Rank by severity: blocking (correctness, security) > important (architecture,
    testing) > advisory (style, naming).
@@ -123,6 +128,10 @@ Skip this step if `scripts/lib/verdicts.sh` does not exist in the target project
 - **Self-review leniency:** Models overrate their own work. Reviewers must be separate sub-agents, not the builder evaluating itself.
 - **Reviewing the whole codebase:** Review the diff, not the repo. `git diff main...HEAD` is the scope.
 - **Skipping tiers:** Internal bench alone is same-model groupthink. Thinktank + cross-harness provide genuine model and harness diversity.
+- **Misreading a live Thinktank run:** `review.md`, `summary.md`, and
+  `agents/*.md` may not exist until late. Watch stderr progress or
+  `trace/summary.json`, not just the directory listing. `thinktank review eval`
+  is broken in 6.3.0, so consume the final stdout JSON or the finished files.
 - **Treating all concerns equally:** Blocking issues (correctness, security) gate shipping. Style preferences don't.
 - **Monoculture:** The whole point of three tiers is provider diversity. Don't skip external tiers for speed.
 - **Over-prescribing prompts:** You are the marshal. Craft prompts that fit the diff. The references describe lenses, not scripts.

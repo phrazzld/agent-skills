@@ -17,7 +17,7 @@ deliver_state_hits="$(
 )"
 if [ -n "$deliver_state_hits" ]; then
   echo "[pre-commit] ERROR: refusing to commit agent-written /deliver state files:" >&2
-  printf '  %s\n' $deliver_state_hits >&2
+  printf '  %s\n' "$deliver_state_hits" >&2
   echo "" >&2
   echo "These files are rewritten by /deliver and must never be human-edited." >&2
   echo "If /deliver is stuck, use:" >&2
@@ -36,5 +36,8 @@ skill_changed || exit 0
 echo "[pre-commit] Skill content changed — regenerating index.yaml"
 bash "$REPO_ROOT/scripts/generate-index.sh" > /dev/null
 git add "$REPO_ROOT/index.yaml"
+
+echo "[pre-commit] Verifying shared-root install wording"
+bash "$REPO_ROOT/scripts/check-harness-agnostic-installs.sh"
 
 exit 0

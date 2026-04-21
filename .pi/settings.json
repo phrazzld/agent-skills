@@ -7,7 +7,10 @@
     "+~/.pi/agent/extensions/orchestration",
     "+~/.pi/agent/extensions/web-search"
   ],
-  "skills": [],
+  "skills": [
+    "+.pi/skills/*",
+    "+.agents/skills/*"
+  ],
   "prompts": [
     "+prompts/discover.md",
     "+prompts/design.md",
@@ -15,5 +18,5 @@
     "+prompts/review.md"
   ],
   "themes": [],
-  "enableSkillCommands": false
+  "enableSkillCommands": true
 }

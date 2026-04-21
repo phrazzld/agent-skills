@@ -176,7 +176,16 @@ def check_command(cmd: str) -> tuple[bool, str]:
     if not cmd:
         return False, ""
 
-    # Check safe patterns first (allowlist) - check original command
+    # Check dangerous flags FIRST — these hard-block regardless of context.
+    # Must run before SAFE allowlist: a command like
+    #   git push --force-with-lease --no-verify
+    # would otherwise short-circuit on --force-with-lease and skip the
+    # --no-verify check entirely.
+    for flag, reason in DANGEROUS_FLAGS:
+        if flag in cmd:
+            return True, reason
+
+    # Check safe patterns (allowlist) - check original command
     for safe in SAFE:
         if safe in cmd:
             return False, ""
@@ -212,12 +221,6 @@ def check_command(cmd: str) -> tuple[bool, str]:
     # Check regex patterns (for commands that could appear in strings)
     for pattern, reason in DESTRUCTIVE_PATTERNS:
         if pattern.search(cmd_stripped):
-            return True, reason
-
-    # Check dangerous flags (these are dangerous anywhere, even in strings,
-    # because they might be used in eval or variable expansion)
-    for flag, reason in DANGEROUS_FLAGS:
-        if flag in cmd:  # Check original, not stripped
             return True, reason
 
     return False, ""

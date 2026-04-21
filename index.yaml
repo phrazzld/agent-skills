@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-20T19:00:45Z
+# Generated: 2026-04-21T16:09:59Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -59,6 +59,10 @@ skills:
     description: "Atomic TDD build skill. Takes a context packet (shaped ticket) and produces code + tests on a feature branch. Red → Green → Refactor. Does not shape, review, QA, or ship — single concern: spec t"
     source: first-party
     tags: [a,atomic,branch,build,code,concern,context,feature,green,on]
+  - name: karpathy-guidelines
+    description: "Four behavioral guidelines to reduce common LLM coding mistakes: surface assumptions, prefer simplicity, make surgical changes, drive by verifiable goals. Distilled from Andrej Karpathy's observations"
+    source: first-party
+    tags: [andrej,assumptions,behavioral,by,changes,coding,common,distilled,drive,four]
   - name: model-research
     description: "Research, compare, and select LLM models for AI-powered apps and workflows. Finds latest models per family, verifies availability on target platform, compares pricing/benchmarks/tool-calling, produces"
     source: first-party
@@ -88,9 +92,9 @@ skills:
     source: first-party
     tags: [delegate,delegation,look,multi-ai,multi-perspective,query,research,search,task,thinktank]
   - name: seed
-    description: "Install a default harness into this repo. Copy most spellbook primitives (skills, agents, philosophy bench) into .claude/ with no filtering or tailoring. For something fast and complete when you don't"
+    description: "Install a default harness into this repo. Copy most spellbook primitives (skills, agents, philosophy bench) into a repo-local shared skill layer with no filtering or tailoring, then bridge harness-spe"
     source: first-party
-    tags: [a,agents,bench,claude,complete,copy,default,don,fast,filtering]
+    tags: [a,agents,bench,bridge,copy,default,filtering,harness,harness-spe,install]
   - name: settle
     description: "Unblock, polish, and merge. Works in two modes: GitHub mode (PR exists): fix CI/conflicts/reviews, polish, refactor, land PR. Git-native mode (no PR): use verdict refs, Dagger CI, agent swarm review, "
     source: first-party
@@ -100,9 +104,9 @@ skills:
     source: first-party
     tags: [a,buildable,context,critique,design,exploration,feature,idea,is,output]
   - name: tailor
-    description: "Tailor this repository's harness. Explore the repo, read prior session history, browse the spellbook catalog, and install a per-repo set of skills and agents in .claude/. Workflow skills get rewritten"
+    description: "Tailor this repository's harness. Explore the repo, read prior session history, browse the spellbook catalog, and install a per-repo set of skills into a shared repo-local skill layer, with harness-sp"
     source: first-party
-    tags: [a,agents,browse,catalog,claude,explore,get,harness,history,in]
+    tags: [a,browse,catalog,explore,harness,harness-sp,history,install,layer,of]
   - name: yeet
     description: "End-to-end \"ship it to the remote\" in one command. Reads the whole worktree, understands what's in flight, tidies debris, splits pending work into semantically-meaningful conventional commits, and pus"
     source: first-party

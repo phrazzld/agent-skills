@@ -1,0 +1,47 @@
+# Spellbook repo-local Codex config — emitted by /tailor 2026-04-20.
+# Codex discovers skills in `.codex/skills/` via symlink bridges back to
+# `.agents/skills/`, the canonical shared root.
+
+[project]
+name = "spellbook"
+description = "Harness library: skills, agents, configs for Claude Code / Codex / Pi"
+
+[skills]
+# Filesystem-level selectivity: every symlink under .codex/skills/ is
+# discovered. See bootstrap.sh:271 for what's globally installed;
+# this repo's local subset lives in .agents/skills/ via /tailor.
+roots = [".codex/skills", ".agents/skills"]
+
+[permissions]
+# Additive allowlist for repo-local Bash invocations.
+allow = [
+  "dagger call check --source=.",
+  "dagger call heal --source=.",
+  "dagger call lint-yaml --source=.",
+  "dagger call lint-shell --source=.",
+  "dagger call lint-python --source=.",
+  "dagger call check-frontmatter --source=.",
+  "dagger call check-index-drift --source=.",
+  "dagger call check-vendored-copies --source=.",
+  "dagger call test-bun --source=.",
+  "dagger call check-exclusions --source=.",
+  "dagger call check-portable-paths --source=.",
+  "dagger call check-harness-install-paths --source=.",
+  "dagger call check-deliver-composition --source=.",
+  "dagger call check-no-claims --source=.",
+  "bash scripts/generate-index.sh",
+  "bash scripts/check-harness-agnostic-installs.sh",
+  "bash scripts/check-vendored-copies.sh",
+  "bash scripts/lint-external-skills.sh",
+  "bash scripts/sync-external.sh",
+  "python3 scripts/check-frontmatter.py",
+  "python3 scripts/generate-embeddings.py",
+  "python3 scripts/search-embeddings.py",
+  "./bootstrap.sh",
+  "git-bug bug",
+  "git-bug push origin",
+]
+
+[git]
+base-branch = "master"
+topic-prefixes = ["feat/", "fix/", "chore/", "docs/", "refactor/", "backlog/", "doctrine/"]
