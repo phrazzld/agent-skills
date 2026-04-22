@@ -39,9 +39,7 @@
       "Bash(thinktank:*)",
       "Bash(gemini:*)",
       "Bash(curl -s https://api.x.ai/:*)",
-      "Bash(curl -s https://api.exa.ai/:*)",
-      "Bash(git-bug:*)",
-      "Bash(git bug:*)"
+      "Bash(curl -s https://api.exa.ai/:*)"
     ],
     "defaultMode": "default"
   },

@@ -1,8 +1,6 @@
 # /log-issues
 
-Audit a domain, create issues for every finding.
-Uses git-bug if installed (issues travel with repo, offline-first).
-Falls back to `backlog.d/` items if git-bug is absent.
+Audit a domain, create `backlog.d/` items for every finding.
 
 ## Usage
 
@@ -27,50 +25,16 @@ If `--all`, run all applicable domain checklists.
 
 ### 2. Deduplicate
 
-**git-bug (preferred):**
-```bash
-git-bug bug --label "domain/{domain}" --status open --format json
-```
-
-**backlog.d/ (fallback):**
 ```bash
 ls backlog.d/  # check existing items by title/filename
 ```
 
-Skip findings that match existing open issues or backlog items (by title similarity).
+Skip findings that match existing backlog items (by title similarity).
 
 ### 3. Create Issues
 
-For each new finding:
+For each new finding, create a file `backlog.d/NNN-{slug}.md` with the standard format:
 
-**git-bug (preferred):**
-```bash
-git-bug bug new \
-  --title "[P{0-3}] {Domain} - {description}" \
-  --message "$(cat <<'EOF'
-## Problem
-{What's wrong}
-
-## Impact
-{Business/security/user impact}
-
-## Location
-{File:line if applicable}
-
-## Suggested Fix
-{Code snippet or skill to run}
-
----
-Created by `/log-issues`
-EOF
-)" \
-  --non-interactive
-# Then add labels:
-git-bug bug label new <bug-id> "priority/p{0-3}" "domain/{domain}" "type/{bug|enhancement|chore}"
-```
-
-**backlog.d/ (fallback):**
-Create a file `backlog.d/NNN-{slug}.md` with the standard format:
 ```markdown
 # [P{0-3}] {finding description}
 
@@ -92,29 +56,19 @@ Domain: {domain}. Created by `/log-issues`.
 
 **Title:** `[P{0-3}] {Domain} - {description}`
 
-**Labels:**
-- `priority/p0` | `priority/p1` | `priority/p2` | `priority/p3`
-- `domain/{domain}`
-- `type/bug` | `type/enhancement` | `type/chore`
+**Priority:** `p0` | `p1` | `p2` | `p3`
+**Labels (in Notes):** `domain/{domain}`, `type/bug` | `type/enhancement` | `type/chore`
 
-**Body sections:** Problem, Impact, Location, Suggested Fix
+**Body sections:** Goal, Oracle, Notes (with Problem, Impact, Location, Suggested Fix where useful)
 
-### 5. Sync (git-bug only)
-
-After creating all issues, push to sync with GitHub bridge:
-```bash
-git-bug push origin
-```
-
-### 6. Report
+### 5. Report
 
 ```
-Created 7 issues for domain/stripe:
-  - [P0] abc1234: Missing webhook signature verification
-  - [P1] def5678: No customer portal configured
-  - [P1] ghi9012: Subscription status not checked
-  Skipped 2 (duplicates of existing open issues)
-  Synced to GitHub via bridge.
+Created 7 backlog.d/ items for domain/stripe:
+  - backlog.d/042-stripe-webhook-sig.md: [P0] Missing webhook signature verification
+  - backlog.d/043-stripe-portal.md: [P1] No customer portal configured
+  - backlog.d/044-stripe-subscription-check.md: [P1] Subscription status not checked
+  Skipped 2 (duplicates of existing backlog items)
 ```
 
 ## Related

@@ -38,7 +38,7 @@ interfaces.
 For each smell found:
 1. Name the smell and the affected files
 2. Assess severity: blocking (fix now) vs advisory (note for follow-up)
-3. Blocking smells get fixed in this phase. Advisory smells get a `backlog.d/` item or git-bug issue.
+3. Blocking smells get fixed in this phase. Advisory smells get a `backlog.d/` item.
 
 ## Test Audit
 

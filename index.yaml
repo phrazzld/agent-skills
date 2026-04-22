@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-22T14:50:39Z
+# Generated: 2026-04-22T15:07:27Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -48,13 +48,13 @@ skills:
     source: first-party
     tags: [analysis,audit,auditing,cause,debugging,domain,fix,four-phase,hypothesis,incident]
   - name: flywheel
-    description: "Outer-loop shipping orchestrator. Composes /deliver, landing, /deploy, /monitor, and /reflect cycle per backlog item, then applies reflect outputs to the harness and backlog before looping. Use when: "
+    description: "Outer-loop shipping orchestrator. Composes /shape, /implement, /yeet, /settle, /ship, and /monitor per backlog item. Closure (archive, reflect, harness routing) lives in /ship; flywheel does not invok"
     source: first-party
-    tags: [applies,backlog,before,composes,cycle,deliver,deploy,harness,item,landing]
+    tags: [archive,backlog,closure,composes,flywheel,harness,implement,in,invok,item]
   - name: groom
-    description: "Backlog management, brainstorming, architectural exploration, project bootstrapping. File-driven backlog via backlog.d/. Parallel investigation bench, synthesis protocol, themed recommendations. Produ"
+    description: "Always-on backlog grooming. Tidy, brainstorm, interrogate, investigate, research, and simplify in a single loop. Tidy is not a mode — it happens every time. Strategic-layer work fans out parallel su"
     source: first-party
-    tags: [architectural,backlog,bench,bootstrapping,brainstorming,d,exploration,file-driven,investigation,management]
+    tags: [a,always-on,backlog,brainstorm,every,fans,grooming,happens,in,interrogate]
   - name: harness
     description: "Build, maintain, evaluate, and optimize the agent harness — skills, agents, hooks, CLAUDE.md, AGENTS.md, and enforcement infrastructure. Use when: \"create a skill\", \"update skill\", \"improve the harn"
     source: first-party
@@ -100,13 +100,17 @@ skills:
     source: first-party
     tags: [a,agents,bench,bridge,copy,default,filtering,harness,harness-spe,install]
   - name: settle
-    description: "Unblock, polish, and merge. Works in two modes: GitHub mode (PR exists): fix CI/conflicts/reviews, polish, refactor, land PR. Git-native mode (no PR): use verdict refs, Dagger CI, agent swarm review, "
+    description: "Polish loop. Take a feature branch with code and tests and iterate on it via /ci, /code-review, and /refactor until the branch is lean, green, and ship-ready. Stops at merge-ready. Does not merge. Doe"
     source: first-party
-    tags: [agent,ci,conflicts,dagger,exists,fix,git-native,github,in,land]
+    tags: [a,at,branch,ci,code,code-review,doe,feature,green,is]
   - name: shape
     description: "Shape a raw idea into something buildable. Product + technical exploration. Spec, design, critique, plan. Output is a context packet. Use when: \"shape this\", \"write a spec\", \"design this feature\", \"pl"
     source: first-party
     tags: [a,buildable,context,critique,design,exploration,feature,idea,is,output]
+  - name: ship
+    description: "Final mile. Take a merge-ready branch to shipped: squash-merge, archive the backlog ticket(s) with Closes-backlog trailers preserved into the merge commit, update touched docs, run /reflect, and apply"
+    source: first-party
+    tags: [a,apply,archive,backlog,branch,closes-backlog,commit,docs,final,merge]
   - name: tailor
     description: "Tailor this repository's harness. Explore the repo, read prior session history, browse the spellbook catalog, and install a per-repo set of skills into a shared repo-local skill layer, with harness-sp"
     source: first-party

@@ -85,8 +85,8 @@ The removal sentence — complete it or don't remove:
 > "I want to remove X. X was added because Y. Y is no longer true
 > because Z. Therefore X can be removed."
 
-If you cannot complete that sentence, do not remove it. Create a
-git-bug issue to investigate: `git-bug bug new -t "Investigate: why does X exist?" -m "..."`.
+If you cannot complete that sentence, do not remove it. File a
+`backlog.d/` ticket to investigate: "Investigate: why does X exist?"
 
 ### Load-Bearing Signs
 

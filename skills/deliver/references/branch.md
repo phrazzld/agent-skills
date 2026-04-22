@@ -19,8 +19,8 @@ the branch is the unit of handoff to a human.
   `refactor`, `docs`, `test`, `perf`
 - `<slug>` is the item id (e.g. `feat/<item-id>`)
 
-Item kind comes from the backlog file: its filename prefix, or a `type/*`
-label on a git-bug issue, or explicit inference from the title.
+Item kind comes from the backlog file: its filename prefix or explicit
+inference from the title.
 
 ## No-Commit-to-Default Invariant
 

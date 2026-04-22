@@ -63,7 +63,7 @@ let the outer loop own the final session-level shipping brief.
 /deliver [backlog-item|issue-id] [--resume <ulid>] [--state-dir <path>]
     │
     ▼
-  pick (if no arg) — backlog.d/ highest-priority OR git-bug
+  pick (if no arg) — backlog.d/ highest-priority
     │
     ▼
   /shape            → context packet (goal + oracle + sequence)

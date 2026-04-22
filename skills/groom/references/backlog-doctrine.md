@@ -1,30 +1,25 @@
 # Backlog Doctrine
 
-## Three-Tier Backlog
+## Two-Tier Backlog
 
 | Tier | Location | Purpose | Cap |
 |------|----------|---------|-----|
-| **Shaped work** | `backlog.d/` | Ready-to-build items with goal + oracle + sequence | 10-15 |
-| **Raw issues** | git-bug (`git-bug bug`) | Bugs, findings, requests — not yet shaped | 20-30 |
+| **Shaped work** | `backlog.d/` | Ready-to-build items with goal + oracle + sequence | 20-30 |
 | **Icebox** | `.groom/BACKLOG.md` | Everything else worth remembering | Unlimited |
 
-GitHub Issues is an **optional sync target** (currently empty across all repos).
-`git-bug push origin` creates issues there for human visibility when desired.
-Agents read/write issues via git-bug CLI; `backlog.d/` is the canonical backlog.
-
-If `git-bug` is not installed, fall back to `backlog.d/` files as the active issue tier.
+`backlog.d/` is the canonical backlog. Files are the source of truth; there is
+no parallel issue store.
 
 Ideas flow between tiers during `/groom` sessions:
-- **Shape:** git-bug issue → `backlog.d/` file (issue gets goal + oracle → ready to build)
-- **File:** finding → git-bug issue (raw bug or idea gets tracked)
-- **Promote:** BACKLOG.md → git-bug issue (idea becomes active)
-- **Demote:** git-bug issue → BACKLOG.md (issue loses priority, close with link)
+- **Shape:** raw finding → `backlog.d/` file (gets goal + oracle → ready to build)
+- **Promote:** BACKLOG.md → `backlog.d/` (idea becomes active)
+- **Demote:** `backlog.d/` → BACKLOG.md (item loses priority)
 - **Archive:** BACKLOG.md → strikethrough (idea is done, obsolete, or absorbed)
 - **Discard:** any tier → gone (no remaining value)
 
 ## What the active backlog is for
 
-The active backlog (`backlog.d/` + git-bug) is the current plan, not storage for every idea.
+The active backlog (`backlog.d/`) is the current plan, not storage for every idea.
 A good backlog is ordered, transparent, and actively maintained. It should make the next
 decisions obvious.
 
@@ -43,28 +38,27 @@ merge it into a broader reusable effort, or rewrite it until the downstream payo
 
 ## Core rules
 
-- **Hard cap: 20-30 open issues.** Over cap triggers reduction, not addition.
-- **100% groomed.** Every issue scores >= 70 on `/issue lint` or gets fixed/demoted.
+- **Soft cap: 20-30 open items.** Over cap triggers reduction, not addition.
 - Reduce before adding.
-- Prefer one canonical issue per outcome.
+- Prefer one canonical item per outcome.
 - Split discovery from delivery.
 - Order work by user value, risk reduction, learning, and enablement.
 - For spellbook itself, optimize for downstream leverage first and local convenience second.
 - Keep active work narrow. High WIP destroys prioritization.
-- Ideas that aren't execution-ready live in `.groom/BACKLOG.md`, not GitHub.
+- Ideas that aren't execution-ready live in `.groom/BACKLOG.md`.
 
 ## Closure protocol
 
 An active backlog item is closed when it leaves `backlog.d/`, not when someone
 intends to close it later.
 
-- `/flywheel` closes shipped work by moving it to `backlog.d/_done/`
-- Manual landings on the current branch should include an explicit commit
-  marker: `Closes backlog:<item-id>` or `Ships backlog:<item-id>`
+- `/ship` closes shipped work by moving it to `backlog.d/_done/` via
+  `backlog_archive` (see `scripts/lib/backlog.sh`) and carries a
+  `Closes-backlog:` or `Ships-backlog:` trailer into the squash commit.
+- `/groom`'s always-on tidy sweep scans master for those trailers and
+  archives any surviving ticket files.
 - `## What Was Built` is archival content; an item that already has that block
-  does not belong in active backlog
-- `/groom tidy` must archive any active item that satisfies either of those
-  stale-item signals
+  does not belong in active backlog.
 
 ## Healthy item shapes
 
@@ -117,13 +111,13 @@ Move items down when they:
 ## Smells
 
 - 5 tickets that all mean the same thing
-- “Polish” issues that should be sub-points in a deeper issue
+- “Polish” items that should be sub-points in a deeper item
 - implementation tasks with no user or system outcome
 - giant omnibus tickets with unclear done criteria
-- issues that require tribal knowledge to start
+- items that require tribal knowledge to start
 - “investigate” tickets with no decision target
-- >30 open issues (backlog is storage, not strategy)
-- issues scoring < 70 sitting open for weeks (ungroomed noise)
+- >30 open items (backlog is storage, not strategy)
+- stale items sitting open for weeks (ungroomed noise)
 - BACKLOG.md not updated in 3+ groom sessions (icebox is rotting)
 
 ## Definition of ready

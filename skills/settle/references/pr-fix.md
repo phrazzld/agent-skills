@@ -46,7 +46,7 @@ Read the actual logs. Don't guess from the check name.
 | Category | Signal | Action |
 |----------|--------|--------|
 | Real regression | Test fails deterministically, passes on base branch | Find breaking commit (`git bisect` if needed), fix root cause |
-| Flaky test | Passes on retry, no code change | Re-run once. If green, file git-bug issue for the flake. Don't ignore. |
+| Flaky test | Passes on retry, no code change | Re-run once. If green, file a `backlog.d/` item for the flake. Don't ignore. |
 | Environment | Runner version mismatch, cache miss, Docker pull failure | Check runner versions, dependency caches, base images |
 | Dependency | Upstream package broke, yanked version, incompatible update | Pin or update dependency, verify lockfile |
 
@@ -135,12 +135,12 @@ Fixed in abc1234 — switched to the connection pool pattern you suggested.
 
 #### Valid but out of scope
 
-Create a git-bug issue or `backlog.d/` item. Reply linking the issue.
-Explain why it's deferred — scope boundary, not dismissal.
+Create a `backlog.d/` item. Reply linking the issue. Explain why it's
+deferred — scope boundary, not dismissal.
 
 ```
 Good catch. Filed as backlog.d/042-connection-pool-config.md — out of scope
-for this PR but should land before the next release.
+for this PR but should ship before the next release.
 ```
 
 #### Invalid (after steelman test passes)

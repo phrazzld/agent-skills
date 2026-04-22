@@ -63,3 +63,29 @@ atomic claims so two agents never work the same issue.
 - 2026-03-28: GitHub Issues cleared across all active phrazzld + misty-step repos
   (~1,630 issues closed). backlog.d/ is now the sole active backlog surface.
   Bridge still functional for optional sync. 50 archived repos untouched (read-only).
+
+## 2026-04-22 — retirement
+
+git-bug was retired because the tooling was installed but never seeded — zero
+`refs/bugs/*` across spellbook and all downstream repos. The CLI shipped, the
+adoption loop didn't. `backlog.d/` is now the single-tier source of truth for
+shaped work.
+
+Associated primitives deleted:
+- `scripts/setup-git-bug.sh`
+References purged:
+- `/diagnose` (`skills/diagnose/references/log-issues.md` — dropped git-bug
+  reading/creation/sync paths, `backlog.d/` is now the only issue surface)
+- `/deliver` (`skills/deliver/SKILL.md` — pick-source no longer mentions
+  git-bug; `backlog.d/` highest-priority is the sole default)
+Harness permissions:
+- `harnesses/claude/settings.json` — removed `Bash(git-bug:*)` and
+  `Bash(git bug:*)` entries
+
+Note: `/groom`, `/settle`, and other surfaces still carrying git-bug references
+will be cleaned up by in-flight rewrites on separate tracks.
+
+If distributed issue tracking is revisited later, consider an MCP-server-backed
+alternative rather than a CLI-only tool — the adoption failure here was that a
+CLI requires explicit seeding and per-clone setup, whereas an MCP surface would
+be ambient to every agent session.
