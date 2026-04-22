@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-21T21:14:20Z
+# Generated: 2026-04-22T14:50:39Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -11,6 +11,10 @@ skills:
     description: "Assess and improve codebase readiness for AI coding agents. Dispatches parallel subagents to evaluate style, testing, docs, architecture, CI, observability, security, and dev environment. Produces a s"
     source: first-party
     tags: [a,agents,ai,architecture,assess,ci,codebase,coding,dev,dispatches]
+  - name: browser
+    description: "Pick the right browser automation tool for a given task — across web and Electron apps, from CI tests to autonomous agents. Browser automation in 2026 is a testing pyramid: deterministic Playwright "
+    source: first-party
+    tags: [2026,a,across,agents,apps,automation,autonomous,browser,ci,deterministic]
   - name: ceo-review
     description: "Dialectical premise-and-alternatives audit for a plan, spec, or context packet. Four moves: premise challenge (is this the right problem?), mandatory structurally-distinct alternatives, cross-model ou"
     source: first-party
