@@ -1,6 +1,6 @@
 # xAI Search
 
-Real-time web search and X (Twitter) search via the xAI Grok API.
+Grounded web search and X (Twitter) search via the xAI Grok API.
 
 ## Two Tools
 
@@ -14,6 +14,8 @@ Keyword, semantic, user, and thread search on X. Real-time social data.
 
 | Need | Tool |
 |------|------|
+| Grounded live web retrieval | Web Search |
+| Recency verification or contradiction check | Web Search |
 | Social sentiment, public discourse | X Search |
 | What people are saying about X | X Search |
 | Trending topics, viral content | X Search |
@@ -22,9 +24,10 @@ Keyword, semantic, user, and thread search on X. Real-time social data.
 | Video content analysis from X | X Search with `enable_video_understanding` |
 | General web with domain filtering | Web Search with `allowed_domains` |
 
-**Default to Exa for code/technical.** Use xAI when the query involves social
-pulse, real-time discourse, specific X users, or when you need multimodal
-(image/video) understanding of web/social content.
+Default `/research` fanout uses xAI alongside Exa, not instead of it. Use
+xAI/Grok for grounded web retrieval, recency verification, contradiction
+checks, X-native discourse, and multimodal web/social evidence. Do not reduce
+Grok to social sentiment only.
 
 ## API Access
 

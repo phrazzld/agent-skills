@@ -49,11 +49,12 @@ Research means gathering signal from many vantage points simultaneously.
 WebSearch alone is a lookup, not research. The whole point of this skill is
 multi-source triangulation.
 
-**REQUIRED: Launch ALL of these in a single message (parallel Agent/Bash calls):**
+**REQUIRED: Launch ALL of these in a single message (parallel Agent/Bash calls). Missing any default source makes the run incomplete. Do not intentionally skip Thinktank or xAI/Grok in default mode:**
 
 1. **Exa search** — Bash: `curl -s https://api.exa.ai/search -H "x-api-key: $EXA_API_KEY" ...`
    See `references/exa-tools.md` for request format. WebSearch is fallback ONLY if curl fails.
-2. **Thinktank** — Run the native research bench only when local repository context materially matters.
+2. **Thinktank** — Mandatory repo-aware bench for the default fanout.
+   Run Thinktank from the repo you want it to inspect. Thinktank's workspace is context; `--paths` only orient the agents and do not replace the workspace root. If the query points at another repo, `cd` there before launch.
    Default fanout path: `thinktank run research/quick --input "$QUERY" --output /tmp/thinktank-out --json --no-synthesis`
    Deep path: `thinktank research "$QUERY" --output /tmp/thinktank-out --json`
    Add `--paths ...` when local files or directories should be pointed out as starting places.
@@ -61,21 +62,22 @@ multi-source triangulation.
    Default budgets: `quick` targets `60-180s` with a hard cap of `300s`; `deep` targets `3-8m` with a hard cap of `900s`.
    Thinktank launches a real multi-agent Pi bench, so even `research/quick` can take a few minutes.
    With `--json`, stdout stays reserved for the final envelope; a healthy run may look quiet until completion.
-   Inspect the output directory while it runs: `trace/events.jsonl`, `manifest.json`, `task.md`, and `prompts/` are the current partial-progress artifacts.
+   Canonical inspection flow: `thinktank runs show /tmp/thinktank-out` and `thinktank runs wait /tmp/thinktank-out`. Inspect the output directory directly only when you need deeper detail: `trace/events.jsonl`, `manifest.json`, `task.md`, and `prompts/` are the current partial-progress artifacts.
    Current limitation: if you stop a run early, completed agent reports may not exist yet. Treat that as a current Thinktank limitation, not as evidence that nothing happened.
-   Skip Thinktank for pure external/web-only research and state that explicitly in the synthesis.
-3. **xAI / social pulse** — Bash: `curl -s https://api.x.ai/v1/responses -H "Authorization: Bearer $XAI_API_KEY" ...`
+   If Thinktank fails or times out, keep the Thinktank section and label it `partial` or `failed` with the output directory and observed error. That is an incomplete fanout, not a justified skip.
+3. **xAI / Grok** — Bash: `curl -s https://api.x.ai/v1/responses -H "Authorization: Bearer $XAI_API_KEY" ...`
    Model MUST be `grok-4.20-beta-latest-non-reasoning` (only grok-4 supports tool use).
-   See `references/xai-search.md` for request format. Skip ONLY for purely technical/code queries.
+   Use xAI for grounded web retrieval, recency verification, contradiction checks, X-native discourse, and multimodal evidence. See `references/xai-search.md` for request format.
 4. **Codebase** — Grep/Glob for what the project already does (skip only if query is unrelated to codebase)
 
 **Then produce a sourced report** using the mandatory structure below.
 
 ### Report Format (mandatory for all default fanout runs)
 
-Every research report MUST have one labeled section per source that ran,
-followed by a synthesis. Omit a section only if that source was explicitly
-skipped — and state why it was skipped in the Synthesis section.
+Every research report MUST have one labeled section per default source,
+followed by a synthesis. Include the section even when a provider returns
+partial output or fails; mark that status explicitly and carry the failure into
+the synthesis.
 
 ```
 ## Exa (neural search)
@@ -86,7 +88,7 @@ skipped — and state why it was skipped in the Synthesis section.
 For X Search: quotes or paraphrases from X posts, authors, dates.]
 
 ## Thinktank (Pi bench)
-[What did the thinktank bench surface? Label this section `Thinktank (complete)` or `Thinktank (partial)`. Note any disagreements between agents. If skipped, say the query was not repo-aware enough to justify the bench.]
+[What did the thinktank bench surface? Label this section `Thinktank (complete)`, `Thinktank (partial)`, or `Thinktank (failed)`. Note any disagreements between agents, the output directory, and the specific failure mode when applicable.]
 
 ## Codebase
 [What relevant patterns, implementations, or prior art exist locally?
@@ -97,9 +99,9 @@ For X Search: quotes or paraphrases from X posts, authors, dates.]
 Recommendations grounded in the evidence above. Every claim cites a source.]
 ```
 
-**Discipline rule**: if a section is missing, you either skipped that tool
-(state why) or you failed to run it (go back and run it). A report that
-collapses all sources into one unlabeled blob has failed the fanout goal.
+**Discipline rule**: if a section is missing, you failed the fanout. A failed
+provider still gets a section. A report that collapses all sources into one
+unlabeled blob has failed the fanout goal.
 Readers must be able to see what each tool contributed independently.
 
 If Thinktank is still running when you need to respond, say that plainly.
@@ -141,19 +143,23 @@ This applies especially to:
 
 | Query Type | Primary Provider | Why |
 |------------|-----------------|-----|
+| Repo-local architecture, tradeoffs, contradiction checks | Thinktank | Fresh multi-agent second voice against the workspace |
 | Code examples, reference implementations | Exa (code context) | Finds actual code, not blog posts |
 | Academic papers, formal specs | Exa (search) | Strong academic indexing |
 | Library/framework docs | Context7 | Semantic doc search |
-| Current events, model releases | Exa (with recency filter) | Real-time indexing |
-| Social sentiment, public discourse, trending | xAI X Search | Real-time X/Twitter data |
+| Current events, model releases, fast recency checks | xAI Web Search | Grounded live web search with citations |
+| Social sentiment, public discourse, trending | xAI X Search | Native X/Twitter search and discourse retrieval |
 | Web pages with image/video analysis | xAI Web Search | Grounded web + multimodal |
 | General knowledge fallback | WebSearch / Brave | Broad coverage |
 
-**Exa-first** for code and technical content. **xAI for social/real-time pulse.**
-Default to Exa unless the query is clearly better suited to another provider.
-Use xAI X Search for "what are people saying about", sentiment, discourse,
-trending topics. Use xAI Web Search when you need grounded web results with
-optional image understanding. See `references/xai-search.md` for API details.
+Default fanout uses Exa, Thinktank, xAI/Grok, and Codebase together. This
+routing table only tells you which source to lean on most heavily in synthesis;
+it does not authorize skipping the others. Exa remains strongest for code and
+technical indexing. xAI/Grok is broader than social pulse: use it for grounded
+web retrieval, recency verification, contradiction checks, and X-native
+discourse. Thinktank is the repo-aware second voice. See
+`references/xai-search.md` and `references/thinktank.md` for the concrete
+operator contract.
 
 ## Anti-Patterns
 
