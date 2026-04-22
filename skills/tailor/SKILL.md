@@ -90,6 +90,13 @@ tailoring; it's decoration.
    brief attached. Planner proposes a set following the picking
    defaults below; critic applies `references/focus-postmortem.md`.
 
+   **This is the planning leg of a planner → executor → critic
+   loop.** The planner owns portfolio selection and rewrite briefs.
+   It does not rewrite skills itself. The critic judges the plan
+   before any install work begins and sends the planner back with
+   specific objections when the pick is shallow, contradictory, or
+   missing a repo-defining concern.
+
    **Planner must also propose ≥1 candidate domain invention per
    round**, with the concrete repo characteristic that would justify
    it (e.g., "`/convex-migrate` — this repo has live-traffic Convex
@@ -99,7 +106,12 @@ tailoring; it's decoration.
    thinking, not the output. Repos with load-bearing domain needs
    shouldn't slip through because the picker never considered them.
 
-   One round. Stop on critic-clear.
+   Run the pick loop until critic-clear or 3 rounds, whichever comes
+   first. If the planner and critic still disagree after 3 rounds,
+   escalate to a second outside voice (`/research`, Thinktank,
+   Gemini, or another fresh-context bench) before converging. Do
+   not silently accept a fuzzy pick because the first pass looked
+   plausible.
 
 6. **Install.** First reconcile, then write. **The shared skill root
    is canonical; `.claude/skills/` is a bridge layer** — see
@@ -182,14 +194,23 @@ tailoring; it's decoration.
      `references/` and `scripts/` from the source — they travel with
      the skill.
 
-     **Dispatch one rewriter subagent per workflow skill, in
-     parallel.** Monolithic rewriting of 10+ skills in one context
-     causes attention decay — the model pattern-matches "just copy
-     this one too" and ships byte-identical output. Each rewriter
+     **Dispatch one executor/rewriter subagent per workflow skill,
+     in parallel. These executors are the executor leg of the loop.**
+     Monolithic rewriting of 10+ skills in one context causes
+     attention decay — the model pattern-matches "just copy this
+     one too" and ships byte-identical output. Each executor
      receives: (a) the repo brief from step 4 (shared spine —
      cite these anchors, don't invent parallel vocabulary),
-     (b) the spellbook source, (c) a reading assignment (see
-     table below), (d) the mandate above.
+     (b) the planner's rewrite brief for that skill,
+     (c) the spellbook source, (d) a reading assignment (see
+     table below), (e) the mandate above.
+
+     **Executor ownership is narrow and explicit.** Executors do not
+     re-decide the portfolio and they do not argue policy in the
+     abstract. Their job is to produce the best repo-specific rewrite
+     for their assigned skill, then revise that rewrite in response
+     to critic objections until it clears. Quality lives in this
+     loop, not in post-hoc semantic lint rules.
 
      **Every workflow skill gets a reading assignment.** Skills
      with clear command anchors get rewritten easily; abstract-
@@ -265,11 +286,18 @@ tailoring; it's decoration.
      rewrite be wrong if applied to another repo with the same
      stack? If no, it's shallow — reject; (2) **cohesion** — does
      every gate-adjacent skill cite the same load-bearing gate
-     from the repo brief? Any contradiction against repo brief or
-     sibling skills → reject; (3) **completeness** — byte-identical
-     to spellbook source → reject. Critic sends specific rewriters
-     back with specific objections. Iterate until coherent. Up to
-     3 rounds; critic judges convergence.
+     from the repo brief? The critic must name at least one concrete
+     contradiction check per gate-adjacent skill against the repo
+     brief's gate statement or a sibling skill's statement. Any
+     contradiction against repo brief or sibling skills → reject;
+     (3) **completeness** — byte-identical to spellbook source →
+     reject. Critic sends only the failing executors back with
+     specific objections. Passed skills freeze. Only changed skills go
+     back to executors. Re-enter the planner only when the critic has
+     found a portfolio problem, missing scope, or cross-skill
+     contradiction that the executor brief itself cannot resolve.
+     Iterate until coherent. Up to 3 rounds; critic judges
+     convergence.
    - **Domain skills (invented)** — greenfield additions like
      `/convex-migrate`, `/rust-unsafe-reviewer`. Only invent when you
      can name the concrete repo characteristic demanding it.
@@ -394,6 +422,11 @@ tailoring; it's decoration.
 
   Silent skip is the failure mode that ships B+ output when A is
   the bar.
+- **Keep deterministic checks objective.** Self-audit is for
+  presence/absence regressions, exact-copy detection, missing
+  agents/scripts, and debt-map hygiene. Do not invent semantic
+  scorecards, file-size thresholds, or "rewrite depth" heuristics.
+  Planner → executor → critic owns semantic quality.
 - Preserve self-containment. When you copy or rewrite a skill, its
   `references/` and `scripts/` stay with it.
 - **Cross-harness install.** Spellbook-distributed skills live in a
