@@ -153,27 +153,18 @@ tailoring; it's decoration.
    authored content.
 
    **Shared scripts.** Tailored skills source shared shell helpers
-   at a stable path so they read the same way in every downstream
-   repo. Install the following from `$SPELLBOOK/scripts/lib/` to
-   `<repo-root>/scripts/lib/` (create the directory if missing):
+   at a stable path. Install verbatim from `$SPELLBOOK/scripts/lib/`
+   to `<repo-root>/scripts/lib/` (create if missing). Do not rewrite
+   — divergence breaks sourcing in every consumer at once.
 
-   - `scripts/lib/backlog.sh` — trailer parsing (`Closes-backlog`,
-     `Ships-backlog`, `Refs-backlog`) and `backlog_archive` for
-     `git mv`-ing `backlog.d/<id>-*.md` into `backlog.d/_done/`.
-     Required by `/ship`, `/groom tidy`, and any skill that
-     reconciles master against `backlog.d/`.
-   - `scripts/lib/verdicts.sh` — verdict-ref helpers
-     (`verdict_check_landable`, etc.). Required by `/ship` and
-     `/settle` in git-native mode.
+   | Path | Required by | Overwrite policy |
+   |---|---|---|
+   | `scripts/lib/backlog.sh` | `/ship`, `/groom tidy`, any skill reconciling master against `backlog.d/` | Copy verbatim; merge additively with unrelated files; never overwrite an unmarked script |
+   | `scripts/lib/verdicts.sh` | `/ship`, `/settle` (git-native mode) | Copy verbatim; merge additively; never overwrite an unmarked script |
 
-   Copy the files verbatim; do not rewrite. Tailored skills source
-   them via the same relative path in every repo, so divergence
-   here breaks sourcing in every downstream consumer at once. If
-   the repo already has a `scripts/lib/` directory with unrelated
-   files, merge additively — never overwrite an unmarked script.
-   Emit `.spellbook` markers alongside if the repo-local
-   convention uses them for scripts; otherwise rely on content
-   parity against spellbook as the drift signal.
+   Emit `.spellbook` markers alongside if the repo uses them for
+   scripts; otherwise content parity against spellbook is the drift
+   signal.
 
    Three categories, different install rules:
 
@@ -245,89 +236,18 @@ tailoring; it's decoration.
      Elixir/Phoenix repo, any Rust service — it's shallow. Redo.
 
      **Backlog-automation load-bearing mandates.** The ship/groom/
-     settle/flywheel/implement rewriters MUST preserve the
-     trailer-based closure contract — it is not stylistic, it is
-     what lets `/groom` sweep master and detect stale active
-     tickets. Rewriters that "simplify" these away break the loop.
+     settle/flywheel/implement rewriters MUST preserve the trailer-
+     based closure contract — it is not stylistic, it is what lets
+     `/groom` sweep master and detect stale active tickets.
+     Rewriters that "simplify" these away break the loop.
 
-     - **`/ship` rewriter** — must preserve:
-       - Branch-name → primary-ID parsing:
-         `^(feat|fix|chore|refactor|docs|test|perf)/(\d+)-`.
-         The regex is the contract; do not rename prefixes or
-         swap `\d+` for a repo-specific scheme without replacing
-         the matching convention in `/implement` at the same time.
-       - Trailer keys `Closes-backlog:`, `Ships-backlog:` (closing)
-         and `Refs-backlog:` (reference-only). Bare numeric IDs.
-         Trailers injected via `git interpret-trailers`, never
-         hand-formatted.
-       - The `backlog_archive` step that `git mv`s
-         `backlog.d/<id>-*.md` into `backlog.d/_done/` on the
-         feature branch before squash.
-       - The explicit-body squash that carries trailers into the
-         merge commit on master. GitHub repos: `gh pr merge
-         --squash --body "<trailers>"`. Bare-git repos: `git merge
-         --squash <branch> && git commit -F <msg>` with the
-         trailer block embedded.
-       - `/reflect` invocation with bounded scope (just-shipped
-         branch name, merged SHA, closing IDs, reference IDs).
-       - Harness-branch routing for reflect's harness outputs:
-         proposals land on `harness/reflect-outputs`, never on
-         master. This is a hard invariant from `reflect/SKILL.md`.
-       - Embed the downstream repo's specific **doc-sync
-         convention** verbatim. If the repo has a drift contract
-         (e.g. olympus: `docs/context/DRIFT-WATCHLIST.md`), cite
-         the file path and describe how `/ship` cross-references it
-         against `git diff master..HEAD --name-only`. If no drift
-         contract exists, state that explicitly and skip the doc
-         sync step — do not invent one.
-       - Embed the downstream repo's **merge strategy** verbatim:
-         GitHub repos use `gh pr merge --squash`; bare-git repos
-         use `git merge --squash` + `git commit -F`. Detection
-         logic (remote URL + `gh` on PATH + `gh pr view` exit
-         code) stays.
-     - **`/groom` rewriter** — must preserve:
-       - The always-on `tidy` step that sweeps master for
-         `Closes-backlog:` / `Ships-backlog:` trailers using
-         `scripts/lib/backlog.sh` (installed via the Shared
-         scripts step below) and reconciles against active
-         `backlog.d/` files.
-       - The strategic layer modes: brainstorm / ceo-review /
-         technical bench / research / investigate. Each mode's
-         trigger vocabulary and dispatch pattern is universal; the
-         tailored content is the repo's prioritization scheme,
-         grooming cadence, and tracker surfaces.
-       - The canonical tracker set is `backlog.d/` (file-driven)
-         plus GitHub issues when they exist — name both
-         explicitly. Do not reintroduce retired third-party
-         trackers; any still-referenced retired tracker is a
-         stale-source signal that must be scrubbed from the
-         rewrite.
-     - **`/settle` rewriter** — must preserve:
-       - The polish-loop framing (CI → code-review → refactor
-         until merge-ready). `/settle` stops at merge-ready; it
-         does NOT merge. Landing is `/ship`'s job.
-       - Hand-off to `/ship` (not `/land`). The `/land` trigger is
-         retired; any source text carrying it is stale and must be
-         rewritten to point at `/ship`.
-       - Do not reintroduce retired third-party trackers; only
-         `backlog.d/` and GitHub issues are valid references.
-     - **`/flywheel` rewriter** — must preserve:
-       - The composition `pick → /shape → /implement → /yeet →
-         /settle → /ship → /monitor → loop`. `/ship` owns closure
-         (archive + reflect + harness routing). `/flywheel` does
-         not invoke `/reflect` directly and does not archive
-         tickets itself.
-       - Harness edits from `/reflect` never touch master; they
-         route to `harness/reflect-outputs` via `/ship`.
-     - **`/implement` rewriter** — must preserve:
-       - The branch-naming invariant `git checkout -b
-         <type>/<id>-<slug>` where `<type>` is one of
-         `feat|fix|chore|refactor|docs|test|perf` and `<id>` is
-         the bare numeric backlog ID. The branch name IS the
-         backlog claim — `/ship` reads the ID back out of it via
-         the regex above. Rewriters must not weaken this to a
-         free-form branch name or repo-specific prefix scheme
-         without coordinating a matching change in `/ship`.
+     | Skill | Must preserve |
+     |---|---|
+     | `/ship` | Branch-name regex `^(feat\|fix\|chore\|refactor\|docs\|test\|perf)/(\d+)-` (contract with `/implement`); trailer keys `Closes-backlog:` / `Ships-backlog:` (closing) + `Refs-backlog:` (reference), bare numeric IDs, injected via `git interpret-trailers`; `backlog_archive` step (`git mv backlog.d/<id>-*.md backlog.d/_done/` on feature branch pre-squash); explicit-body squash carrying trailers into master merge commit (`gh pr merge --squash --body` for GitHub, `git merge --squash` + `git commit -F` bare-git); `/reflect` invocation with bounded scope (branch, merged SHA, closing IDs, reference IDs); harness-branch routing — reflect outputs land on `harness/reflect-outputs`, never master; embed the repo's doc-sync convention verbatim (cite drift-contract file path if present, state absence explicitly if not — do not invent); embed the repo's merge strategy verbatim with detection logic (remote URL + `gh` on PATH + `gh pr view` exit code) |
+     | `/groom` | Always-on `tidy` step sweeping master for `Closes-backlog:` / `Ships-backlog:` trailers via `scripts/lib/backlog.sh`, reconciling against active `backlog.d/` files; strategic-layer modes (brainstorm / ceo-review / technical bench / research / investigate) — trigger vocabulary and dispatch pattern universal, tailored content is the repo's prioritization scheme + cadence + tracker surfaces; canonical tracker set is `backlog.d/` plus GitHub issues when present — name both; no retired third-party trackers (any residual is a stale-source signal to scrub) |
+     | `/settle` | Polish-loop framing (CI → code-review → refactor until merge-ready); `/settle` stops at merge-ready, does NOT merge — landing is `/ship`'s job; hand-off to `/ship` (not retired `/land`); only `backlog.d/` + GitHub issues as valid tracker references |
+     | `/flywheel` | Composition `pick → /shape → /implement → /yeet → /settle → /ship → /monitor → loop`; `/ship` owns closure (archive + reflect + harness routing); `/flywheel` does NOT invoke `/reflect` directly and does NOT archive tickets itself; harness edits from `/reflect` route to `harness/reflect-outputs` via `/ship`, never master |
+     | `/implement` | Branch-naming invariant `git checkout -b <type>/<id>-<slug>` where `<type>` ∈ `feat\|fix\|chore\|refactor\|docs\|test\|perf` and `<id>` is the bare numeric backlog ID; branch name IS the backlog claim (`/ship` reads ID via the regex above); no weakening to free-form branch names or repo-specific prefix schemes without a coordinated `/ship` change |
 
      **Rewriters may add sections, delete irrelevant structure,
      and restructure — the spellbook source is a reference, not

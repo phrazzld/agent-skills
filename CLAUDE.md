@@ -21,17 +21,16 @@ spellbook/
 
 ## Issue Tracking
 
-Issues are stored as git objects via **git-bug** (distributed, offline-first).
-`backlog.d/` holds shaped work ready to build; git-bug holds raw issues/bugs.
-GitHub Issues is an optional sync target — `git-bug push origin` creates issues
-there for human visibility when desired. `backlog.d/` is the canonical backlog.
+**`backlog.d/` is the single source of truth.** Open work lives in
+`backlog.d/NNN-<slug>.md`; closed work moves to `backlog.d/_done/`. No
+external distributed tracker.
 
-```bash
-git-bug bug                          # list open issues
-git-bug bug new -t "title" -m "..."  # create issue
-git-bug bug status close <id>        # close issue
-git-bug push origin                  # sync to GitHub bridge
-```
+Closure is trailer-driven. Feature branches carry `Closes-backlog: NNN` /
+`Ships-backlog: NNN` / `Refs-backlog: NNN` trailers on the squash-merge
+commit to master — `/ship` injects them and archives the ticket file into
+`_done/` before merge. `/groom` sweeps recent master commit trailers
+against active `backlog.d/` to detect stale tickets; see
+`.agents/skills/groom/SKILL.md`.
 
 ## Workflow
 

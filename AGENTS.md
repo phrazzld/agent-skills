@@ -14,7 +14,7 @@ to every harness); this file is the **spellbook-specific** index.
 | **CI module** | `ci/src/spellbook_ci/main.py` | 12 Dagger gates + heal loop. Python 3.12. |
 | **Bootstrap** | `bootstrap.sh` | Installs minimal globals (`GLOBAL_SKILLS=(tailor seed)` + all agents) via symlink OR download mode. Per-repo subsets are `/tailor` / `/seed`'s job. |
 | **Scripts** | `scripts/` | Shell + Python utilities: frontmatter check, index regen, embeddings, external sync, harness lint. |
-| **Backlog** | `backlog.d/NNN-*.md` (open), `backlog.d/_done/` (closed), `git-bug` (distributed issues), `.spellbook/deliver/<ulid>/` (runtime state, gitignored) | Shaped work ready to build. |
+| **Backlog** | `backlog.d/NNN-*.md` (open), `backlog.d/_done/` (closed), `.spellbook/deliver/<ulid>/` (runtime state, gitignored) | Shaped work ready to build. Single source of truth; closure via `Closes-backlog:` trailers on squash-merge commits (handled by `/ship`). |
 
 ## Ground-truth pointers
 
@@ -128,7 +128,9 @@ Hot files (recent churn — check `git log` before editing):
 - `harnesses/shared/AGENTS.md` — principles; `doctrine(harness): …`
   commit scope.
 
-`git-bug`: none currently open.
+Backlog closure: `/groom tidy` sweeps recent master commit trailers
+(`Closes-backlog:` / `Ships-backlog:`) against active `backlog.d/` to
+detect stale tickets; `/ship` archives to `backlog.d/_done/` on merge.
 
 ## Harness index — skills
 
@@ -138,7 +140,7 @@ Installed in this repo-local harness at `.agents/skills/<name>/` with
 | Skill | Role here |
 |---|---|
 | `/research` | Web research, multi-AI delegation. Universal — use for any ecosystem investigation. |
-| `/groom` | Backlog management + problem-diamond divergence. Input surface: `backlog.d/` + `git-bug`. |
+| `/groom` | Backlog management + problem-diamond divergence. Input surface: `backlog.d/` + recent master commit trailers (`Closes-backlog:` / `Ships-backlog:`). |
 | `/office-hours` | YC-style interrogation of a raw idea before it enters the backlog. |
 | `/ceo-review` | Dialectical premise-and-alternatives audit of a shape or plan. |
 | `/reflect` | Session retrospective; distills learnings into hook / rule / skill mutations. |
