@@ -307,6 +307,12 @@ the merge. Behavior is otherwise identical: squash-only, trailer-preserving.
 - **GitHub default squash body drops trailers.** `gh pr merge --squash`
   with no `--body` often uses the PR title + description, not commit
   trailers. Always pass `--body` with the trailer block explicitly.
+- **All trailers live in ONE contiguous block at the end of the message.**
+  A blank line between `Closes-backlog: NNN` lines and `Co-Authored-By:`
+  splits the block; `git interpret-trailers --parse` only recognizes
+  the last block, so downstream `backlog_ids_from_commit` returns empty.
+  Use `git interpret-trailers --if-exists addIfDifferent --trailer "..."`
+  to inject programmatically — it handles block boundaries correctly.
 - **Archive before merge, not after.** Archiving on master after the
   merge splits the closure event across two commits and muddies `/groom`
   sweeps. One commit on the feature branch; one squash commit on master.
