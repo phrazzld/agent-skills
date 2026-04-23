@@ -178,6 +178,29 @@ test_archive_moves_active_ticket() {
   assert_eq "backlog_archive removes file from backlog.d/" "0" "$source_gone"
 }
 
+test_archive_moves_all_matching_ticket_files() {
+  cat >backlog.d/031-active-ticket.ctx.md <<'EOF'
+# Context packet
+EOF
+  git add backlog.d/031-active-ticket.ctx.md
+  git commit -q -m "add context packet"
+
+  backlog_archive 031
+  [ -f backlog.d/_done/031-active-ticket.md ]
+  local ticket_moved=$?
+  [ -f backlog.d/_done/031-active-ticket.ctx.md ]
+  local context_moved=$?
+  [ ! -f backlog.d/031-active-ticket.md ]
+  local ticket_source_gone=$?
+  [ ! -f backlog.d/031-active-ticket.ctx.md ]
+  local context_source_gone=$?
+
+  assert_eq "backlog_archive moves ticket file" "0" "$ticket_moved"
+  assert_eq "backlog_archive moves context packet" "0" "$context_moved"
+  assert_eq "backlog_archive removes ticket source" "0" "$ticket_source_gone"
+  assert_eq "backlog_archive removes context source" "0" "$context_source_gone"
+}
+
 test_archive_uses_git_mv() {
   backlog_archive 031
   # `git mv` stages a rename; expect both old and new paths in the index diff.

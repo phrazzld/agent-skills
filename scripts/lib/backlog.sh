@@ -127,15 +127,15 @@ backlog_archive() {
     echo "backlog_archive: not in a git repo" >&2
     return 1
   fi
-  local active_match done_match
-  active_match="$(_backlog_first_match "$root/backlog.d" "$id")"
+  local active_matches done_match
+  active_matches="$(_backlog_all_matches "$root/backlog.d" "$id")"
   done_match="$(_backlog_first_match "$root/backlog.d/_done" "$id")"
 
-  if [ -z "$active_match" ] && [ -n "$done_match" ]; then
+  if [ -z "$active_matches" ] && [ -n "$done_match" ]; then
     # Already archived — idempotent success.
     return 0
   fi
-  if [ -z "$active_match" ]; then
+  if [ -z "$active_matches" ]; then
     echo "backlog_archive: no ticket file found for ID '$id'" >&2
     return 1
   fi
@@ -143,7 +143,12 @@ backlog_archive() {
   mkdir -p "$root/backlog.d/_done"
   (
     cd "$root"
-    git mv "backlog.d/$active_match" "backlog.d/_done/$active_match"
+    while IFS= read -r active_match; do
+      [ -n "$active_match" ] || continue
+      git mv "backlog.d/$active_match" "backlog.d/_done/$active_match"
+    done <<EOF
+$active_matches
+EOF
   )
 }
 
@@ -167,6 +172,18 @@ _backlog_first_match() {
     [ -e "$f" ] || continue
     basename "$f"
     return 0
+  done
+}
+
+# Return every `<id>-*.md` basename in <dir>, one per line.
+# Args: <dir> <id>
+_backlog_all_matches() {
+  local dir="$1" id="$2"
+  [ -d "$dir" ] || return 0
+  local f
+  for f in "$dir/$id"-*.md; do
+    [ -e "$f" ] || continue
+    basename "$f"
   done
 }
 
