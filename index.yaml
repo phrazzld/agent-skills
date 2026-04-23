@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-23T02:51:33Z
+# Generated: 2026-04-23T15:40:48Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -32,9 +32,9 @@ skills:
     source: first-party
     tags: [backlog,ci,clean,code,code-review,composer,composes,implement,inner-loop,item]
   - name: demo
-    description: "Generate demo artifacts: screenshots, GIF walkthroughs, video recordings, polished launch videos with narration and music. From raw evidence to shipped media. Also handles PR evidence upload via draft"
+    description: "Capture and share what changed — every app has a demo path; the format depends on the change and the audience. The spectrum runs from a release-notes blurb (\"no demo needed, here's what moved\") thro"
     source: first-party
-    tags: [also,artifacts,demo,draft,evidence,generate,gif,handles,launch,media]
+    tags: [a,app,audience,blurb,capture,change,changed,demo,depends,every]
   - name: deploy
     description: "Ship merged code to a deploy target. Thin router — detects target from repo config, dispatches to platform-specific recipe, captures a structured receipt (sha, version, URL, rollback handle), stops "
     source: first-party
@@ -80,9 +80,9 @@ skills:
     source: first-party
     tags: [a,anything,before,demand,desperate,forcing,future-fit,idea,interrogation,n]
   - name: qa
-    description: "Browser-based QA, exploratory testing, evidence capture, and bug reporting. Drive running applications and verify they work — not just that tests pass. Use when: \"run QA\", \"test this\", \"verify the f"
+    description: "Verify a running app works — every app has a QA path; the right shape depends on the app. Browser walks for web apps, request-replay for APIs, shell smoke for CLIs, consumer-build checks for librari"
     source: first-party
-    tags: [applications,browser-based,bug,capture,drive,evidence,exploratory,f,just,pass]
+    tags: [a,apis,app,apps,browser,checks,clis,consumer-build,depends,every]
   - name: refactor
     description: "Branch-aware simplification and refactoring workflow. On feature branches, compare against base and simplify the diff before merge. On primary branch, scan the full codebase, research prior art, and i"
     source: first-party

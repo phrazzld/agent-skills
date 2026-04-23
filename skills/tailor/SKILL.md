@@ -344,33 +344,38 @@ tailoring; it's decoration.
   - **Always install** (orchestrators, foundational loop skills,
     and judgment-only skills): `deliver`, `shape`, `implement`,
     `code-review`, `ci`, `refactor`, `flywheel`, `settle`, `ship`,
-    `yeet`, `diagnose`, `research`. **Never skipped, under any
-    justification.** A repo without a CI pipeline *today* still gets
-    `/ci` — the skill drives local gates and establishes the shipping
-    contract. Spellbook is the source of `/flywheel`; any repo that
-    articulates a `/deliver` → `/flywheel` loop must ship the
-    orchestrator. `/ship` is the closure stage (archive, squash,
-    reflect, harness routing); `/settle` leaves branches
+    `yeet`, `diagnose`, `research`, `qa`, `demo`. **Never skipped,
+    under any justification.** A repo without a CI pipeline *today*
+    still gets `/ci` — the skill drives local gates and establishes
+    the shipping contract. Spellbook is the source of `/flywheel`;
+    any repo that articulates a `/deliver` → `/flywheel` loop must
+    ship the orchestrator. `/ship` is the closure stage (archive,
+    squash, reflect, harness routing); `/settle` leaves branches
     merge-ready and `/ship` lands them — the pair is indivisible.
     `/diagnose` is the merged investigate/audit/debug skill
     (reserved-name collisions retired `/investigate` and `/debug`);
     every repo has bugs to investigate. `/research` is always
     tailored, not copied — its tool preferences, domain sources, and
     prior-artifact pointers are repo-specific even though the
-    protocol is universal. An exact-copy install is a valid tailoring
-    outcome only for a repo that is itself the canonical source;
-    silent skip is a regression.
+    protocol is universal. **`/qa` and `/demo` are always-install,
+    not infrastructure-tied.** Every app has a QA path (CLI smoke /
+    API request-replay / browser walk / library consumer-build / MCP
+    tool-call replay) and every app has a demo path (PR-description
+    bullet / terminal paste / screenshot / launch video). Absence of
+    `playwright.config` or `.evidence/` means "the path is not the
+    spellbook default," not "no path exists" — the rewriter's job is
+    to name what it actually IS in this repo. An exact-copy install
+    is a valid tailoring outcome only for a repo that is itself the
+    canonical source; silent skip is a regression.
   - **Infrastructure-tied, skip only with named absence.** `deploy`
     (no deploy target named in `vercel.json` / `fly.*.toml` /
     `Dockerfile*` / `.github/workflows/*deploy*`), `monitor` (no signal
-    surfaces — Sentry, health endpoints, observability config),
-    `qa` (no browser/E2E surface), `demo` (no demo scripts /
-    evidence capture tooling). Skipping requires naming the concrete
-    missing file; "didn't seem relevant" does not count. **Confusing
-    an orchestrator's missing leaf step with the orchestrator itself
-    is the trap:** no `/deploy` target does not justify skipping
-    `/flywheel`; no `/qa` surface does not justify skipping
-    `/code-review`.
+    surfaces — Sentry, health endpoints, observability config).
+    Skipping requires naming the concrete missing file; "didn't seem
+    relevant" does not count. **Confusing an orchestrator's missing
+    leaf step with the orchestrator itself is the trap:** no `/deploy`
+    target does not justify skipping `/flywheel`; no `playwright.config`
+    does not justify skipping `/qa`.
 - **Domain skills default to exclude.** Invent only when you can
   name the concrete repo characteristic demanding it. "We might want
   X" is not a name.
@@ -393,15 +398,17 @@ tailoring; it's decoration.
   2. **Always-install coverage:** every skill in the always-install
      tier (`deliver`, `shape`, `implement`, `code-review`, `ci`,
      `refactor`, `flywheel`, `settle`, `ship`, `yeet`, `diagnose`,
-     `research`) resolves to a directory under the shared skill
-     root. Zero missing. If one is absent, the run failed —
-     reinstall before declaring done.
+     `research`, `qa`, `demo`) resolves to a directory under the
+     shared skill root. Zero missing. If one is absent, the run
+     failed — reinstall before declaring done.
   3. **Excluded workflows:** only skills from the infrastructure-tied
-     tier may be skipped, and each skip names the concrete missing
-     file (no `vercel.json`, no `fly.*.toml`, no `Dockerfile*`, no
-     `.github/workflows/*deploy*`, no browser/E2E config — concrete
-     absence, not "didn't seem relevant"). An always-install skill
-     appearing in the skipped list is a critical regression.
+     tier (`deploy`, `monitor`) may be skipped, and each skip names
+     the concrete missing file (no `vercel.json`, no `fly.*.toml`,
+     no `Dockerfile*`, no `.github/workflows/*deploy*`, no Sentry
+     config, no `instrumentation.ts`, no health-check route —
+     concrete absence, not "didn't seem relevant"). An always-install
+     skill appearing in the skipped list is a critical regression.
+     `qa` and `demo` are always-install — never appear here.
   4. **Agent installation:** grep every installed skill for
      `subagent_type:` references. Every referenced agent must resolve
      to a file in the repo's installed agent directory (usually
