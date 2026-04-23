@@ -41,14 +41,14 @@ sources:
     layout: flat
     skills_path: skills
 
-  # Anthropic official skills. Curate via include: per workflow need.
-  # frontend-design ships bundled with Claude Code globally — exclude to avoid dup.
+  # Anthropic official skills. Curate via include/exclude per workflow need.
+  # Keep frontend-design synced locally so Codex/Pi and repo-local bridges can
+  # consume the same design primitive as Claude.
   - repo: anthropics/skills
     ref: main
     layout: flat
     skills_path: skills
     alias_prefix: "anthropic-"
-    exclude: [frontend-design]
     allow_floating: true  # TODO: pin after first successful sync writes resolved sha here.
 
   # Vercel Labs curated agent skills — React / web-design primitives.
@@ -203,9 +203,24 @@ sources:
     alias_prefix: "emil-"
     include: [emil-design-eng]
 
-  # --- Deferred (declared for embeddings only; sync skips when active: false) ---
+  # Leonxlnx/taste-skill — high-agency frontend design family. We keep the
+  # output-enforcement helper out of the default sync because it is orthogonal
+  # to UI taste; the rest of the set is directly relevant to frontend design.
+  #
+  # LICENSE CAVEAT: no LICENSE file declared upstream as of pin sha. Same
+  # reasoning as other no-license externals above — local sync cache only.
   - repo: Leonxlnx/taste-skill
     ref: main
-    layout: multi-root
-    active: false
-    embeddings: false
+    pin: 7f1eb201552d02e8fd4651ec05bd31b7039a048e
+    layout: flat
+    skills_path: skills
+    alias_prefix: "leon-"
+    include:
+      - brutalist-skill
+      - gpt-tasteskill
+      - images-taste-skill
+      - minimalist-skill
+      - redesign-skill
+      - soft-skill
+      - stitch-skill
+      - taste-skill

@@ -258,7 +258,24 @@ install_alias() {
   want_meta="$(printf '{"repo":"%s","sha":"%s","src_path":"%s"}' "$repo" "$sha" "$src_path")"
 
   local current_meta=""
-  [ -f "$dest/.sync-meta.json" ] && current_meta="$(grep -o '"sha":"[^"]*"' "$dest/.sync-meta.json" | head -1)"
+  if [ -f "$dest/.sync-meta.json" ]; then
+    current_meta="$(
+      python3 - "$dest/.sync-meta.json" <<'PY'
+import json
+import sys
+
+try:
+    with open(sys.argv[1], "r", encoding="utf-8") as fh:
+        data = json.load(fh)
+except Exception:
+    sys.exit(0)
+
+sha = data.get("sha")
+if isinstance(sha, str):
+    print(f'"sha":"{sha}"')
+PY
+    )"
+  fi
   local want_sha_frag="\"sha\":\"$sha\""
 
   if [ -d "$dest" ] && [ "$current_meta" = "$want_sha_frag" ]; then
