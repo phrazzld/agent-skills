@@ -1,5 +1,5 @@
 # Spellbook Index
-# Generated: 2026-04-22T16:03:43Z
+# Generated: 2026-04-23T02:44:50Z
 # Do not edit manually. Run: ./scripts/generate-index.sh
 
 skills:
@@ -133,6 +133,8 @@ agents:
     description: "Implements specs via TDD. Follows the planner's context packet exactly. Heads-down execution."
   - name: carmack
     description: "Direct implementation + shippability - \"Focus is deciding what NOT to do\""
+  - name: cooper
+    description: "Classicist TDD + no internal mocks — \"A mock is a crutch. It lets you get a green test while the integration is broken.\""
   - name: critic
     description: "Evaluates builder output against grading criteria. Skeptical by default. Fails or approves."
   - name: grug

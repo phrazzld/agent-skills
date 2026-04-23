@@ -296,6 +296,45 @@ Context windows compact. The harness must be resilient to all of it.
 TDD default. Red → Green → Refactor. Skip only for exploration, UI layout, generated code.
 Test behavior, not implementation. One behavior per test.
 
+**Mock at the boundary, never inside.** Mocks exist to sever I/O at the
+seam between your code and the outside world. Anything *inside* that
+seam — modules in the same repo, pure functions, utility layers,
+database access you own, business logic split across collaborators — is
+not a seam and must not be mocked. Mocking internal collaborators turns
+tests into proof-of-typing: they assert wiring compiles but miss every
+bug at the module boundary, and they freeze the design against
+refactoring.
+
+- **Mockable (boundary):** network calls to external services, clock,
+  random, filesystem-when-content-doesn't-matter, SDK clients for
+  third-party APIs.
+- **Not mockable (internal):** any module you own in the same repo /
+  package, pure functions, validators, encoders, your own database
+  layer (use SQLite `:memory:`, testcontainers, or a file-backed fake).
+
+When the internal collaborator is expensive to run directly (a
+database, a subprocess, a CLI you own), write a realistic in-memory
+fake that honors the same contract — validates the same inputs,
+rejects the same malformed values, exposes the same surface.
+Production code talks to the fake without knowing. **The fake catches
+bugs a mock never could**: callers that build malformed inputs trip
+the fake's validator and fail the test, pre-merge.
+
+Red Flags to grep for in test files: `vi.mock("./…")`,
+`vi.mock("../…")`, `jest.mock("@myorg/own-package")`,
+`sinon.stub(ownModule, …)`, hand-rolled `__mocks__/` directories
+against internal paths. Boundary mocks (`vi.mock("node-fetch")`,
+`jest.mock("pg")`, `vi.mock("@octokit/rest")`) are fine.
+
+The diagnostic question in review: *if I replace this mock with the
+real implementation, what breaks?* "Nothing" → delete the mock. "Hits
+the network / needs creds" → legitimate, keep. "Too slow" → you're
+missing an in-memory fake; build one, the whole suite benefits.
+
+Invoke `cooper` (philosophy bench) for classicist-TDD review when a
+diff adds test doubles against internal paths. Pairs with `beck` for
+TDD rhythm and `ousterhout` for interface-depth critique.
+
 ## Red Lines
 
 - **NEVER lower quality gates.** Thresholds, lint rules, strictness are load-bearing walls.
