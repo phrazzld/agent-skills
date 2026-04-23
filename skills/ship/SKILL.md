@@ -46,11 +46,12 @@ Assert at start; refuse with a clear reason on any miss.
 - Working tree clean (`git status --short` empty).
 - If a PR exists for the branch: `gh pr view --json mergeable,mergeStateStatus`
   reports mergeable. A conflicted or blocked PR means `/settle` isn't done.
-- CI green. In GitHub mode: `gh pr checks` all passing. In git-native mode:
-  `/ci` must have been run recently on this HEAD.
-- A verdict at `refs/verdicts/<branch>` reads `ship` or `conditional`, OR
-  the GitHub PR has at least one approving review. Use
-  `source scripts/lib/verdicts.sh && verdict_check_landable "<branch>"`.
+- Landability evidence exists for this exact HEAD. Acceptable evidence:
+  GitHub mode has a mergeable PR with green required checks; git-native
+  mode has a `ship` or `conditional` verdict; or git-native mode has
+  operator-provided/current-session local gate receipts from `/ci` or the
+  repo's documented gate. Do not require a PR or verdict solely to land a
+  locally verified git-native branch. A `dont-ship` verdict still blocks.
 
 ## Process
 
@@ -247,8 +248,13 @@ Stop and surface to the user instead of shipping:
 - Working tree dirty.
 - On `master` / `main` directly.
 - Verdict ref reads `dont-ship` (`verdict_check_landable` returns 2).
-- `gh pr checks` red. Do not add a `--force` flag; refuse.
-- PR is not mergeable per `gh pr view --json mergeable,mergeStateStatus`.
+- No same-HEAD landability evidence exists: no green PR checks, no
+  landable verdict, and no operator-provided/current-session local gate
+  receipt.
+- In GitHub mode, `gh pr checks` is red. Do not add a `--force` flag;
+  refuse.
+- If a PR exists, it is not mergeable per
+  `gh pr view --json mergeable,mergeStateStatus`.
 - Primary ID has no `backlog.d/<id>-*.md` file AND no closing trailers on
   any branch commit — shipping with no backlog association. Operator must
   add a ticket or add a marker commit and re-run.
