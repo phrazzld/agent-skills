@@ -26,8 +26,8 @@ different criteria to each.
 
 | Category | Default | Critic criteria |
 |---|---|---|
-| Universal (research, groom, reflect, …) | **include** | 1 only |
-| Workflow (deliver, ci, qa, flywheel, …) | **include unless infrastructure missing** | 1, 2 |
+| Universal (office-hours, ceo-review, reflect, …) | **include** | 1 only |
+| Workflow (deliver, ci, qa, groom, flywheel, …) | **include unless infrastructure missing** | 1, 2 |
 | Domain (invented: `/convex-migrate` etc.) | **exclude unless concrete** | 1, 2, 3, 4 |
 
 A workflow skill with present infrastructure (real CI, real tests,

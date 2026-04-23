@@ -180,13 +180,14 @@ tailoring; it's decoration.
 
    Three categories, different install rules:
 
-   - **Universal skills** — `groom`, `office-hours`, `ceo-review`,
-     `reflect`, and similar that carry no repo-specific judgment.
-     Copy their directories verbatim. Tailoring them would be
+   - **Universal skills** — `office-hours`, `ceo-review`, `reflect`,
+     and similar judgment protocols that carry no repo-specific command
+     surface. Copy their directories verbatim. Tailoring them would be
      artificial.
    - **Workflow skills** — `deliver`, `shape`, `implement`,
-     `code-review`, `ci`, `refactor`, `qa`, `flywheel`, `deploy`,
-     `monitor`, `diagnose`, `settle`, `ship`, `yeet`, `research`.
+     `code-review`, `ci`, `refactor`, `groom`, `qa`, `flywheel`,
+     `deploy`, `monitor`, `diagnose`, `settle`, `ship`, `yeet`,
+     `research`.
      **Rewrite each SKILL.md with this repo's commands, gates,
      conventions, and file paths embedded throughout.** Use the
      spellbook version as structural reference; fill every example,
@@ -256,19 +257,25 @@ tailoring; it's decoration.
      If your rewrite could describe any Next.js+Convex repo, any
      Elixir/Phoenix repo, any Rust service — it's shallow. Redo.
 
-     **Backlog-automation load-bearing mandates.** The ship/groom/
-     settle/flywheel/implement rewriters MUST preserve the trailer-
-     based closure contract — it is not stylistic, it is what lets
-     `/groom` sweep master and detect stale active tickets.
-     Rewriters that "simplify" these away break the loop.
+     **Backlog-lifecycle load-bearing mandates.** The ship/groom/
+     settle/flywheel/implement rewriters MUST preserve one mechanical
+     closure contract across all five skills. The portable concept is:
+     active work lives in `backlog.d/`, closed work lives in
+     `backlog.d/_done/`, and a structured closing signal lets a local
+     command or CI check detect a shipped-but-still-active ticket.
+     Spellbook's default closing signal is the git trailer set below,
+     but a tailored repo may use PR metadata, branch naming, or another
+     structured signal only if the rewrite names the exact enforcement
+     command and every lifecycle skill uses the same signal. Prose-only
+     closure instructions are a failed tailor run.
 
      | Skill | Must preserve |
      |---|---|
-     | `/ship` | Branch-name regex `^(feat\|fix\|chore\|refactor\|docs\|test\|perf)/(\d+)-` (contract with `/implement`); trailer keys `Closes-backlog:` / `Ships-backlog:` (closing) + `Refs-backlog:` (reference), bare numeric IDs, injected via `git interpret-trailers`; `backlog_archive` step (`git mv backlog.d/<id>-*.md backlog.d/_done/` on feature branch pre-squash); explicit-body squash carrying trailers into master merge commit (`gh pr merge --squash --body` for GitHub, `git merge --squash` + `git commit -F` bare-git); `/reflect` invocation with bounded scope (branch, merged SHA, closing IDs, reference IDs); harness-branch routing — reflect outputs land on `harness/reflect-outputs`, never master; embed the repo's doc-sync convention verbatim (cite drift-contract file path if present, state absence explicitly if not — do not invent); embed the repo's merge strategy verbatim with detection logic (remote URL + `gh` on PATH + `gh pr view` exit code) |
-     | `/groom` | Always-on `tidy` step sweeping master for `Closes-backlog:` / `Ships-backlog:` trailers via `scripts/lib/backlog.sh`, reconciling against active `backlog.d/` files; strategic-layer modes (brainstorm / ceo-review / technical bench / research / investigate) — trigger vocabulary and dispatch pattern universal, tailored content is the repo's prioritization scheme + cadence + tracker surfaces; canonical tracker set is `backlog.d/` plus GitHub issues when present — name both; no retired third-party trackers (any residual is a stale-source signal to scrub) |
-     | `/settle` | Polish-loop framing (CI → code-review → refactor until merge-ready); `/settle` stops at merge-ready, does NOT merge — landing is `/ship`'s job; hand-off to `/ship` (not retired `/land`); only `backlog.d/` + GitHub issues as valid tracker references |
-     | `/flywheel` | Composition `pick → /shape → /implement → /yeet → /settle → /ship → /monitor → loop`; `/ship` owns closure (archive + reflect + harness routing); `/flywheel` does NOT invoke `/reflect` directly and does NOT archive tickets itself; harness edits from `/reflect` route to `harness/reflect-outputs` via `/ship`, never master |
-     | `/implement` | Branch-naming invariant `git checkout -b <type>/<id>-<slug>` where `<type>` ∈ `feat\|fix\|chore\|refactor\|docs\|test\|perf` and `<id>` is the bare numeric backlog ID; branch name IS the backlog claim (`/ship` reads ID via the regex above); no weakening to free-form branch names or repo-specific prefix schemes without a coordinated `/ship` change |
+     | `/ship` | Names the repo's structured closing signal; archives each closing `backlog.d/<id>-*.md` file into `_done/` before merge or verifies it is already archived; preserves the closing signal into the landed commit/PR record when the repo's detector reads history; verifies the archive landed after merge; invokes `/reflect` with bounded scope (branch, merged SHA, closing IDs, reference IDs); routes harness edits to `harness/reflect-outputs`, never the protected branch; embeds the repo's merge strategy and doc-sync convention verbatim. Spellbook default: branch regex `^(feat\|fix\|chore\|refactor\|docs\|test\|perf)/(\d+)-`, trailers `Closes-backlog:` / `Ships-backlog:` + `Refs-backlog:`, `backlog_archive`, explicit squash body carrying trailers. |
+     | `/groom` | Always-on `tidy` step invokes the same lifecycle detector `/ship` relies on, reconciles active `backlog.d/` files against shipped closing signals, archives stale-active files through the same archive helper, and flags contradictions. Strategic-layer trigger vocabulary can stay universal; prioritization scheme, cadence, tracker surfaces, and lifecycle command are repo-specific. No retired third-party trackers. |
+     | `/settle` | Polish-loop framing (CI → code-review → refactor until merge-ready); stops at merge-ready; hands off to `/ship`; checks or names the lifecycle gate that prevents a ready PR from referencing active-but-unarchived backlog work. |
+     | `/flywheel` | Composition `pick → /shape → /implement → /yeet → /settle → /ship → /monitor → loop`; `/ship` owns closure (archive + reflect + harness routing); `/flywheel` does not archive tickets or invoke `/reflect` directly; it only consumes `/ship`'s final lifecycle result. |
+     | `/implement` | Branch or context-packet creation produces whatever structured item reference `/ship` can later resolve. If the repo weakens Spellbook's default branch regex, the rewrite must update `/ship`, `/groom`, `/settle`, and `/flywheel` in the same tailor run and name the replacement detector. |
 
      **Rewriters may add sections, delete irrelevant structure,
      and restructure — the spellbook source is a reference, not
@@ -337,36 +344,22 @@ tailoring; it's decoration.
 
 - Never write outside the current repo. No `$SPELLBOOK` mutation,
   no `~/.claude` / `~/.codex` / `~/.pi` mutation.
-- **Workflow skills split into two tiers.** (Universal skills —
-  `groom`, `office-hours`, `ceo-review`, `reflect` — are *also*
-  always-present via step 6's universal category; they install
-  verbatim, not tailored. Functionally always-present.)
+- **Workflow skills split into two tiers.** Universal skills
+  (`office-hours`, `ceo-review`, `reflect`) are always-present via
+  step 6's universal category; they install verbatim, not tailored.
+  `/groom` is not universal: backlog shape, lifecycle enforcement,
+  priority scheme, and tracker surfaces are repo-specific.
   - **Always install** (orchestrators, foundational loop skills,
     and judgment-only skills): `deliver`, `shape`, `implement`,
-    `code-review`, `ci`, `refactor`, `flywheel`, `settle`, `ship`,
-    `yeet`, `diagnose`, `research`, `qa`, `demo`. **Never skipped,
-    under any justification.** A repo without a CI pipeline *today*
-    still gets `/ci` — the skill drives local gates and establishes
-    the shipping contract. Spellbook is the source of `/flywheel`;
-    any repo that articulates a `/deliver` → `/flywheel` loop must
-    ship the orchestrator. `/ship` is the closure stage (archive,
-    squash, reflect, harness routing); `/settle` leaves branches
-    merge-ready and `/ship` lands them — the pair is indivisible.
-    `/diagnose` is the merged investigate/audit/debug skill
-    (reserved-name collisions retired `/investigate` and `/debug`);
-    every repo has bugs to investigate. `/research` is always
-    tailored, not copied — its tool preferences, domain sources, and
-    prior-artifact pointers are repo-specific even though the
-    protocol is universal. **`/qa` and `/demo` are always-install,
-    not infrastructure-tied.** Every app has a QA path (CLI smoke /
-    API request-replay / browser walk / library consumer-build / MCP
-    tool-call replay) and every app has a demo path (PR-description
-    bullet / terminal paste / screenshot / launch video). Absence of
-    `playwright.config` or `.evidence/` means "the path is not the
-    spellbook default," not "no path exists" — the rewriter's job is
-    to name what it actually IS in this repo. An exact-copy install
-    is a valid tailoring outcome only for a repo that is itself the
-    canonical source; silent skip is a regression.
+    `code-review`, `ci`, `refactor`, `groom`, `flywheel`, `settle`,
+    `ship`, `yeet`, `diagnose`, `research`, `qa`, `demo`. **Never
+    skipped.** `/groom` owns backlog lifecycle; `/settle` leaves
+    branches merge-ready; `/ship` closes and lands them; `/flywheel`
+    composes the loop. `/ci`, `/diagnose`, `/research`, `/qa`, and
+    `/demo` are still tailored when their default infrastructure is
+    absent: name the repo's actual gate, debug surface, research
+    sources, QA path, and demo artifact. Exact-copy is valid only
+    when tailoring Spellbook itself.
   - **Infrastructure-tied, skip only with named absence.** `deploy`
     (no deploy target named in `vercel.json` / `fly.*.toml` /
     `Dockerfile*` / `.github/workflows/*deploy*`), `monitor` (no signal
@@ -391,15 +384,15 @@ tailoring; it's decoration.
   disclosure — not a repo appendix. If the name could apply to
   another repo on the same stack, it's fine. If the name is this
   repo, rewrite it into SKILL.md.
-- **Self-audit before declaring done.** Six checks:
+- **Self-audit before declaring done.** Seven checks:
   1. **Workflow rewrites:** `diff` each installed workflow SKILL.md
      against the spellbook source. Byte-identical = rewriter
      dropped the ball. Go back and redo.
   2. **Always-install coverage:** every skill in the always-install
      tier (`deliver`, `shape`, `implement`, `code-review`, `ci`,
-     `refactor`, `flywheel`, `settle`, `ship`, `yeet`, `diagnose`,
-     `research`, `qa`, `demo`) resolves to a directory under the
-     shared skill root. Zero missing. If one is absent, the run
+     `refactor`, `groom`, `flywheel`, `settle`, `ship`, `yeet`,
+     `diagnose`, `research`, `qa`, `demo`) resolves to a directory
+     under the shared skill root. Zero missing. If one is absent, the run
      failed — reinstall before declaring done.
   3. **Excluded workflows:** only skills from the infrastructure-tied
      tier (`deploy`, `monitor`) may be skipped, and each skip names
@@ -415,7 +408,15 @@ tailoring; it's decoration.
      `.claude/agents/`). A `/code-review` that dispatches
      `ousterhout` + `carmack` + `grug` against nonexistent agent
      files is a silent regression — the skill fails at call time.
-  5. **Shared scripts present:** `scripts/lib/backlog.sh` and
+  5. **Backlog lifecycle coherence:** `/ship`, `/groom`, `/settle`,
+     `/flywheel`, and `/implement` all name the same active tracker,
+     closed tracker, structured closing signal, archive operation, and
+     detector command. Contradictions like "no trailers" in `/ship`
+     while `/groom` sweeps trailer history fail the run. If the repo
+     lacks a detector today, the tailor run must file a high-priority
+     backlog item and every lifecycle skill must name that gap instead
+     of pretending prose is enforcement.
+  6. **Shared scripts present:** `scripts/lib/backlog.sh` and
      `scripts/lib/verdicts.sh` exist at the repo root and match
      spellbook content. `/ship` and `/groom tidy` source
      `backlog.sh`; `/ship` and `/settle` source `verdicts.sh`. A
@@ -424,7 +425,7 @@ tailoring; it's decoration.
      third-party tracker names — zero hits. Any residual reference
      to a retired tracker is a stale-rewrite regression; the
      canonical tracker set is `backlog.d/` plus GitHub issues.
-  6. **AGENTS.md debt map:** zero `(unfiled)` entries. Every P0 has
+  7. **AGENTS.md debt map:** zero `(unfiled)` entries. Every P0 has
      a filed tracker ID.
 
   Silent skip is the failure mode that ships B+ output when A is
@@ -461,34 +462,10 @@ tailoring; it's decoration.
 
 ## What "tailored" means
 
-At the SKILL.md level: every example is a repo-specific example.
-Every command names the actual command the user runs here. Every
-gotcha points to a real file in this repo. The skill reads like it
-was written *for this codebase* — because it was.
-
-**Bad** (generic + appended notes):
-
-```
-## Inner loop
-Run your project's test command.
-
-## Repo notes (this-repo)
-Tests are run via `pnpm test --run <path>`.
-```
-
-**Good** (rewritten):
-
-```
-## Inner loop
-Run `pnpm test --run <path>` (happy-dom, fast). For pre-push, use
-`pnpm ci:prepush` — the Dagger pipeline runs Vitest + Playwright
-+ gitleaks, same contract as the hosted CI gate.
-```
-
-The generic jacket + notes is fast. It's also wrong — the agent
-reading the generic body first then reconciling with an appendix
-runs a parallax failure. Write the skill for this repo in the first
-place.
+At the SKILL.md level: examples are repo-specific, commands name the
+actual command the user runs, gotchas point to real files, and the
+skill reads like it was written for this codebase. A generic body plus
+a "repo notes" appendix is not tailored; rewrite the body itself.
 
 ## References
 
